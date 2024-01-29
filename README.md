@@ -15,7 +15,7 @@ To compile:
 
 To generate the files, provide in your first argument a comma-separated list of remote microservice repositories to clone (ending in .git), followed by your output folder:
 
-``java -jar 'https://github.com/<owner>/<repo1>.git,https://github.com/<owner>/<repo2>.git,...,https://github.com/<owner>/<repoN>.git' 'your-results-folder/'``
+``java -jar target/semantics-1.0-SNAPSHOT-runner.jar 'https://github.com/<owner>/<repo1>.git,https://github.com/<owner>/<repo2>.git,...,https://github.com/<owner>/<repoN>.git' 'your-results-folder/'``
 
 To run the server:
 
