@@ -7,6 +7,7 @@ import edu.university.ecs.lab.semantics.util.entitysimilarity.strategies.EntityL
 import edu.university.ecs.lab.semantics.util.entitysimilarity.strategies.EntitySematicSimilarityCheckStrategy;
 import edu.university.ecs.lab.semantics.util.factory.*;
 import edu.university.ecs.lab.semantics.util.file.CacheManager;
+import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
 
@@ -42,9 +43,14 @@ public class SemanticAnalysisCommand implements QuarkusApplication {
     }
 
     private void initPaths(String... args) {
-        String[] split = args[0].split(",");
-        sutPath = split[0];
-        cachePath = split[1];
+        if (args.length == 1) {
+            String[] split = args[0].split(",");
+            sutPath = split[0];
+            cachePath = split[1];
+        } else {
+            sutPath = args[0];
+            cachePath = args[1];
+        }
 //        sutPath = "/Users/me/Development/train-ticket/";
 //        cachePath = "/Users/me/Development/data/";
 //        sutPath = "C:\\git\\train-ticket";
@@ -75,4 +81,7 @@ public class SemanticAnalysisCommand implements QuarkusApplication {
         mcpf.printModuleClonePairs();
     }
 
+    public static void main(String[] args) {
+        Quarkus.run(SemanticAnalysisCommand.class, args);
+    }
 }
