@@ -1,0 +1,7 @@
+/.idea/
+commands.txt
+.settings/
+.project
+.classpath
+/target/
+/results/
