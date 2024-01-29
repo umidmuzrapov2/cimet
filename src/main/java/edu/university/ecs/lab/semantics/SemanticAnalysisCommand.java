@@ -10,6 +10,8 @@ import edu.university.ecs.lab.semantics.util.file.CacheManager;
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
 
+// Program Entry
+
 @QuarkusMain
 public class SemanticAnalysisCommand implements QuarkusApplication {
 
