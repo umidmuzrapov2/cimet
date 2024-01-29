@@ -15,8 +15,8 @@ import java.util.stream.Stream;
 
 import com.google.gson.Gson;
 
-import tech.sourced.enry.Enry;
-import tech.sourced.enry.Guess;
+// import tech.sourced.enry.Enry;
+// import tech.sourced.enry.Guess;
 
 public class DirectoryUtils {
     public static String[] getMsPaths(String root){
@@ -67,21 +67,23 @@ public class DirectoryUtils {
                 // only try to detect files
                 if (!file.isDirectory()) {
                     // try only by extension first
-                    Guess lang = Enry.getLanguageByExtension(file.getName());
-                    if (lang.language.equals("Java")) {
-                        if (lang.safe) {
+                    // Guess lang = Enry.getLanguageByExtension(file.getName());
+                    // if (lang.language.equals("Java")) {
+                    if (file.getName().endsWith(".java")) {
+                        // if (lang.safe) {
+                        if(true)
                             return true;
                         } else {
-                            try {
-                                // try by content if needed
-                                lang = Enry.getLanguageByContent(file.getName(), Files.readAllBytes(p));
-                                if (lang.language.equals("Java") && lang.safe) {
-                                    return true;
-                                }
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
+                            // try {
+                            //     // try by content if needed
+                            //     lang = Enry.getLanguageByContent(file.getName(), Files.readAllBytes(p));
+                            //     if (lang.language.equals("Java") && lang.safe) {
+                            //         return true;
+                            //     }
+                            // } catch (IOException e) {
+                            //     e.printStackTrace();
+                            // }
+                        // }
                     }
                 }
                 return false;
