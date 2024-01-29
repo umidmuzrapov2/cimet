@@ -19,7 +19,7 @@ public class SemanticAnalysisCommand implements QuarkusApplication {
     public static String[] repoUrls;
     public static String cachePath;
     private static String sutPath;
-    private static final String REPO_DESTINATION_DIRECTORY = "repos";
+    private static final String REPO_DESTINATION_DIRECTORY = "../repos";
 
     @Override
     public int run(String... args) throws Exception {
