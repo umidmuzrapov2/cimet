@@ -3,7 +3,6 @@ package edu.university.ecs.lab.semantics;
 import edu.university.ecs.lab.semantics.util.MsCache;
 import edu.university.ecs.lab.semantics.util.ProcessFiles;
 import edu.university.ecs.lab.semantics.util.entityextraction.EntityContextAdapter;
-import edu.university.ecs.lab.semantics.util.entitysimilarity.strategies.EntitySematicSimilarityCheckStrategy;
 import edu.university.ecs.lab.semantics.util.factory.*;
 import edu.university.ecs.lab.semantics.util.file.CacheManager;
 import io.quarkus.runtime.Quarkus;
@@ -12,24 +11,22 @@ import io.quarkus.runtime.annotations.QuarkusMain;
 
 import java.io.File;
 
+
 // Program Entry
 @QuarkusMain
 public class SemanticAnalysisCommand implements QuarkusApplication {
 
     public static String[] repoUrls;
-    public static String cachePath;
-    private static String sutPath;
-    private static final String REPO_DESTINATION_DIRECTORY = "../repos";
+    public static String outputPath;
+    private static String clonePath;
 
     @Override
     public int run(String... args) throws Exception {
         long start = System.currentTimeMillis();
         initCache();
         initPaths(args);
-        cloneRemotes(repoUrls);
+        cloneRemotes(clonePath, repoUrls);
         preProcess();
-        processCodeClonesFromCache();
-        conductCalculation();
         persistCache();
         System.out.println(System.currentTimeMillis() - start);
         return 0;
@@ -37,25 +34,21 @@ public class SemanticAnalysisCommand implements QuarkusApplication {
 
     private void persistCache() {
         CacheManager cacheManager = new CacheManager();
-        cacheManager.persistCache(cachePath);
-    }
-
-    private void conductCalculation() {
-        ModuleCloneFactory moduleCloneFactory = new ModuleCloneFactory();
-        moduleCloneFactory.createData();
+        cacheManager.persistCache(outputPath);
     }
 
     private void initPaths(String... args) {
-        repoUrls = args[0].split(",");
-        cachePath = args[1];
+        clonePath = args[0];
+        repoUrls = args[1].split(",");
+        outputPath = args[2];
     }
 
     public void initCache(){
         MsCache.init();
     }
 
-    private void cloneRemotes(String[] urls) throws Exception {
-        File destinationDir = new File(REPO_DESTINATION_DIRECTORY);
+    private void cloneRemotes(String clonePath, String[] urls) throws Exception {
+        File destinationDir = new File(clonePath);
 
         if (!destinationDir.exists()) {
             boolean success = destinationDir.mkdirs();
@@ -66,22 +59,20 @@ public class SemanticAnalysisCommand implements QuarkusApplication {
         }
 
         for (String url : urls) {
-            String output = REPO_DESTINATION_DIRECTORY + File.separator + getRepositoryName(url);
+            String output = clonePath + File.separator + getRepositoryName(url);
             ProcessBuilder processBuilder = new ProcessBuilder("git", "clone", url, output);
-
             processBuilder.redirectErrorStream(true);
             Process process = processBuilder.start();
 
             int exitCode = process.waitFor();
 
-            if (exitCode < 300) {
-                System.out.println("Git clone successful for repo: " + output);
+            if (exitCode == 0) {
+                System.out.println("Git clone of " + url + " successful ");
             } else {
-                throw new Exception("Git clone failed with status code: " + exitCode);
+                throw new Exception("Git clone of " + url + " failed with status code: " + exitCode);
             }
         }
 
-        sutPath = REPO_DESTINATION_DIRECTORY;
     }
 
     private String getRepositoryName(String repositoryUrl) {
@@ -94,22 +85,12 @@ public class SemanticAnalysisCommand implements QuarkusApplication {
     }
 
     public void preProcess() {
-        ProcessFiles.run(sutPath);
+        ProcessFiles.run(clonePath);
         FlowBuilder flowBuilder = new FlowBuilder();
         flowBuilder.buildFlows();
         
         // Entity Construction
-        MsCache.mappedEntities = EntityContextAdapter.getMappedEntityContext(sutPath);
-    }
-
-    public void processCodeClonesFromCache() {
-//        CacheManager cacheManager = new CacheManager();
-//        cacheManager.recreateCache(cachePath);
-//        CodeClonesFactory codeClonesFactory = new CodeClonesFactory(new EntityLiteralSimilarityCheckStrategy());
-    	CodeClonesFactory codeClonesFactory = new CodeClonesFactory(new EntitySematicSimilarityCheckStrategy(true));
-      codeClonesFactory.findCodeClones();
-      ModuleClonePairFactory mcpf = new ModuleClonePairFactory();
-      mcpf.printModuleClonePairs();
+        MsCache.mappedEntities = EntityContextAdapter.getMappedEntityContext(clonePath);
     }
 
     public static void main(String[] args) {
