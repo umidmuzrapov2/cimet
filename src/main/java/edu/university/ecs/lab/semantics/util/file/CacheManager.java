@@ -35,7 +35,7 @@ public class CacheManager {
 
     public <T> void writeArrayList(String name, List<T> list) {
     	System.err.println(name);
-        try (FileWriter writer = new FileWriter(path +"/" + name + ".txt");
+        try (FileWriter writer = new FileWriter(path +"/" + name + ".json");
              BufferedWriter bw = new BufferedWriter(writer)) {
 //                Gson gson = new Gson();
 //                String jsonString = gson.toJson(list);
@@ -98,7 +98,7 @@ public class CacheManager {
     public String readDataIntoString(String name) {
         String s = null;
         try {
-            s = Files.readString(Paths.get(path + name + ".txt"));
+            s = Files.readString(Paths.get(path + name + ".json"));
         } catch (IOException e) {
             e.printStackTrace();
         }
