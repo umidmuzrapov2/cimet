@@ -3,7 +3,6 @@ package edu.university.ecs.lab.semantics;
 import edu.university.ecs.lab.semantics.util.MsCache;
 import edu.university.ecs.lab.semantics.util.ProcessFiles;
 import edu.university.ecs.lab.semantics.util.entityextraction.EntityContextAdapter;
-import edu.university.ecs.lab.semantics.util.entitysimilarity.strategies.EntitySematicSimilarityCheckStrategy;
 import edu.university.ecs.lab.semantics.util.factory.*;
 import edu.university.ecs.lab.semantics.util.file.CacheManager;
 import io.quarkus.runtime.Quarkus;
@@ -11,6 +10,7 @@ import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
 
 import java.io.File;
+
 
 // Program Entry
 @QuarkusMain
@@ -24,9 +24,8 @@ public class SemanticAnalysisCommand implements QuarkusApplication {
     /**
      * Path to the output folder
      */
-    public static String cachePath;
-    private static String sutPath;
-    private static final String REPO_DESTINATION_DIRECTORY = "../repos";
+    public static String outputPath;
+    private static String clonePath;
 
     /**
      * This method serves as the main point of control for this application. It calls several functions that
@@ -41,10 +40,8 @@ public class SemanticAnalysisCommand implements QuarkusApplication {
         long start = System.currentTimeMillis();
         initCache();
         initPaths(args);
-        cloneRemotes(repoUrls);
+        cloneRemotes(clonePath, repoUrls);
         preProcess();
-        processCodeClonesFromCache();
-        conductCalculation();
         persistCache();
         System.out.println(System.currentTimeMillis() - start);
         return 0;
@@ -55,7 +52,7 @@ public class SemanticAnalysisCommand implements QuarkusApplication {
      */
     private void persistCache() {
         CacheManager cacheManager = new CacheManager();
-        cacheManager.persistCache(cachePath);
+        cacheManager.persistCache(outputPath);
     }
 
     private void conductCalculation() {
@@ -68,8 +65,9 @@ public class SemanticAnalysisCommand implements QuarkusApplication {
      * @param args The first is a comma separated list of git repo urls and the second is a path to the output folder
      */
     private void initPaths(String... args) {
-        repoUrls = args[0].split(",");
-        cachePath = args[1];
+        clonePath = args[0];
+        repoUrls = args[1].split(",");
+        outputPath = args[2];
     }
 
     /**
@@ -85,8 +83,8 @@ public class SemanticAnalysisCommand implements QuarkusApplication {
      * @param urls the urls of repositories to be cloned
      * @throws Exception if Git clone failed
      */
-    private void cloneRemotes(String[] urls) throws Exception {
-        File destinationDir = new File(REPO_DESTINATION_DIRECTORY);
+    private void cloneRemotes(String clonePath, String[] urls) throws Exception {
+        File destinationDir = new File(clonePath);
 
         if (!destinationDir.exists()) {
             boolean success = destinationDir.mkdirs();
@@ -97,22 +95,20 @@ public class SemanticAnalysisCommand implements QuarkusApplication {
         }
 
         for (String url : urls) {
-            String output = REPO_DESTINATION_DIRECTORY + File.separator + getRepositoryName(url);
+            String output = clonePath + File.separator + getRepositoryName(url);
             ProcessBuilder processBuilder = new ProcessBuilder("git", "clone", url, output);
-
             processBuilder.redirectErrorStream(true);
             Process process = processBuilder.start();
 
             int exitCode = process.waitFor();
 
-            if (exitCode < 300) {
-                System.out.println("Git clone successful for repo: " + output);
+            if (exitCode == 0) {
+                System.out.println("Git clone of " + url + " successful ");
             } else {
-                throw new Exception("Git clone failed with status code: " + exitCode);
+                throw new Exception("Git clone of " + url + " failed with status code: " + exitCode);
             }
         }
 
-        sutPath = REPO_DESTINATION_DIRECTORY;
     }
 
     /**
@@ -135,23 +131,12 @@ public class SemanticAnalysisCommand implements QuarkusApplication {
      * and lastly does entity construction
      */
     public void preProcess() {
-        ProcessFiles.run(sutPath);
+        ProcessFiles.run(clonePath);
         FlowBuilder flowBuilder = new FlowBuilder();
         flowBuilder.buildFlows();
         
         // Entity Construction
-        MsCache.mappedEntities = EntityContextAdapter.getMappedEntityContext(sutPath);
-    }
-
-
-    public void processCodeClonesFromCache() {
-//        CacheManager cacheManager = new CacheManager();
-//        cacheManager.recreateCache(cachePath);
-//        CodeClonesFactory codeClonesFactory = new CodeClonesFactory(new EntityLiteralSimilarityCheckStrategy());
-    	CodeClonesFactory codeClonesFactory = new CodeClonesFactory(new EntitySematicSimilarityCheckStrategy(true));
-      codeClonesFactory.findCodeClones();
-      ModuleClonePairFactory mcpf = new ModuleClonePairFactory();
-      mcpf.printModuleClonePairs();
+        MsCache.mappedEntities = EntityContextAdapter.getMappedEntityContext(clonePath);
     }
 
     /**

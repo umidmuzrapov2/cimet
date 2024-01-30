@@ -28,9 +28,6 @@ public class CacheManager {
         writeArrayList("msFieldList", MsCache.msFieldList);
         writeArrayList("msModulesList", MsCache.modules);
         writeArrayList("msFlowList", MsCache.msFlows);
-        writeArrayList("msCodeClones", MsCache.msCodeClones);
-        writeArrayList("msCodeClonesTypeA", MsCache.typeA);
-        writeArrayList("msCodeClonesTypeB", MsCache.typeB);
     }
 
     public <T> void writeArrayList(String name, List<T> list) {
@@ -88,11 +85,6 @@ public class CacheManager {
         listOfMyClassObject = new TypeToken<ArrayList<MsFlowEntity>>() {}.getType();
         List<MsFlowEntity> msFlowEntities = gson.fromJson(data, listOfMyClassObject);
         MsCache.msFlows = msFlowEntities;
-
-        data = readDataIntoString("msCodeClones");
-        listOfMyClassObject = new TypeToken<ArrayList<MsFlowEntity>>() {}.getType();
-        List<MsCodeClone> msCodeClones = gson.fromJson(data, listOfMyClassObject);
-        MsCache.msCodeClones = msCodeClones;
     }
 
     public String readDataIntoString(String name) {
