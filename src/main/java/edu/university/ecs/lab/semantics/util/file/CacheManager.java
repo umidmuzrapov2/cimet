@@ -28,14 +28,11 @@ public class CacheManager {
         writeArrayList("msFieldList", MsCache.msFieldList);
         writeArrayList("msModulesList", MsCache.modules);
         writeArrayList("msFlowList", MsCache.msFlows);
-        writeArrayList("msCodeClones", MsCache.msCodeClones);
-        writeArrayList("msCodeClonesTypeA", MsCache.typeA);
-        writeArrayList("msCodeClonesTypeB", MsCache.typeB);
     }
 
     public <T> void writeArrayList(String name, List<T> list) {
     	System.err.println(name);
-        try (FileWriter writer = new FileWriter(path +"/" + name + ".txt");
+        try (FileWriter writer = new FileWriter(path +"/" + name + ".json");
              BufferedWriter bw = new BufferedWriter(writer)) {
 //                Gson gson = new Gson();
 //                String jsonString = gson.toJson(list);
@@ -88,17 +85,12 @@ public class CacheManager {
         listOfMyClassObject = new TypeToken<ArrayList<MsFlowEntity>>() {}.getType();
         List<MsFlowEntity> msFlowEntities = gson.fromJson(data, listOfMyClassObject);
         MsCache.msFlows = msFlowEntities;
-
-        data = readDataIntoString("msCodeClones");
-        listOfMyClassObject = new TypeToken<ArrayList<MsFlowEntity>>() {}.getType();
-        List<MsCodeClone> msCodeClones = gson.fromJson(data, listOfMyClassObject);
-        MsCache.msCodeClones = msCodeClones;
     }
 
     public String readDataIntoString(String name) {
         String s = null;
         try {
-            s = Files.readString(Paths.get(path + name + ".txt"));
+            s = Files.readString(Paths.get(path + name + ".json"));
         } catch (IOException e) {
             e.printStackTrace();
         }
