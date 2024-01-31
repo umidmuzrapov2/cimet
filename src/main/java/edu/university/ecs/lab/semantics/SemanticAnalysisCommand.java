@@ -46,8 +46,8 @@ public class SemanticAnalysisCommand implements QuarkusApplication {
      *
      * @param args commandline args, can be in one of the following formats:
      *            <ul>
-     *              <li> <repo1, repo2, repo3, ...> </li>
-     *              <li> <repoOutputDir> <repo1, repo2, repo3, ...> <resultOutputDir> </li>
+     *              <li> [repo1, repo2, repo3, ...] </li>
+     *              <li> [repoOutputDir] [repo1, repo2, repo3, ...] [resultOutputDir] </li>
      *            </ul>
      * @return 0 for successful completion, otherwise an error has occured
      * @throws Exception
