@@ -8,6 +8,9 @@ import edu.university.ecs.lab.semantics.entity.*;
 import edu.university.ecs.lab.semantics.entity.graph.*;
 import edu.university.ecs.lab.semantics.util.MsCache;
 
+/**
+ * This class manages the building of the flows from controller to endpoints and repository of the entities in MsCache
+ */
 public class FlowBuilder {
 
     public void buildFlows(){
