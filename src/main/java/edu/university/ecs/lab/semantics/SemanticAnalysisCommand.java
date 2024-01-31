@@ -12,9 +12,15 @@ import io.quarkus.runtime.annotations.QuarkusMain;
 import java.io.File;
 
 
-// Program Entry
+
+/**
+ * SemanticAnalysisCommand serves as the entrypoint for the program
+ * see https://quarkus.io/guides/lifecycle
+ */
 @QuarkusMain
 public class SemanticAnalysisCommand implements QuarkusApplication {
+    public static String DEFAULT_RESULT_DIR = "/results";
+    public static String DEFAULT_CLONE_DIR = "/repos";
 
     /**
      * The remote git repository urls
@@ -24,23 +30,33 @@ public class SemanticAnalysisCommand implements QuarkusApplication {
     /**
      * Path to the output folder
      */
-    public static String outputPath;
+    public static String resultPath;
+
+    /**
+     * Path to the clone output
+     */
     private static String clonePath;
 
     /**
      * This method serves as the main point of control for this application. It calls several functions that
      * separate each step of the Prophet Code Analysis Tool.
      *
-     * @param args The first is a destination path of where to clone the repos the second is a comma separated
-     *             list of git repo urls and the third is a path to the output folder
-     * @return 0 for successful completion
+     * If no arguments are specific for the repoOutputDir and resultOutputDir then the current executable's directory
+     * is used and repos and results will be output in default directories
+     *
+     * @param args commandline args, can be in one of the following formats:
+     *            <ul>
+     *              <li> <repo1, repo2, repo3, ...> </li>
+     *              <li> <repoOutputDir> <repo1, repo2, repo3, ...> <resultOutputDir> </li>
+     *            </ul>
+     * @return 0 for successful completion, otherwise an error has occured
      * @throws Exception
      */
     @Override
     public int run(String... args) throws Exception {
         long start = System.currentTimeMillis();
         initCache();
-        initPaths(args);
+        initAndValidatePaths(args);
         cloneRemotes(clonePath, repoUrls);
         preProcess();
         persistCache();
@@ -53,18 +69,52 @@ public class SemanticAnalysisCommand implements QuarkusApplication {
      */
     private void persistCache() {
         CacheManager cacheManager = new CacheManager();
-        cacheManager.persistCache(outputPath);
+        cacheManager.persistCache(resultPath);
     }
 
     /**
-     * This method sets the paths from the arguments passed into this application
-     * @param args The first is a destination path of where to clone the repos the second is a comma separated
-     *             list of git repo urls and the third is a path to the output folder
+     * This method sets the paths from the arguments passed into this application, parses them dependent on
+     * input format, and verifies they exist or creates them if they don't
+     *
+     * @param args commandline args, can be in one of the following formats:
+     *            <ul>
+     *              <li> <repo1, repo2, repo3, ...> </li>
+     *              <li> <repoOutputDir> <repo1, repo2, repo3, ...> <resultOutputDir> </li>
+     *            </ul>
+     * @throws IllegalArgumentException if the args do not follow a particular format
+     * @throws RuntimeException if the directory's did not exist but could not be created
      */
-    private void initPaths(String... args) {
-        clonePath = args[0];
-        repoUrls = args[1].split(",");
-        outputPath = args[2];
+    private void initAndValidatePaths(String... args) throws Exception {
+        if(args.length == 1) {
+            resultPath = System.getProperty("user.dir") + DEFAULT_RESULT_DIR;
+            clonePath = System.getProperty("user.dir") + DEFAULT_CLONE_DIR;
+            repoUrls = args[0].split(",");
+
+        } else if (args.length == 3) {
+            clonePath = args[0];
+            repoUrls = args[1].split(",");
+            resultPath = args[2];
+
+        } else {
+            throw new IllegalArgumentException("Usage: <repo1, repo2, repo3, ...> OR <repoOutputDir> <repo1, repo2, repo3, ...> <resultOutputDir>");
+        }
+
+        File resultPathFile = new File(resultPath);
+        File clonePathFile = new File(clonePath);
+
+        if (!resultPathFile.exists()) {
+            boolean success = resultPathFile.mkdirs();
+            if (!success) {
+                throw new RuntimeException("Failed to create directory " + resultPathFile);
+            }
+        }
+
+        if (!clonePathFile.exists()) {
+            boolean success = clonePathFile.mkdirs();
+            if (!success) {
+                throw new RuntimeException("Failed to create directory " + clonePathFile);
+            }
+        }
     }
 
     /**
@@ -77,20 +127,11 @@ public class SemanticAnalysisCommand implements QuarkusApplication {
     /**
      * This method clones remote repositories to the local file system
      *
+     * @param clonePath the path the repositories will be cloned to
      * @param urls the urls of repositories to be cloned
      * @throws Exception if Git clone failed
      */
     private void cloneRemotes(String clonePath, String[] urls) throws Exception {
-        File destinationDir = new File(clonePath);
-
-        if (!destinationDir.exists()) {
-            boolean success = destinationDir.mkdirs();
-            if (!success) {
-                System.err.println("Failed to create destination directory");
-                System.exit(1);
-            }
-        }
-
         for (String url : urls) {
             String output = clonePath + File.separator + getRepositoryName(url);
             ProcessBuilder processBuilder = new ProcessBuilder("git", "clone", url, output);
@@ -137,11 +178,15 @@ public class SemanticAnalysisCommand implements QuarkusApplication {
     }
 
     /**
-     * Main function of the application
-     * @param args The first is a destination path of where to clone the repos the second is a comma separated
-     *             list of git repo urls and the third is a path to the output folder
+     * main method entry, errors occuring within SemanticAnalysisCommand run() will be caught
+     * by (exitCode, exception) -> {} and output here
+     * @param args command line arguments passed to run() method
      */
     public static void main(String[] args) {
-        Quarkus.run(SemanticAnalysisCommand.class, args);
+        Quarkus.run(SemanticAnalysisCommand.class, (exitCode, exception) -> {
+            System.err.println(exception.getMessage());
+            // System.err.println(exception.getStackTrace());
+            System.exit(exitCode);
+        }, args);
     }
 }
