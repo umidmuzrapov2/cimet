@@ -9,6 +9,10 @@ import edu.university.ecs.lab.semantics.entity.graph.*;
 import edu.university.ecs.lab.semantics.entity.inconsistencies.MsInconsistencies;
 import edu.university.ecs.lab.semantics.util.entitysimilarity.Entity;
 
+/**
+ * This class serves as a cache that is regularly referenced throughout the program
+ * to increase efficiency. 
+ */
 public class MsCache {
     public static List<MsClass> msClassList;
     public static List<MsMethod> msMethodList;
@@ -22,6 +26,9 @@ public class MsCache {
     //ContextEntities Mapping
     public static Map<String, Entity> mappedEntities;
 
+    /**
+     * Initialize all lists of entities to empty lists
+     */
     public static void init(){
         modules = new ArrayList<>();
         msClassList = new ArrayList<>();

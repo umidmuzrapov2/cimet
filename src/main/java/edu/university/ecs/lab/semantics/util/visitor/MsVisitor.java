@@ -24,6 +24,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Core logic class using java parser libraries to pick apart respective
+ * classes, methods, method calls, fields, etc and adding them to cache
+ * 
+ * These methods visitClass, visitField, visitMethod, visitMethodCalls form the
+ * contents of the respect raw outputfiles msClassList.json, msFieldList.json, etc
+ * 
+ */
 public class MsVisitor {
 
     public static void visitClass(File file, String path, MsClassRoles role, MsId msId) {

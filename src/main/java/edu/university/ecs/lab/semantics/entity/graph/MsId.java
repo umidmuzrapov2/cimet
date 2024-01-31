@@ -4,6 +4,9 @@ import lombok.Data;
 
 import java.util.Arrays;
 
+/**
+ * Represents a file or folder that is either a controller, service or repository
+ */
 @Data
 public class MsId {
     private String path;
