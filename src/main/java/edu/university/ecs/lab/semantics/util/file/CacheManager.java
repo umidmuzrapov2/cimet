@@ -15,6 +15,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Manages the reading and writing of MsCache to files
+ */
 public class CacheManager {
 
     private String path = "C:\\git\\data\\";
