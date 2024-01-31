@@ -37,7 +37,7 @@ public class CacheManager {
 //                Gson gson = new Gson();
 //                String jsonString = gson.toJson(list);
 //        	    FloatContainer container = new FloatContainer(Float.NaN);
-        		Gson gson = new GsonBuilder().serializeSpecialFloatingPointValues().create();
+        		Gson gson = new GsonBuilder().serializeSpecialFloatingPointValues().setPrettyPrinting().create();
         	    String jsonString = gson.toJson(list);//{"includedFloat":NaN}
                 bw.write(jsonString);
         } catch (IOException e) {
