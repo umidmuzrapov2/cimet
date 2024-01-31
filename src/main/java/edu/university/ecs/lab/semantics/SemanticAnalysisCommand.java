@@ -31,7 +31,8 @@ public class SemanticAnalysisCommand implements QuarkusApplication {
      * This method serves as the main point of control for this application. It calls several functions that
      * separate each step of the Prophet Code Analysis Tool.
      *
-     * @param args The first is a comma separated list of git repo urls and the second is a path to the output folder
+     * @param args The first is a destination path of where to clone the repos the second is a comma separated
+     *             list of git repo urls and the third is a path to the output folder
      * @return 0 for successful completion
      * @throws Exception
      */
@@ -57,7 +58,8 @@ public class SemanticAnalysisCommand implements QuarkusApplication {
 
     /**
      * This method sets the paths from the arguments passed into this application
-     * @param args The first is a comma separated list of git repo urls and the second is a path to the output folder
+     * @param args The first is a destination path of where to clone the repos the second is a comma separated
+     *             list of git repo urls and the third is a path to the output folder
      */
     private void initPaths(String... args) {
         clonePath = args[0];
@@ -136,7 +138,8 @@ public class SemanticAnalysisCommand implements QuarkusApplication {
 
     /**
      * Main function of the application
-     * @param args The first is a comma separated list of git repo urls and the second is a path to the output folder
+     * @param args The first is a destination path of where to clone the repos the second is a comma separated
+     *             list of git repo urls and the third is a path to the output folder
      */
     public static void main(String[] args) {
         Quarkus.run(SemanticAnalysisCommand.class, args);
