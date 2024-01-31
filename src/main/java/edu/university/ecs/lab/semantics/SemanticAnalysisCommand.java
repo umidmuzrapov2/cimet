@@ -140,7 +140,7 @@ public class SemanticAnalysisCommand implements QuarkusApplication {
 
             int exitCode = process.waitFor();
 
-            if (exitCode == 0) {
+            if (exitCode < 400) {
                 System.out.println("Git clone of " + url + " successful ");
             } else {
                 throw new Exception("Git clone of " + url + " failed with status code: " + exitCode);
