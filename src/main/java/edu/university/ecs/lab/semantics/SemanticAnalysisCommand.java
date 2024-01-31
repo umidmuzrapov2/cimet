@@ -55,11 +55,6 @@ public class SemanticAnalysisCommand implements QuarkusApplication {
         cacheManager.persistCache(outputPath);
     }
 
-    private void conductCalculation() {
-        ModuleCloneFactory moduleCloneFactory = new ModuleCloneFactory();
-        moduleCloneFactory.createData();
-    }
-
     /**
      * This method sets the paths from the arguments passed into this application
      * @param args The first is a comma separated list of git repo urls and the second is a path to the output folder
