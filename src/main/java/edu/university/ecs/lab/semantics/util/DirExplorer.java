@@ -2,6 +2,9 @@ package edu.university.ecs.lab.semantics.util;
 
 import java.io.File;
 
+/**
+ * Handles the recursive exploration of a Directory given a filter
+ */
 public class DirExplorer {
     public interface FileHandler {
         void handle(int level, String path, File file);
