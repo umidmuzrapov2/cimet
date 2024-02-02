@@ -2,7 +2,6 @@ package edu.university.ecs.lab.semantics;
 
 import edu.university.ecs.lab.semantics.util.MsCache;
 import edu.university.ecs.lab.semantics.util.ProcessFiles;
-import edu.university.ecs.lab.semantics.util.entityextraction.EntityContextAdapter;
 import edu.university.ecs.lab.semantics.util.factory.*;
 import edu.university.ecs.lab.semantics.util.file.CacheManager;
 import io.quarkus.runtime.Quarkus;
@@ -174,7 +173,7 @@ public class SemanticAnalysisCommand implements QuarkusApplication {
         flowBuilder.buildFlows();
         
         // Entity Construction
-        MsCache.mappedEntities = EntityContextAdapter.getMappedEntityContext(clonePath);
+        // MsCache.mappedEntities = EntityContextAdapter.getMappedEntityContext(clonePath);
     }
 
     /**

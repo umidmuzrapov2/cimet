@@ -10,8 +10,18 @@ import edu.university.ecs.lab.semantics.entity.graph.MsRestCall;
 
 import java.util.Optional;
 
+/**
+ * A utility class for finding a MsRestCall associated with
+ * a MethodCallExpr
+ */
 public class MsRestCallFactory {
 
+    /**
+     * Finds the MsRestCall associated with a MethodCallExpr
+     * 
+     * @param n the MethodCallExpr being searched
+     * @return the MsRestCall associated with n
+     */
     public static MsRestCall getMsRestCall(MethodCallExpr n){
         // ms cache add MsRestCall
         MsRestCall msRestCall = new MsRestCall();

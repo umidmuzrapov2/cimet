@@ -12,8 +12,18 @@ import edu.university.ecs.lab.semantics.entity.graph.MsParentMethod;
 
 import java.util.Optional;
 
+/**
+ * Parse method information from a MethodCallExpr or FieldDeclaration
+ * and generate MsParentMethod object that will be returned
+ */
 public class MsParentVisitor {
 
+    /**
+     * Parse MsParentMethod from MethodCallExpr object
+     * 
+     * @param n the MethodCallExpr that will be parsed
+     * @return MsParentMethod object representing parent method
+     */
     public static MsParentMethod getMsParentMethod(MethodCallExpr n) {
         MsParentMethod msParentMethod = new MsParentMethod();
         Optional<Node> parentNode = n.getParentNode();
@@ -49,6 +59,12 @@ public class MsParentVisitor {
         return msParentMethod;
     }
 
+    /**
+     * Parse MsParentMethod from FieldDeclaration object
+     * 
+     * @param n the FieldDeclaration that will be parsed
+     * @return MsParentMethod object representing parent method
+     */
     public static MsParentMethod getMsParentMethod(FieldDeclaration n){
         MsParentMethod msParentMethod = new MsParentMethod();
         Optional<Node> parentNode = n.getParentNode();
@@ -75,10 +91,5 @@ public class MsParentVisitor {
 
         return msParentMethod;
     }
-
-
-
-
-
 
 }

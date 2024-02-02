@@ -9,12 +9,13 @@ import edu.university.ecs.lab.semantics.entity.graph.*;
 import edu.university.ecs.lab.semantics.util.MsCache;
 
 /**
- * This class manages the building of the flows from controller to endpoints and repository of the entities in MsCache
+ * This class manages the building of the flows from controller down to repository 
+ * using the entries in MsCache
  */
 public class FlowBuilder {
 
     /**
-     * 
+     * Main function called to build flows and store them in MsCache
      */
     public void buildFlows(){
         List<MsFlowEntity> msFlowEntities = findControllerMethods();
@@ -81,11 +82,11 @@ public class FlowBuilder {
     }
 
     /**
+     * Finds the MsMethod of a given MsMethodCall
      * 
-     * 
-     * @param msRepository
-     * @param msRepositoryMethodCall
-     * @return
+     * @param msRepository the repository associated with the msRepositoryMethodCall
+     * @param msRepositoryMethodCall the MsMethodCall being searched
+     * @return the MsMethod if found
      */
     private Optional<MsMethod> findRepositoryMethod(MsClass msRepository, MsMethodCall msRepositoryMethodCall) {
         return MsCache.msMethodList.stream()
@@ -94,10 +95,10 @@ public class FlowBuilder {
     }
 
     /**
+     * Finds the MsClass of a given MsField and returns it
      * 
-     * 
-     * @param msServiceRepositoryField
-     * @return
+     * @param msServiceRepositoryField the MsField being searched
+     * @return the MsClass if found
      */
     private Optional<MsClass> findRepositoryClass(MsField msServiceRepositoryField) {
         return MsCache.msClassList.stream()

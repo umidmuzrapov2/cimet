@@ -183,7 +183,6 @@ public class MsVisitor {
                                 msMethodCall.setCalledMethodName(methodCallExpr.getNameAsString());
                                 msMethodCall.setParentClassId();
                                 msMethodCall.setMsId(msId);
-//                                System.err.println(((MsMethodCall)msMethodCall).toString());
                                 // register method call to cache
                                 MsCache.addMsMethodCall(msMethodCall);
                                 
@@ -226,9 +225,7 @@ public class MsVisitor {
                     if (!(scope.isPresent() && scope.get() instanceof  NameExpr)) {
                     	if (restCallsContainingMethods.containsKey(calledMethodFullName) 
                     			&& !usedServiceMethods.contains(calledMethodFullName)) {
-                    		ArrayList<MsRestCall> restCalls = restCallsContainingMethods.get(calledMethodFullName);
-//                    		MsParentMethod updatedParentMethod = MsParentVisitor.getMsParentMethod(n);
-                    		
+                    		ArrayList<MsRestCall> restCalls = restCallsContainingMethods.get(calledMethodFullName);                    		
                     		for (MsRestCall restCall : restCalls) {
                     			MsRestCall newRestCall = new MsRestCall(restCall.getApi(), restCall.getHttpMethod(), restCall.getReturnType());
                     			newRestCall.setMsParentMethod(updatedParentMethod);
@@ -247,9 +244,7 @@ public class MsVisitor {
                     	
                     	if (repositoryCallsContainingMethods.containsKey(calledMethodFullName) 
                     			&& !usedServiceMethods.contains(calledMethodFullName)) {
-                    		ArrayList<MsMethodCall> repositoryCalls = repositoryCallsContainingMethods.get(calledMethodFullName);
-//                    		MsParentMethod updatedParentMethod = MsParentVisitor.getMsParentMethod(n);
-                    		
+                    		ArrayList<MsMethodCall> repositoryCalls = repositoryCallsContainingMethods.get(calledMethodFullName);                    		
                     		for (MsMethodCall repositoryCall : repositoryCalls) {
                     			
                     			MsMethodCall newRepositoryCall = new MsMethodCall();

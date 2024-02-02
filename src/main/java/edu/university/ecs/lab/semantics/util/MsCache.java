@@ -7,7 +7,7 @@ import java.util.Map;
 import edu.university.ecs.lab.semantics.entity.*;
 import edu.university.ecs.lab.semantics.entity.graph.*;
 import edu.university.ecs.lab.semantics.entity.inconsistencies.MsInconsistencies;
-import edu.university.ecs.lab.semantics.util.entitysimilarity.Entity;
+// import edu.university.ecs.lab.semantics.util.entitysimilarity.Entity;
 
 /**
  * This class serves as a cache that is regularly referenced throughout the program
@@ -24,7 +24,7 @@ public class MsCache {
     public static List<MsFlowEntity> msFlows;
     
     //ContextEntities Mapping
-    public static Map<String, Entity> mappedEntities;
+    // public static Map<String, Entity> mappedEntities;
 
     /**
      * Initialize all cache to empty lists
