@@ -2,6 +2,9 @@ package edu.university.ecs.lab.semantics.entity.graph;
 
 import lombok.Data;
 
+/**
+ * An object representing a method call in code
+ */
 @Data
 public class MsMethodCall {
     private MsId msId;

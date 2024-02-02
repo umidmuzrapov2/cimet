@@ -5,11 +5,14 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+/**
+ * A object representing a rest API call in code
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper=false)
-public class MsRestCall extends MsMethodCall{
+public class MsRestCall extends MsMethodCall {
     private String api;
     private String httpMethod;
     private String returnType;

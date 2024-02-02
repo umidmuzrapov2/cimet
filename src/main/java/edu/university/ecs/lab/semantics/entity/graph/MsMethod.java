@@ -5,6 +5,9 @@ import lombok.Data;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * An object representing a method declaration in code
+ */
 @Data
 public class MsMethod {
     private MsId msId;

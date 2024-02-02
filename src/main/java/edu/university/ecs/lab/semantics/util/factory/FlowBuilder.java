@@ -11,6 +11,9 @@ import edu.university.ecs.lab.semantics.util.MsCache;
 /**
  * This class manages the building of the flows from controller down to repository 
  * using the entries in MsCache
+ * 
+ * For method comments, (service/controller/repository) indicites either the MsClass type
+ * or where the method call/definition would be located
  */
 public class FlowBuilder {
 
@@ -82,11 +85,11 @@ public class FlowBuilder {
     }
 
     /**
-     * Finds the MsMethod of a given MsMethodCall
+     * Finds the MsMethod (repository) of a given MsMethodCall (service)
      * 
-     * @param msRepository the repository associated with the msRepositoryMethodCall
-     * @param msRepositoryMethodCall the MsMethodCall being searched
-     * @return the MsMethod if found
+     * @param msRepository the repository associated with the msRepositoryMethodCall (service?)
+     * @param msRepositoryMethodCall the MsMethodCall (service?) being searched
+     * @return the MsMethod (repository) if found
      */
     private Optional<MsMethod> findRepositoryMethod(MsClass msRepository, MsMethodCall msRepositoryMethodCall) {
         return MsCache.msMethodList.stream()
@@ -95,10 +98,10 @@ public class FlowBuilder {
     }
 
     /**
-     * Finds the MsClass of a given MsField and returns it
+     * Finds the MsClass (repository) of a given MsField (service) and returns it
      * 
-     * @param msServiceRepositoryField the MsField being searched
-     * @return the MsClass if found
+     * @param msServiceRepositoryField the MsField (service) being searched
+     * @return the MsClass (repository) if found
      */
     private Optional<MsClass> findRepositoryClass(MsField msServiceRepositoryField) {
         return MsCache.msClassList.stream()
@@ -107,11 +110,11 @@ public class FlowBuilder {
     }
 
     /**
+     * Finds the MsField (repository) associated with a MsMethodCall (repository)
      * 
-     * 
-     * @param msService
-     * @param repositoryMethodCall
-     * @return
+     * @param msService the MsClass (service) being searched
+     * @param repositoryMethodCall the MsMethodCall (repository) being searched
+     * @return the MsField (repository) if found
      */
     private Optional<MsField> findRepositoryField(MsClass msService, MsMethodCall repositoryMethodCall) {
         return MsCache.msFieldList.stream()
@@ -120,11 +123,11 @@ public class FlowBuilder {
     }
 
     /**
+     * Finds the MsMethodCall (repository) associated with a MsMethod (service)
      * 
-     * 
-     * @param msService
-     * @param msServiceMethod
-     * @return
+     * @param msService the MsClass (service) being searched
+     * @param msServiceMethod the MsMethod (service) being searched
+     * @return the MsMethodCall (repository) if found
      */
     private Optional<MsMethodCall> findMsRepositoryMethodCall(MsClass msService, MsMethod msServiceMethod) {
         return MsCache.msMethodCallList.stream()
@@ -133,11 +136,11 @@ public class FlowBuilder {
     }
 
     /**
+     * Finds the MsMethod (service) associated with a MsMethodCall (controller)
      * 
-     * 
-     * @param msService
-     * @param controllerServiceMethodCall
-     * @return
+     * @param msService the MsClass (service) being searched
+     * @param controllerServiceMethodCall the MsMethodCall (controller) being searched
+     * @return the MsMethod (service) if found
      */
     private Optional<MsMethod> findMsServiceMethod(MsClass msService, MsMethodCall controllerServiceMethodCall) {
         return MsCache.msMethodList.stream()
@@ -146,10 +149,10 @@ public class FlowBuilder {
     }
 
     /**
+     * Finds all MsRestCall (?) associated with a MsMethod (controller)
      * 
-     * 
-     * @param msMethodService
-     * @return
+     * @param msMethodService the MsMethod (controller) being searched
+     * @return all instances of MsRestCall (?)
      */
     private List<MsRestCall> findRestCalls(MsMethod msMethodService) {
         return MsCache.msRestCallList.stream()
@@ -158,10 +161,10 @@ public class FlowBuilder {
     }
 
     /**
+     * Finds the MsClass (service) associated with MsField (controller)
      * 
-     * 
-     * @param msControllerServiceField
-     * @return
+     * @param msControllerServiceField the MsField (controller) being searched
+     * @return the MsClass (service) if found
      */
     private Optional<MsClass> findService(MsField msControllerServiceField) {
         return MsCache.msClassList.stream()
@@ -170,10 +173,10 @@ public class FlowBuilder {
     }
 
     /**
+     * Finds the MsField (controller) associated with MsMethodCall (controller)
      * 
-     * 
-     * @param msMethodCall
-     * @return
+     * @param msMethodCall the MsMethodCall (controller) being searched
+     * @return the MsField (controller) if found
      */
     private Optional<MsField> findServiceField(MsMethodCall msMethodCall) {
         return MsCache.msFieldList.stream()
@@ -182,9 +185,9 @@ public class FlowBuilder {
     }
 
     /**
+     * Finds all MsFlowEntity (?)
      * 
-     * 
-     * @return
+     * @return all instances of MsFlowEntity
      */
     public List<MsFlowEntity> findControllerMethods()  {
         return MsCache.msMethodList
@@ -195,10 +198,10 @@ public class FlowBuilder {
     }
 
     /**
+     * Finds the MsClass (controller) associated with MsFlowEntity (?)
      * 
-     * 
-     * @param msFlowEntity
-     * @return
+     * @param msFlowEntity the MsFlowEntity (?) being searched
+     * @return the MsClass (controller) if found
      */
     public MsClass findController(MsFlowEntity msFlowEntity) {
         return MsCache.msClassList
@@ -209,10 +212,10 @@ public class FlowBuilder {
     }
 
     /**
+     * Finds the MsMethodCall (controller) associated with MsMethodCall (service)
      * 
-     * 
-     * @param msControllerMethod
-     * @return
+     * @param msControllerMethod the MsMethod (controller) being searched
+     * @return the MsMethodCall (service) if found
      */
     private Optional<MsMethodCall> findServiceCall(MsMethod msControllerMethod) {
         return MsCache.msMethodCallList

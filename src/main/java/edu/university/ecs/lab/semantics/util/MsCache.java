@@ -2,11 +2,9 @@ package edu.university.ecs.lab.semantics.util;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import edu.university.ecs.lab.semantics.entity.*;
 import edu.university.ecs.lab.semantics.entity.graph.*;
-import edu.university.ecs.lab.semantics.entity.inconsistencies.MsInconsistencies;
 // import edu.university.ecs.lab.semantics.util.entitysimilarity.Entity;
 
 /**
@@ -19,7 +17,6 @@ public class MsCache {
     public static List<MsMethodCall> msMethodCallList;
     public static List<MsRestCall> msRestCallList;
     public static List<MsField> msFieldList;
-    public static MsInconsistencies msInconsistencies;
     public static List<String> modules;
     public static List<MsFlowEntity> msFlows;
     
@@ -34,10 +31,8 @@ public class MsCache {
         msClassList = new ArrayList<>();
         msMethodList = new ArrayList<>();
         msMethodCallList = new ArrayList<>();
-        msInconsistencies = new MsInconsistencies();
         msRestCallList = new ArrayList<>();
         msFieldList = new ArrayList<>();
-        msInconsistencies = new MsInconsistencies();
     }
 
     

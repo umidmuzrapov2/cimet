@@ -6,6 +6,9 @@ import java.util.List;
 
 import edu.university.ecs.lab.semantics.entity.graph.*;
 
+/**
+ * Represents a 'flow' which is a path from controller down to service
+ */
 @Data
 public class MsFlowEntity {
     private MsClass msController;
@@ -20,6 +23,12 @@ public class MsFlowEntity {
     private List<MsRestCall> msRestCalls;
     private MsMethod msRepositoryMethod;
     
+    /**
+     * 
+     * 
+     * @param msController
+     * @param msControllerMethod
+     */
     public MsFlowEntity(MsClass msController, MsMethod msControllerMethod) {
         this.msController = msController;
         this.msControllerMethod = msControllerMethod;

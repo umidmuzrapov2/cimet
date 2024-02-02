@@ -5,6 +5,9 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.List;
 
+/**
+ * A object representing a class definition in code
+ */
 @Data
 public class MsClass implements Serializable {
     private MsId msId;

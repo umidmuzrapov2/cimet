@@ -1,8 +1,14 @@
 package edu.university.ecs.lab.semantics.entity.graph;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper=false)
 public class MsField extends MsParentMethod {
     private MsId msId;
     private String fieldClass;
@@ -10,15 +16,4 @@ public class MsField extends MsParentMethod {
     private MsParentMethod parentMethod;
     private int line;
 
-//    @Override
-//    public String toString() {
-//        return "[L" + line + "] " +
-//                parentMethod.getParentPackageName() + '.' +
-//                parentMethod.getParentClassName() + '.' +
-//                parentMethod.getParentMethodName() +
-//                " : " +
-//                fieldClass + '.' +
-//                fieldVariable + '.'
-//                ;
-//    }
 }
