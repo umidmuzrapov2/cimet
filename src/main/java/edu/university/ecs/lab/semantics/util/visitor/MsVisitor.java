@@ -1,6 +1,5 @@
 package edu.university.ecs.lab.semantics.util.visitor;
 
-import com.github.javaparser.JavaParser;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
@@ -8,9 +7,6 @@ import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
-import static com.github.javaparser.ParseStart.*;
-import static com.github.javaparser.Providers.provider;
-
 import edu.university.ecs.lab.semantics.entity.graph.*;
 import edu.university.ecs.lab.semantics.util.MsCache;
 import edu.university.ecs.lab.semantics.util.constructs.MsMethodBuilder;
@@ -31,9 +27,20 @@ import java.util.Optional;
  * These methods visitClass, visitField, visitMethod, visitMethodCalls form the
  * contents of the respect raw outputfiles msClassList.json, msFieldList.json, etc
  * 
+ * This class heavily relies on the use of JavaParser, 
+ * @see <a href="https://www.javadoc.io/doc/com.github.javaparser/javaparser-core/latest/index.html">JavaParser Documentation</a>
  */
 public class MsVisitor {
 
+    /**
+     * Parse class or interface information from file and generate MsClass
+     * object that will be saved to cache
+     * 
+     * @param file the file object
+     * @param path the file path
+     * @param role the role of the file (repository, service, controller)
+     * @param msId the msId object associated with the file/path
+     */
     public static void visitClass(File file, String path, MsClassRoles role, MsId msId) {
         try {
             new VoidVisitorAdapter<Object>() {
@@ -89,6 +96,14 @@ public class MsVisitor {
         }
     }
 
+    /**
+     * Parse method information and hand off information to MsMethodBuilder
+     * 
+     * @param file the file object
+     * @param path the file path
+     * @param role the role of the file (repository, service, controller)
+     * @param msId the msId object associated with the file/path
+     */
     public static void visitMethods(File file, MsClassRoles role, String path, MsId msId) {
         try {
             new VoidVisitorAdapter<Object>() {
@@ -104,24 +119,27 @@ public class MsVisitor {
         }
     }
 
+    /**
+     * Parse method call information and generate MsMethodCall object
+     * that will be saved to cache. Goes down the flow to add all calls
+     * if they traverse multiple layers of the program
+     * 
+     * @param file the file object
+     * @param path the file path
+     * @param msId the msId object associated with the file/path
+     */
     public static void visitMethodCalls(File file, String path, MsId msId) {
-//    	new JavaParser().parse(COMPILATION_UNIT, provider("class X{ void m() {callMethod();} }")).ifSuccessful(cu ->
-//        System.err.println(cu)        
-//    			);
         try {
         	Map<String, ArrayList<MsRestCall>> restCallsContainingMethods = new HashMap<>();
         	List<String> usedServiceMethods = new ArrayList<>();
         	
         	Map<String, ArrayList<MsMethodCall>> repositoryCallsContainingMethods = new HashMap<>();
-//        	List<String> usedRepositoryMethods = new ArrayList<>();
-        	
+
             new VoidVisitorAdapter<Object>() {
                 @Override
                 public void visit(MethodCallExpr n, Object arg) {
                     super.visit(n, arg);
-//                    if (n.getNameAsString().equals("getRouteByRouteId")) {
-//                    	System.err.println("Here " + MsParentVisitor.getMsParentMethod(n));
-//                    }
+                
                     Optional<Expression> scope = n.getScope();
                     if (scope.isPresent()) {
                         if (scope.get() instanceof  NameExpr) {
@@ -131,9 +149,7 @@ public class MsVisitor {
                             NameExpr fae = scope.get().asNameExpr();
                             String name = fae.getNameAsString();
                             
-//                            System.err.println(lineNumber + "");
-//                            System.err.println(name);
-//                            System.err.println(name);
+
                             
                             if (name.toLowerCase().contains("repository")){
                                 MsMethodCall msMethodCall = new MsMethodCall();
@@ -189,12 +205,6 @@ public class MsVisitor {
                                 }
                                 restCallsContainingMethods.get(parentMethodFullName).add(msRestCall);
                                 
-//                                if (lineNumber == 337) {
-//                                	System.err.println(((MsMethodCall)msRestCall).toString());
-//                                	System.err.println(parentMethodCall.toString());
-                                	
-//                                }
-                                
                             }
                         }
                     }
@@ -214,7 +224,6 @@ public class MsVisitor {
                     Optional<Expression> scope = n.getScope();
                     
                     if (!(scope.isPresent() && scope.get() instanceof  NameExpr)) {
-//                    	System.err.println("HEREEE " + calledMethodFullName);
                     	if (restCallsContainingMethods.containsKey(calledMethodFullName) 
                     			&& !usedServiceMethods.contains(calledMethodFullName)) {
                     		ArrayList<MsRestCall> restCalls = restCallsContainingMethods.get(calledMethodFullName);
@@ -230,11 +239,7 @@ public class MsVisitor {
                     			newRestCall.setCalledServiceId(restCall.getCalledServiceId());
                     			newRestCall.setStatementDeclaration(restCall.getStatementDeclaration());
                     			
-                    			
-//                    			System.err.println(("Before " +  (MsMethodCall)restCall).toString());
-//                    			newRestCall.setMsParentMethod(updatedParentMethod);
-//                    			System.err.println(("After " +  (MsMethodCall)restCall).toString());
-                    			MsCache.addMsRestMethodCall(newRestCall);
+                                MsCache.addMsRestMethodCall(newRestCall);
                     		}
                     		
                     	}
@@ -264,17 +269,11 @@ public class MsVisitor {
                     		}
                     		
                     	}
-                    	
-//                    	System.err.println("Here " + MsParentVisitor.getMsParentMethod(n));
+                    
                     }
                 }
                     
             }.visit(StaticJavaParser.parse(file), null);
-            
-//            System.err.println("PRiNTTTTTTT");
-//            for (MsRestCall r: MsCache.msRestCallList) {
-//            	System.err.println(r.toString());
-//            }
             
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -282,7 +281,13 @@ public class MsVisitor {
     }
 
 
-
+   /**
+     * Parse field information and hand off information to MsFieldVisitor
+     * 
+     * @param file the file object
+     * @param path the file path
+     * @param msId the msId object associated with the file/path
+     */
     public static void visitFields(File file, String path, MsId msId) {
         try {
             new VoidVisitorAdapter<Object>() {

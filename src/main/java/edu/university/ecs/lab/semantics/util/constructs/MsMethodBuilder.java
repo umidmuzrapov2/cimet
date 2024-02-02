@@ -13,9 +13,21 @@ import edu.university.ecs.lab.semantics.util.MsCache;
 
 import java.util.Optional;
 
+/**
+ * Parse method information from a MethodDeclaration and generate
+ * msMethod object that will be saved to cache
+ */
 public class MsMethodBuilder {
 
-
+    /**
+     * Parses method information and creates a MsMethod object
+     * representing the method
+     * 
+     * @param n the MethodDeclaration that will be parsed
+     * @param role the role of the current class file
+     * @param path the path to the current file
+     * @param msId the msId of the current file
+     */
     public static void buildMsMethod(MethodDeclaration n, MsClassRoles role, String path, MsId msId){
         MsMethod msMethod = new MsMethod();
         // Set Return Type
@@ -25,7 +37,7 @@ public class MsMethodBuilder {
         // Set Line
         msMethod.setLine(n.getBegin().get().line);
         // Set Modifiers
-        NodeList<Modifier> modifiers = n.getModifiers();
+        // NodeList<Modifier> modifiers = n.getModifiers();
         // Set Arguments
         NodeList<Parameter> parameters = n.getParameters();
         parameters.stream().forEach(e -> {

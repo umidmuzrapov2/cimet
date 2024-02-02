@@ -9,22 +9,22 @@ import edu.university.ecs.lab.semantics.entity.graph.MsId;
 import edu.university.ecs.lab.semantics.util.visitor.MsVisitor;
 
 /**
- * Class holding static functionality related to crawling through main file
- * directory and parsing initial repos for cache
+ * Class holding static functionality for crawling through root file
+ * directory and tagging files then storing them in cache
  */
 public class ProcessFiles {
 
     /**
-     * This function crawls through every subdirectory iteratively under projectDir's path
-     * and initializes an MsID object and calls appropriate visit method's if it is a 
-     * Controller, Service, or Repository
+     * This function crawls through every repo iteratively under projectDir's (root) path 
+     * and tags the role of the file, initializes an MsID object then calls visit method's 
+     * to extract further data
      * 
-     * @param projectDir the file object representing the folder containing repos
+     * @see edu.university.ecs.lab.semantics.util.visitor
+     * 
+     * @param projectDir the root directory, represents the file (folder) holding all repos
      */
     public static void processFile(File projectDir) {
         new DirExplorer((level, path, file) -> path.endsWith(".java"), (level, path, file) -> {
-//            System.out.println(path);
-//            System.out.println(Strings.repeat("=", path.length()));
             MsClassRoles role = null;
             if (path.contains("Controller") && (!path.contains("Test"))){
                 role = MsClassRoles.CONTROLLER;
@@ -62,8 +62,9 @@ public class ProcessFiles {
     }
 
     /**
-     * This function first loads all modules into cache and then
-     * calls processFile() on path
+     * This function first parses all modules (microservices)
+     * then loads their names in cache and lastly calls
+     * processFile on the root
      * 
      * @param path path to the folder containing repos
      */

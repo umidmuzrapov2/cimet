@@ -22,6 +22,12 @@ public class CacheManager {
 
     private String path = "C:\\git\\data\\";
 
+    
+    /** 
+     * Writes all cache to files
+     * 
+     * @param path the path to where the data will be written
+     */
     public void persistCache(String path){
         this.path = path;
         writeArrayList("msClassList", MsCache.msClassList);
@@ -33,21 +39,31 @@ public class CacheManager {
         writeArrayList("msFlowList", MsCache.msFlows);
     }
 
+    /**
+     * Utility function for writing an arrayList to a file in json
+     * 
+     * @param <T> method template
+     * @param name the name of the file that will be written
+     * @param list the templated type of data held in arraylist
+     */
     public <T> void writeArrayList(String name, List<T> list) {
     	System.err.println(name);
         try (FileWriter writer = new FileWriter(path +"/" + name + ".json");
              BufferedWriter bw = new BufferedWriter(writer)) {
-//                Gson gson = new Gson();
-//                String jsonString = gson.toJson(list);
-//        	    FloatContainer container = new FloatContainer(Float.NaN);
         		Gson gson = new GsonBuilder().serializeSpecialFloatingPointValues().setPrettyPrinting().create();
-        	    String jsonString = gson.toJson(list);//{"includedFloat":NaN}
+        	    String jsonString = gson.toJson(list);
                 bw.write(jsonString);
         } catch (IOException e) {
             System.err.format("IOException: %s%n", e);
         }
     }
 
+    /**
+     * fuction for parsing saved cache files and loading them
+     * back into MsCache
+     * 
+     * @param cachePath the path to where cache files are held
+     */
     public void recreateCache(String cachePath){
 
         this.path = cachePath;
@@ -90,6 +106,12 @@ public class CacheManager {
         MsCache.msFlows = msFlowEntities;
     }
 
+    /**
+     * Utility function for reading json file into string format
+     * 
+     * @param name the name of the file
+     * @return string representation of file data
+     */
     public String readDataIntoString(String name) {
         String s = null;
         try {

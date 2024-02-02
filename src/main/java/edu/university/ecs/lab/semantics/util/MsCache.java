@@ -27,7 +27,7 @@ public class MsCache {
     public static Map<String, Entity> mappedEntities;
 
     /**
-     * Initialize all lists of entities to empty lists
+     * Initialize all cache to empty lists
      */
     public static void init(){
         modules = new ArrayList<>();
@@ -40,32 +40,61 @@ public class MsCache {
         msInconsistencies = new MsInconsistencies();
     }
 
+    
+    /** 
+     * Adds msClass to msClassList
+     * 
+     * @param msClass the MsClass to add
+     */
     public static void addMsClass(MsClass msClass) {
         msClassList.add(msClass);
     }
 
+    
+    /** 
+     * Adds msMethod to msMethodList
+     * 
+     * @param msMethod the MsMethod to add
+     */
     public static void addMsMethod(MsMethod msMethod) {
         msMethodList.add(msMethod);
     }
 
+    
+    /** 
+     * Adds MsMethodCall to msMethodCallList
+     * 
+     * @param msMethodCall the MsMethodCall to add
+     */
     public static void addMsMethodCall(MsMethodCall msMethodCall) {
         msMethodCallList.add(msMethodCall);
     }
 
+    /**
+     * Adds msField to msFieldList
+     * 
+     * @param msField the MsField to add
+     */
     public static void addMsField(MsField msField) {
         msFieldList.add(msField);
     }
 
+    /**
+     * Adds msRestCall to msRestCallList
+     * 
+     * @param msRestCall the MsRestCall to add
+     */
     public static void addMsRestMethodCall(MsRestCall msRestCall){
         msRestCallList.add(msRestCall);
     }
 
+    /**
+     * Adds addMsFlow to msFlows
+     * 
+     * @param msFlow the addMsFlow to add
+     */
     public static void addMsFlow(MsFlowEntity msFlow) {
         msFlows.add(msFlow);
     }
 
-    public static void print(){
-//        System.out.printf("");
-        System.out.println();
-    }
 }

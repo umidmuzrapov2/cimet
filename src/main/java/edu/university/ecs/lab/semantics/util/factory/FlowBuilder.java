@@ -13,6 +13,9 @@ import edu.university.ecs.lab.semantics.util.MsCache;
  */
 public class FlowBuilder {
 
+    /**
+     * 
+     */
     public void buildFlows(){
         List<MsFlowEntity> msFlowEntities = findControllerMethods();
         for (MsFlowEntity msFlowEntity: msFlowEntities
@@ -77,58 +80,111 @@ public class FlowBuilder {
         MsCache.msFlows = msFlowEntities;
     }
 
+    /**
+     * 
+     * 
+     * @param msRepository
+     * @param msRepositoryMethodCall
+     * @return
+     */
     private Optional<MsMethod> findRepositoryMethod(MsClass msRepository, MsMethodCall msRepositoryMethodCall) {
         return MsCache.msMethodList.stream()
                 .filter(n -> n.getMsId().getPath().equals(msRepository.getMsId().getPath()) && n.getMethodName().equals(msRepositoryMethodCall.getCalledMethodName()))
                 .findFirst();
     }
 
+    /**
+     * 
+     * 
+     * @param msServiceRepositoryField
+     * @return
+     */
     private Optional<MsClass> findRepositoryClass(MsField msServiceRepositoryField) {
         return MsCache.msClassList.stream()
                 .filter(n -> n.getClassName().equals(msServiceRepositoryField.getFieldClass()))
                 .findFirst();
     }
 
+    /**
+     * 
+     * 
+     * @param msService
+     * @param repositoryMethodCall
+     * @return
+     */
     private Optional<MsField> findRepositoryField(MsClass msService, MsMethodCall repositoryMethodCall) {
         return MsCache.msFieldList.stream()
                 .filter(n -> n.getMsId().getPath().equals(msService.getMsId().getPath()) && n.getFieldVariable().equals(repositoryMethodCall.getCalledServiceId()))
                 .findFirst();
     }
 
+    /**
+     * 
+     * 
+     * @param msService
+     * @param msServiceMethod
+     * @return
+     */
     private Optional<MsMethodCall> findMsRepositoryMethodCall(MsClass msService, MsMethod msServiceMethod) {
         return MsCache.msMethodCallList.stream()
                 .filter(n -> n.getMsId().getPath().equals(msService.getMsId().getPath()) && n.getParentMethodName().equals(msServiceMethod.getMethodName()))
                 .findFirst();
     }
 
+    /**
+     * 
+     * 
+     * @param msService
+     * @param controllerServiceMethodCall
+     * @return
+     */
     private Optional<MsMethod> findMsServiceMethod(MsClass msService, MsMethodCall controllerServiceMethodCall) {
         return MsCache.msMethodList.stream()
                 .filter(n -> n.getMsId().getPath().equals(msService.getMsId().getPath()) && n.getMethodName().equals(controllerServiceMethodCall.getCalledMethodName()))
                 .findFirst();
     }
 
+    /**
+     * 
+     * 
+     * @param msMethodService
+     * @return
+     */
     private List<MsRestCall> findRestCalls(MsMethod msMethodService) {
-//    	System.err.println("PARENT = " + msMethodService.getClassName() + "  " + msMethodService.getMethodName() );
-//    	for (MsRestCall n : MsCache.msRestCallList) {
-//    		System.err.println("CACH = " + n.getParentClassName() + "  " + n.getParentMethodName());
-//    	}
         return MsCache.msRestCallList.stream()
                 .filter(n -> n.getParentClassName().equals(msMethodService.getClassName()) && n.getParentMethodName().equals(msMethodService.getMethodName()))
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 
+     * 
+     * @param msControllerServiceField
+     * @return
+     */
     private Optional<MsClass> findService(MsField msControllerServiceField) {
         return MsCache.msClassList.stream()
                 .filter(n -> n.getClassName().equals(msControllerServiceField.getFieldClass() + "Impl"))
                 .findFirst();
     }
 
+    /**
+     * 
+     * 
+     * @param msMethodCall
+     * @return
+     */
     private Optional<MsField> findServiceField(MsMethodCall msMethodCall) {
         return MsCache.msFieldList.stream()
                 .filter(n -> n.getMsId().getPath().equals(msMethodCall.getMsId().getPath()) && n.getFieldVariable().equals(msMethodCall.getCalledServiceId()))
                 .findFirst();
     }
 
+    /**
+     * 
+     * 
+     * @return
+     */
     public List<MsFlowEntity> findControllerMethods()  {
         return MsCache.msMethodList
                 .stream()
@@ -137,6 +193,12 @@ public class FlowBuilder {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 
+     * 
+     * @param msFlowEntity
+     * @return
+     */
     public MsClass findController(MsFlowEntity msFlowEntity) {
         return MsCache.msClassList
                 .stream()
@@ -145,6 +207,12 @@ public class FlowBuilder {
                 .get();
     }
 
+    /**
+     * 
+     * 
+     * @param msControllerMethod
+     * @return
+     */
     private Optional<MsMethodCall> findServiceCall(MsMethod msControllerMethod) {
         return MsCache.msMethodCallList
                 .stream()

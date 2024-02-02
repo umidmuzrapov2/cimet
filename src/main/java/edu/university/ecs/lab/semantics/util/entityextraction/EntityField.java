@@ -1,7 +1,6 @@
 package edu.university.ecs.lab.semantics.util.entityextraction;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 import lombok.Data;
