@@ -11,28 +11,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MsAnnotationBuilder {
-    public static List<MsAnnotation> buildAnnotations(NodeList<AnnotationExpr> annotations){
-        List<MsAnnotation> msAnnotations = new ArrayList<>();
-        for (AnnotationExpr an: annotations
-                ) {
-            msAnnotations.add(buildAnnotation(an));
-        }
-        return msAnnotations;
+  public static List<MsAnnotation> buildAnnotations(NodeList<AnnotationExpr> annotations) {
+    List<MsAnnotation> msAnnotations = new ArrayList<>();
+    for (AnnotationExpr an : annotations) {
+      msAnnotations.add(buildAnnotation(an));
     }
+    return msAnnotations;
+  }
 
-    private static MsAnnotation buildAnnotation(AnnotationExpr annotationExpr) {
-        MsAnnotation msAnnotation = new MsAnnotation();
-        msAnnotation.setAnnotationName(annotationExpr.getNameAsString());
-        List<Node> childNodes = annotationExpr.getChildNodes();
-        for (Node node: childNodes
-             ) {
-            if (node instanceof MemberValuePair) {
-                MemberValuePair memberValuePair = (MemberValuePair) node;
-                msAnnotation.setKey(memberValuePair.getNameAsString());
-                msAnnotation.setValue(memberValuePair.getValue().toString());
-                msAnnotation.setHttpAnnotation(true);
-            }
-        }
-        return msAnnotation;
+  private static MsAnnotation buildAnnotation(AnnotationExpr annotationExpr) {
+    MsAnnotation msAnnotation = new MsAnnotation();
+    msAnnotation.setAnnotationName(annotationExpr.getNameAsString());
+    List<Node> childNodes = annotationExpr.getChildNodes();
+    for (Node node : childNodes) {
+      if (node instanceof MemberValuePair) {
+        MemberValuePair memberValuePair = (MemberValuePair) node;
+        msAnnotation.setKey(memberValuePair.getNameAsString());
+        msAnnotation.setValue(memberValuePair.getValue().toString());
+        msAnnotation.setHttpAnnotation(true);
+      }
     }
+    return msAnnotation;
+  }
 }

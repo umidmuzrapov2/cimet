@@ -8,12 +8,11 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper = false)
 public class MsField extends MsParentMethod {
-    private MsId msId;
-    private String fieldClass;
-    private String fieldVariable;
-    private MsParentMethod parentMethod;
-    private int line;
-
+  private MsId msId;
+  private String fieldClass;
+  private String fieldVariable;
+  private MsParentMethod parentMethod;
+  private int line;
 }

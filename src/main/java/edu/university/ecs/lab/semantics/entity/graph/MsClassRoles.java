@@ -1,8 +1,9 @@
 package edu.university.ecs.lab.semantics.entity.graph;
 
-/**
- * Enum representing the different types of classes in code
- */
+/** Enum representing the different types of classes in code */
 public enum MsClassRoles {
-    CONTROLLER, SERVICE, REPOSITORY, SERVICE_INTERFACE
+  CONTROLLER,
+  SERVICE,
+  REPOSITORY,
+  SERVICE_INTERFACE
 }

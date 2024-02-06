@@ -13,83 +13,82 @@ import edu.university.ecs.lab.semantics.entity.graph.MsParentMethod;
 import java.util.Optional;
 
 /**
- * Parse method information from a MethodCallExpr or FieldDeclaration
- * and generate MsParentMethod object that will be returned
+ * Parse method information from a MethodCallExpr or FieldDeclaration and generate MsParentMethod
+ * object that will be returned
  */
 public class MsParentVisitor {
 
-    /**
-     * Parse MsParentMethod from MethodCallExpr object
-     * 
-     * @param n the MethodCallExpr that will be parsed
-     * @return MsParentMethod object representing parent method
-     */
-    public static MsParentMethod getMsParentMethod(MethodCallExpr n) {
-        MsParentMethod msParentMethod = new MsParentMethod();
-        Optional<Node> parentNode = n.getParentNode();
-        while (parentNode.isPresent() && !(parentNode.get() instanceof MethodDeclaration)) {
-            parentNode = parentNode.get().getParentNode();
+  /**
+   * Parse MsParentMethod from MethodCallExpr object
+   *
+   * @param n the MethodCallExpr that will be parsed
+   * @return MsParentMethod object representing parent method
+   */
+  public static MsParentMethod getMsParentMethod(MethodCallExpr n) {
+    MsParentMethod msParentMethod = new MsParentMethod();
+    Optional<Node> parentNode = n.getParentNode();
+    while (parentNode.isPresent() && !(parentNode.get() instanceof MethodDeclaration)) {
+      parentNode = parentNode.get().getParentNode();
+    }
+    if (parentNode.isPresent()) {
+      // Set Method
+      MethodDeclaration md = (MethodDeclaration) parentNode.get();
+      msParentMethod.setParentMethodName(md.getName().getIdentifier());
+      // Find Class
+      while (parentNode.isPresent() && !(parentNode.get() instanceof ClassOrInterfaceDeclaration)) {
+        parentNode = parentNode.get().getParentNode();
+      }
+      if (parentNode.isPresent()) {
+        // Set Class
+        ClassOrInterfaceDeclaration cl = (ClassOrInterfaceDeclaration) parentNode.get();
+        msParentMethod.setParentClassName(cl.getName().getIdentifier());
+        // Find Package
+        parentNode = parentNode.get().getParentNode();
+        if (parentNode.isPresent() && parentNode.get() instanceof CompilationUnit) {
+          // Set Package
+          CompilationUnit cu = (CompilationUnit) parentNode.get();
+          Optional<PackageDeclaration> pd = cu.getPackageDeclaration();
+          if (pd.isPresent()) {
+            msParentMethod.setParentPackageName(pd.get().getNameAsString());
+          }
+        } else {
+          System.err.println("Cannot get the Package Declaration");
         }
-        if (parentNode.isPresent()) {
-            // Set Method
-            MethodDeclaration md = (MethodDeclaration) parentNode.get();
-            msParentMethod.setParentMethodName(md.getName().getIdentifier());
-            //Find Class
-            while (parentNode.isPresent() && !(parentNode.get() instanceof ClassOrInterfaceDeclaration)) {
-                parentNode = parentNode.get().getParentNode();
-            }
-            if (parentNode.isPresent()) {
-                // Set Class
-                ClassOrInterfaceDeclaration cl = (ClassOrInterfaceDeclaration) parentNode.get();
-                msParentMethod.setParentClassName(cl.getName().getIdentifier());
-                // Find Package
-                parentNode = parentNode.get().getParentNode();
-                if (parentNode.isPresent() && parentNode.get() instanceof CompilationUnit) {
-                    // Set Package
-                    CompilationUnit cu = (CompilationUnit) parentNode.get();
-                    Optional<PackageDeclaration> pd = cu.getPackageDeclaration();
-                    if (pd.isPresent()) {
-                        msParentMethod.setParentPackageName(pd.get().getNameAsString());
-                    }
-                } else {
-                	System.err.println("Cannot get the Package Declaration");
-                }
-            }
+      }
+    }
+    return msParentMethod;
+  }
+
+  /**
+   * Parse MsParentMethod from FieldDeclaration object
+   *
+   * @param n the FieldDeclaration that will be parsed
+   * @return MsParentMethod object representing parent method
+   */
+  public static MsParentMethod getMsParentMethod(FieldDeclaration n) {
+    MsParentMethod msParentMethod = new MsParentMethod();
+    Optional<Node> parentNode = n.getParentNode();
+
+    // Find Class
+    while (parentNode.isPresent() && !(parentNode.get() instanceof ClassOrInterfaceDeclaration)) {
+      parentNode = parentNode.get().getParentNode();
+    }
+    if (parentNode.isPresent()) {
+      // Set Class
+      ClassOrInterfaceDeclaration cl = (ClassOrInterfaceDeclaration) parentNode.get();
+      msParentMethod.setParentClassName(cl.getName().getIdentifier());
+      // Find Package
+      parentNode = parentNode.get().getParentNode();
+      if (parentNode.isPresent()) {
+        // Set Package
+        CompilationUnit cu = (CompilationUnit) parentNode.get();
+        Optional<PackageDeclaration> pd = cu.getPackageDeclaration();
+        if (pd.isPresent()) {
+          msParentMethod.setParentPackageName(pd.get().getNameAsString());
         }
-        return msParentMethod;
+      }
     }
 
-    /**
-     * Parse MsParentMethod from FieldDeclaration object
-     * 
-     * @param n the FieldDeclaration that will be parsed
-     * @return MsParentMethod object representing parent method
-     */
-    public static MsParentMethod getMsParentMethod(FieldDeclaration n){
-        MsParentMethod msParentMethod = new MsParentMethod();
-        Optional<Node> parentNode = n.getParentNode();
-
-        //Find Class
-        while (parentNode.isPresent() && !(parentNode.get() instanceof ClassOrInterfaceDeclaration)) {
-            parentNode = parentNode.get().getParentNode();
-        }
-        if (parentNode.isPresent()) {
-            // Set Class
-            ClassOrInterfaceDeclaration cl = (ClassOrInterfaceDeclaration) parentNode.get();
-            msParentMethod.setParentClassName(cl.getName().getIdentifier());
-            // Find Package
-            parentNode = parentNode.get().getParentNode();
-            if (parentNode.isPresent()) {
-                // Set Package
-                CompilationUnit cu = (CompilationUnit) parentNode.get();
-                Optional<PackageDeclaration> pd = cu.getPackageDeclaration();
-                if (pd.isPresent()) {
-                    msParentMethod.setParentPackageName(pd.get().getNameAsString());
-                }
-            }
-        }
-
-        return msParentMethod;
-    }
-
+    return msParentMethod;
+  }
 }
