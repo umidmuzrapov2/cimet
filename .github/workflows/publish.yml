@@ -15,7 +15,7 @@ jobs:
       with:
         dotnet-version: 6.0.307
     - name: Publish .NET Core Project
-      run: dotnet publish ./ProphetEvolution.csproj -c Release -o release --nologo
+      run: dotnet publish ./ProphetEvolution/ProphetEvolution.csproj -c Release -o release --nologo
     # changes the base-tag in index.html from '/' to 'BlazorGitHubPagesDemo' to match GitHub Pages repository subdirectory
     - name: Change base-tag in index.html from / to pages
       run: sed -i 's/<base href="\/" \/>/<base href="\/prophet-evolution" \/>/g' release/wwwroot/index.html
