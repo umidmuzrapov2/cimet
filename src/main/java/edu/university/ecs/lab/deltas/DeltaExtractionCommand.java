@@ -44,12 +44,11 @@ public class DeltaExtractionCommand {
   private static Repository establishLocalEndpoint(String path) throws IOException {
     File localRepoDir = new File(path);
 
-    return new FileRepositoryBuilder()
-            .setGitDir(new File(localRepoDir, ".git"))
-            .build();
+    return new FileRepositoryBuilder().setGitDir(new File(localRepoDir, ".git")).build();
   }
 
-  private static List<DiffEntry> fetchRemoteDifferences(Repository repo, String branch) throws Exception {
+  private static List<DiffEntry> fetchRemoteDifferences(Repository repo, String branch)
+      throws Exception {
     try (Git git = new Git(repo)) {
       // fetch latest changes from remote
       git.fetch().call();
@@ -57,15 +56,15 @@ public class DeltaExtractionCommand {
       try (ObjectReader reader = repo.newObjectReader()) {
         // get the difference between local main and origin/main
         return git.diff()
-                .setOldTree(prepareTreeParser(reader, repo, "refs/remotes/origin/" + branch))
-                .setNewTree(prepareTreeParser(reader, repo, "refs/heads/" + branch))
-                .call();
+            .setOldTree(prepareTreeParser(reader, repo, "refs/remotes/origin/" + branch))
+            .setNewTree(prepareTreeParser(reader, repo, "refs/heads/" + branch))
+            .call();
       }
     }
   }
 
-  private static CanonicalTreeParser prepareTreeParser(ObjectReader reader,
-                                                       Repository repo, String ref) throws IOException {
+  private static CanonicalTreeParser prepareTreeParser(
+      ObjectReader reader, Repository repo, String ref) throws IOException {
     try (RevWalk walk = new RevWalk(reader)) {
       Ref head = repo.exactRef(ref);
       RevCommit commit = repo.parseCommit(head.getObjectId());
@@ -81,10 +80,12 @@ public class DeltaExtractionCommand {
     }
   }
 
-  private static void processDifferences(String path, Repository repo, List<DiffEntry> diffEntries) throws IOException {
+  private static void processDifferences(String path, Repository repo, List<DiffEntry> diffEntries)
+      throws IOException {
     // process each difference
     for (DiffEntry entry : diffEntries) {
-      System.out.println("Change impact of type " + entry.getChangeType() + " detected in " + entry.getNewPath());
+      System.out.println(
+          "Change impact of type " + entry.getChangeType() + " detected in " + entry.getNewPath());
 
       String changeURL = getGithubFileUrl(repo, entry);
       System.out.println("Extracting changes from: " + changeURL);
@@ -102,7 +103,8 @@ public class DeltaExtractionCommand {
       jout.add("changes", deltaChanges);
 
       // write differences to output file
-      String outputName = "delta-changes-["+ (new Date()).getTime() + "]-" + entry.getNewId().name() + ".json";
+      String outputName =
+          "delta-changes-[" + (new Date()).getTime() + "]-" + entry.getNewId().name() + ".json";
       writeJsonToFile(jout.build(), outputName);
 
       System.out.println("Delta extracted: " + outputName);
@@ -124,21 +126,23 @@ public class DeltaExtractionCommand {
   private static String fetchAndDecodeFile(String url) throws IOException {
     String changeData = fetchJsonFromUrl(url);
     JsonObject changeDetails = gson.fromJson(changeData, JsonObject.class);
-    String encodedContent = changeDetails.getAsJsonObject().get("content").getAsString().replaceAll("\\s", "");
+    String encodedContent =
+        changeDetails.getAsJsonObject().get("content").getAsString().replaceAll("\\s", "");
     return new String(Base64.getDecoder().decode(encodedContent), StandardCharsets.UTF_8);
   }
 
   private static String fetchJsonFromUrl(String url) throws IOException {
     try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
       HttpGet request = new HttpGet(url);
-//      request.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + ACCESS_TOKEN);
-//      request.setHeader(HttpHeaders.ACCEPT, "application/vnd.github.v3+json");
+      //      request.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + ACCESS_TOKEN);
+      //      request.setHeader(HttpHeaders.ACCEPT, "application/vnd.github.v3+json");
 
       return EntityUtils.toString(httpClient.execute(request).getEntity());
     }
   }
 
-  private static javax.json.JsonArray extractDeltaChanges(String decodedFile, String pathToLocal) throws IOException {
+  private static javax.json.JsonArray extractDeltaChanges(String decodedFile, String pathToLocal)
+      throws IOException {
     JsonArrayBuilder jsonArrayBuilder = Json.createArrayBuilder();
 
     BufferedReader reader = new BufferedReader(new FileReader(pathToLocal));
@@ -150,7 +154,7 @@ public class DeltaExtractionCommand {
     while ((line = reader.readLine()) != null) {
       // record each line-by-line difference
       while (!line.equals(decodedLines[i])) {
-        jsonArrayBuilder.add("line "+(i+1));
+        jsonArrayBuilder.add("line " + (i + 1));
         i++;
       }
 
@@ -160,7 +164,8 @@ public class DeltaExtractionCommand {
     return jsonArrayBuilder.build();
   }
 
-  private static void writeJsonToFile(javax.json.JsonObject jsonOut, String filePath) throws IOException {
+  private static void writeJsonToFile(javax.json.JsonObject jsonOut, String filePath)
+      throws IOException {
     try (FileWriter writer = new FileWriter(filePath)) {
       Map<String, Object> properties = new HashMap<>();
       properties.put(JsonGenerator.PRETTY_PRINTING, true);
