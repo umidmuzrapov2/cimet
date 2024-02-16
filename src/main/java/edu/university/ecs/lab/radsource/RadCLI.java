@@ -20,7 +20,8 @@ public class RadCLI {
   public static void main(String[] args) throws IOException {
     RadSourceService restDiscoveryService = new RadSourceService();
     RadSourceRequestContext request = new RadSourceRequestContext(List.of(args));
-    RadSourceResponseContext responseContext = restDiscoveryService.generateRadSourceResponseContext(request);
+    RadSourceResponseContext responseContext =
+        restDiscoveryService.generateRadSourceResponseContext(request);
 
     Gson gson = new GsonBuilder().setPrettyPrinting().create();
     FileWriter fw = new FileWriter("output.json");
