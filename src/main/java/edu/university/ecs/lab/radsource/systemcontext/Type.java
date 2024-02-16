@@ -1,14 +1,22 @@
 package edu.university.ecs.lab.radsource.systemcontext;
 
 public enum Type {
-  BYTE, CHAR, SHORT, INT, LONG, FLOAT, DOUBLE, STRING, OBJECT;
+  BYTE,
+  CHAR,
+  SHORT,
+  INT,
+  LONG,
+  FLOAT,
+  DOUBLE,
+  STRING,
+  OBJECT;
 
-  public static Type get(String name){
-    switch(name.toLowerCase()){
+  public static Type get(String name) {
+    switch (name.toLowerCase()) {
       case "byte":
         return BYTE;
       case "char":
-        return  CHAR;
+        return CHAR;
       case "short":
         return SHORT;
       case "int":
@@ -25,7 +33,6 @@ public enum Type {
       case "object":
       default:
         return OBJECT;
-
     }
   }
 }

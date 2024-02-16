@@ -14,7 +14,7 @@ public class Entity {
     this.entityName = new Name(entityName);
   }
 
-  public Entity(String entityName){
+  public Entity(String entityName) {
     this.entityName = new Name(entityName);
   }
 
@@ -25,11 +25,11 @@ public class Entity {
 
   public Entity clone() {
     Set<Field> newFields = new HashSet<>(this.fields.size());
-    this.getFields().forEach(x ->
-    {
-      newFields.add(x.clone());
-
-    });
+    this.getFields()
+        .forEach(
+            x -> {
+              newFields.add(x.clone());
+            });
     return new Entity(new Name(this.getEntityName()), newFields);
   }
 
@@ -44,8 +44,7 @@ public class Entity {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     Entity entity = (Entity) o;
-    return Objects.equals(entityName, entity.entityName) &&
-            Objects.equals(fields, entity.fields);
+    return Objects.equals(entityName, entity.entityName) && Objects.equals(fields, entity.fields);
   }
 
   @Override
@@ -71,8 +70,6 @@ public class Entity {
 
   @Override
   public String toString() {
-    return "Entity{" +
-            "entityName='" + entityName + '\'' +
-            '}';
+    return "Entity{" + "entityName='" + entityName + '\'' + '}';
   }
 }

@@ -9,7 +9,7 @@ public class BoundedContext {
 
   private Set<Entity> boundedContextEntities;
 
-  public BoundedContext(){}
+  public BoundedContext() {}
 
   public BoundedContext(String systemName, Set<Entity> boundedContextEntities) {
     this.systemName = systemName;
@@ -37,8 +37,8 @@ public class BoundedContext {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     BoundedContext that = (BoundedContext) o;
-    return Objects.equals(systemName, that.systemName) &&
-            Objects.equals(boundedContextEntities, that.boundedContextEntities);
+    return Objects.equals(systemName, that.systemName)
+        && Objects.equals(boundedContextEntities, that.boundedContextEntities);
   }
 
   @Override

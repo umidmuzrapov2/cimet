@@ -9,7 +9,7 @@ public class Annotation {
   private String stringValue;
   private Integer intValue;
 
-  public Annotation(){}
+  public Annotation() {}
 
   public Annotation(String name, String stringValue, Integer intValue) {
     this.name = name;
@@ -46,9 +46,9 @@ public class Annotation {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     Annotation that = (Annotation) o;
-    return Objects.equals(name, that.name) &&
-            Objects.equals(stringValue, that.stringValue) &&
-            Objects.equals(intValue, that.intValue);
+    return Objects.equals(name, that.name)
+        && Objects.equals(stringValue, that.stringValue)
+        && Objects.equals(intValue, that.intValue);
   }
 
   @Override

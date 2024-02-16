@@ -16,22 +16,27 @@ public class Field {
 
   private String entityRefName;
 
-  public Field clone(){
+  public Field clone() {
     // need to change the entity reference later to the new entity
-    return new Field(this.getName(), this.getType(), this.getAnnotations(),
-            this.isReference(), this.getEntityRefName(), this.isCollection());
+    return new Field(
+        this.getName(),
+        this.getType(),
+        this.getAnnotations(),
+        this.isReference(),
+        this.getEntityRefName(),
+        this.isCollection());
   }
 
   private boolean isCollection;
 
-  public Field(){}
+  public Field() {}
 
   public Field(String type, Name name) {
     this.type = type;
     this.name = name;
   }
 
-  public Field(String type, String name){
+  public Field(String type, String name) {
     this.type = type;
     this.name = new Name(name);
   }
@@ -42,7 +47,13 @@ public class Field {
     this.annotations = annotations;
   }
 
-  public Field(Name name, String type, Set<Annotation> annotations, boolean isReference, String entityRefName, boolean isCollection) {
+  public Field(
+      Name name,
+      String type,
+      Set<Annotation> annotations,
+      boolean isReference,
+      String entityRefName,
+      boolean isCollection) {
     this.name = new Name(name);
     this.type = type;
     this.annotations = annotations;
@@ -99,31 +110,36 @@ public class Field {
     this.entityRefName = entityRefName;
   }
 
-
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (!(o instanceof Field)) return false;
     Field field = (Field) o;
-    return isReference() == field.isReference() &&
-            isCollection() == field.isCollection() &&
-            Objects.equals(getName(), field.getName()) &&
-            Objects.equals(getType(), field.getType()) &&
-            Objects.equals(getAnnotations(), field.getAnnotations()) &&
-            Objects.equals(getEntityRefName(), field.getEntityRefName());
+    return isReference() == field.isReference()
+        && isCollection() == field.isCollection()
+        && Objects.equals(getName(), field.getName())
+        && Objects.equals(getType(), field.getType())
+        && Objects.equals(getAnnotations(), field.getAnnotations())
+        && Objects.equals(getEntityRefName(), field.getEntityRefName());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(getName(), getType(), getAnnotations(), isReference(), getEntityRefName(), isCollection());
+    return Objects.hash(
+        getName(), getType(), getAnnotations(), isReference(), getEntityRefName(), isCollection());
   }
 
   @Override
   public String toString() {
-    return "Field{" +
-            "name='" + name.getName() + '\'' +
-            ", type='" + type + '\'' +
-            ", isReference=" + isReference +
-            '}';
+    return "Field{"
+        + "name='"
+        + name.getName()
+        + '\''
+        + ", type='"
+        + type
+        + '\''
+        + ", isReference="
+        + isReference
+        + '}';
   }
 }

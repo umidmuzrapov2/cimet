@@ -35,8 +35,7 @@ public class SystemContext {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     SystemContext that = (SystemContext) o;
-    return Objects.equals(systemName, that.systemName) &&
-            Objects.equals(modules, that.modules);
+    return Objects.equals(systemName, that.systemName) && Objects.equals(modules, that.modules);
   }
 
   @Override

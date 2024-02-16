@@ -18,11 +18,7 @@ public class RadCLI {
 
   public static void main(String[] args) throws IOException {
     RestDiscoveryService restDiscoveryService = new RestDiscoveryService();
-    RequestContext request = new RequestContext(
-            "target",
-            "edu/baylor/ecs",
-            null
-    );
+    RequestContext request = new RequestContext("target", "edu/baylor/ecs", null);
 
     ResponseContext responseContext = restDiscoveryService.generateResponseContext(request);
 
@@ -32,5 +28,4 @@ public class RadCLI {
     gson.toJson(responseContext, fw);
     fw.close();
   }
-
 }

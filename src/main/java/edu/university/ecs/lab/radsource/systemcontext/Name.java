@@ -23,12 +23,12 @@ public class Name {
     this.fullName = fullName;
   }
 
-  public Name(Name n){
+  public Name(Name n) {
     this.name = n.name;
     this.fullName = n.fullName;
   }
 
-  public Name(String str){
+  public Name(String str) {
     this.name = str;
     this.fullName = str;
   }
@@ -41,7 +41,7 @@ public class Name {
     return Objects.equals(name, name1.name);
   }
 
-  //TODO fix this and equals
+  // TODO fix this and equals
   @Override
   public int hashCode() {
     return Objects.hash(fullName);
