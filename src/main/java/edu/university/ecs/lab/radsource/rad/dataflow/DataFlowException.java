@@ -5,9 +5,8 @@ package edu.university.ecs.lab.radsource.rad.dataflow;
  *
  * @author Dipta Das
  */
-
 public class DataFlowException extends Exception {
-    public DataFlowException(String reason) {
-        super(reason);
-    }
+  public DataFlowException(String reason) {
+    super(reason);
+  }
 }

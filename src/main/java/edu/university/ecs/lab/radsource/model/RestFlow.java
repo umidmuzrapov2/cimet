@@ -8,6 +8,6 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 public class RestFlow {
-    private RestCall client;
-    private RestEndpoint endpoint;
+  private RestCall client;
+  private RestEndpoint endpoint;
 }

@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RadSourceResponseContext {
-    private RadSourceRequestContext request;
-    private List<RestEntityContext> restEntityContexts;
-    private List<RestFlow> restFlows;
+  private RadSourceRequestContext request;
+  private List<RestEntityContext> restEntityContexts;
+  private List<RestFlow> restFlows;
 }

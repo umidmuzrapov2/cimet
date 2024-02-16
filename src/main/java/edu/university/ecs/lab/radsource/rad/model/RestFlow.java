@@ -11,14 +11,13 @@ import java.util.List;
  *
  * @author Dipta Das
  */
-
 @Getter
 @Setter
 @ToString
 public class RestFlow {
-    private String resourcePath;
-    private String className;
-    private String methodName;
+  private String resourcePath;
+  private String className;
+  private String methodName;
 
-    private List<RestEntity> servers;
+  private List<RestEntity> servers;
 }

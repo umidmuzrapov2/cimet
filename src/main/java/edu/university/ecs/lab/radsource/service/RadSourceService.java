@@ -17,68 +17,69 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
 @Service
 @AllArgsConstructor
 @Slf4j
 public class RadSourceService {
-    private final RestCallService restCallService;
-    private final RestEndpointService restEndpointService;
-    private final RestFlowService restFlowService;
+  private final RestCallService restCallService;
+  private final RestEndpointService restEndpointService;
+  private final RestFlowService restFlowService;
 
-    // no args constructor
-    // initialize restCallService manually
-    public RadSourceService() {
-        this.restCallService = new RestCallService();
-        this.restEndpointService = new RestEndpointService();
-        this.restFlowService = new RestFlowService();
+  // no args constructor
+  // initialize restCallService manually
+  public RadSourceService() {
+    this.restCallService = new RestCallService();
+    this.restEndpointService = new RestEndpointService();
+    this.restFlowService = new RestFlowService();
+  }
+
+  public RadSourceResponseContext generateRadSourceResponseContext(RadSourceRequestContext request)
+      throws IOException {
+    RadSourceResponseContext responseContext = new RadSourceResponseContext();
+    responseContext.setRequest(request);
+
+    List<RestEntityContext> restEntityContexts = new ArrayList<>();
+
+    for (String pathToMsRoot : request.getPathToMsRoots()) {
+      restEntityContexts.add(generateRestEntityContext(pathToMsRoot));
     }
 
-    public RadSourceResponseContext generateRadSourceResponseContext(RadSourceRequestContext request) throws IOException {
-        RadSourceResponseContext responseContext = new RadSourceResponseContext();
-        responseContext.setRequest(request);
+    List<RestFlow> restFlows = restFlowService.findRestFlows(restEntityContexts);
 
-        List<RestEntityContext> restEntityContexts = new ArrayList<>();
+    responseContext.setRestEntityContexts(restEntityContexts);
+    responseContext.setRestFlows(restFlows);
 
-        for (String pathToMsRoot : request.getPathToMsRoots()) {
-            restEntityContexts.add(generateRestEntityContext(pathToMsRoot));
-        }
+    return responseContext;
+  }
 
-        List<RestFlow> restFlows = restFlowService.findRestFlows(restEntityContexts);
+  private RestEntityContext generateRestEntityContext(String pathToMsRoot) throws IOException {
+    RestEntityContext restEntityContext = new RestEntityContext();
+    restEntityContext.setPathToMsRoot(pathToMsRoot);
 
-        responseContext.setRestEntityContexts(restEntityContexts);
-        responseContext.setRestFlows(restFlows);
+    List<RestCall> restCalls = new ArrayList<>();
+    List<RestEndpoint> restEndpoints = new ArrayList<>();
 
-        return responseContext;
+    for (File sourceFile : getSourceFiles(pathToMsRoot)) {
+      restCalls.addAll(restCallService.findRestCalls(sourceFile));
+      restEndpoints.addAll(restEndpointService.findRestEndpoints(sourceFile));
     }
 
-    private RestEntityContext generateRestEntityContext(String pathToMsRoot) throws IOException {
-        RestEntityContext restEntityContext = new RestEntityContext();
-        restEntityContext.setPathToMsRoot(pathToMsRoot);
+    // add msRoot to all restCalls and restEndpoints
+    restCalls.forEach(e -> e.setMsRoot(pathToMsRoot));
+    restEndpoints.forEach(e -> e.setMsRoot(pathToMsRoot));
 
-        List<RestCall> restCalls = new ArrayList<>();
-        List<RestEndpoint> restEndpoints = new ArrayList<>();
+    restEntityContext.setRestCalls(restCalls);
+    restEntityContext.setRestEndpoints(restEndpoints);
 
-        for (File sourceFile : getSourceFiles(pathToMsRoot)) {
-            restCalls.addAll(restCallService.findRestCalls(sourceFile));
-            restEndpoints.addAll(restEndpointService.findRestEndpoints(sourceFile));
-        }
+    return restEntityContext;
+  }
 
-        // add msRoot to all restCalls and restEndpoints
-        restCalls.forEach(e -> e.setMsRoot(pathToMsRoot));
-        restEndpoints.forEach(e -> e.setMsRoot(pathToMsRoot));
-
-        restEntityContext.setRestCalls(restCalls);
-        restEntityContext.setRestEndpoints(restEndpoints);
-
-        return restEntityContext;
+  private List<File> getSourceFiles(String directoryOrFile) {
+    if (directoryOrFile.endsWith(".java")) { // not a directory, but a single java file
+      return new ArrayList<>(Collections.singletonList(new File(directoryOrFile)));
+    } else {
+      return (List<File>)
+          FileUtils.listFiles(new File(directoryOrFile), new String[] {"java"}, true);
     }
-
-    private List<File> getSourceFiles(String directoryOrFile) {
-        if (directoryOrFile.endsWith(".java")) { // not a directory, but a single java file
-            return new ArrayList<>(Collections.singletonList(new File(directoryOrFile)));
-        } else {
-            return (List<File>) FileUtils.listFiles(new File(directoryOrFile), new String[]{"java"}, true);
-        }
-    }
+  }
 }

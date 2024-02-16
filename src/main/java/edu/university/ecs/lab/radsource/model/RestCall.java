@@ -8,17 +8,17 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 public class RestCall {
-    private String msRoot;
-    private String source;
-    private String httpMethod;
-    private String parentMethod;
-    private String returnType;
-    private String url;
-    private boolean isCollection;
+  private String msRoot;
+  private String source;
+  private String httpMethod;
+  private String parentMethod;
+  private String returnType;
+  private String url;
+  private boolean isCollection;
 
-    public RestCall(String httpMethod, String parentMethod, String returnType) {
-        this.httpMethod = httpMethod;
-        this.parentMethod = parentMethod;
-        this.returnType = returnType;
-    }
+  public RestCall(String httpMethod, String parentMethod, String returnType) {
+    this.httpMethod = httpMethod;
+    this.parentMethod = parentMethod;
+    this.returnType = returnType;
+  }
 }

@@ -15,66 +15,73 @@ import java.util.Properties;
 import java.util.Set;
 
 /**
- * This class constructs a {@link ResponseContext}.
- * It takes a {@link RequestContext} as input.
+ * This class constructs a {@link ResponseContext}. It takes a {@link RequestContext} as input.
  *
  * @author Dipta Das
  */
-
 @AllArgsConstructor
 @Service
 public class RestDiscoveryService {
-    private final ResourceService resourceService;
-    private final RestEntityService restEntityService;
-    private final RestFlowService restFlowService;
+  private final ResourceService resourceService;
+  private final RestEntityService restEntityService;
+  private final RestFlowService restFlowService;
 
-    public RestDiscoveryService() {
-        this.resourceService = new ResourceService(new DefaultResourceLoader());
-        this.restEntityService = new RestEntityService();
-        this.restFlowService = new RestFlowService();
+  public RestDiscoveryService() {
+    this.resourceService = new ResourceService(new DefaultResourceLoader());
+    this.restEntityService = new RestEntityService();
+    this.restFlowService = new RestFlowService();
+  }
+
+  public ResponseContext generateResponseContext(RequestContext request) {
+    ResponseContext responseContext = new ResponseContext();
+    responseContext.setRequest(request);
+
+    List<String> resourcePaths =
+        resourceService.getResourcePaths(request.getPathToCompiledMicroservices());
+    for (String path : resourcePaths) {
+      List<CtClass> ctClasses = resourceService.getCtClasses(path, request.getOrganizationPath());
+
+      Set<Properties> propertiesSet =
+          resourceService.getProperties(path, request.getOrganizationPath());
+      Properties properties;
+      if (propertiesSet.size() > 0) {
+        properties = propertiesSet.iterator().next();
+      } else properties = null;
+
+      // print the properties for debug
+      // Helper.dumpProperties(properties, path);
+
+      RestEntityContext restEntityContext =
+          restEntityService.getRestEntityContext(ctClasses, path, null, properties);
+      responseContext.getRestEntityContexts().add(restEntityContext);
     }
 
-    public ResponseContext generateResponseContext(RequestContext request) {
-        ResponseContext responseContext = new ResponseContext();
-        responseContext.setRequest(request);
+    RestFlowContext restFlowContext =
+        restFlowService.getRestFlowContext(responseContext.getRestEntityContexts());
+    responseContext.setRestFlowContext(restFlowContext);
 
-        List<String> resourcePaths = resourceService.getResourcePaths(request.getPathToCompiledMicroservices());
-        for (String path : resourcePaths) {
-            List<CtClass> ctClasses = resourceService.getCtClasses(path, request.getOrganizationPath());
-
-            Set<Properties> propertiesSet = resourceService.getProperties(path, request.getOrganizationPath());
-            Properties properties;
-            if (propertiesSet.size() > 0) {
-                properties = propertiesSet.iterator().next();
-            } else properties = null;
-
-            // print the properties for debug
-            // Helper.dumpProperties(properties, path);
-
-            RestEntityContext restEntityContext = restEntityService.getRestEntityContext(ctClasses, path, null, properties);
-            responseContext.getRestEntityContexts().add(restEntityContext);
-        }
-
-        RestFlowContext restFlowContext = restFlowService.getRestFlowContext(responseContext.getRestEntityContexts());
-        responseContext.setRestFlowContext(restFlowContext);
-
-        if (request.getOutputPath() != null) {
-            GVGenerator.generate(responseContext);
-        }
-
-        return responseContext;
+    if (request.getOutputPath() != null) {
+      GVGenerator.generate(responseContext);
     }
 
-    // rest entities for single jar
-    public RestEntityContext generateRestEntityContext(RequestContext request, String serviceDNS) {
-        List<CtClass> ctClasses = resourceService.getCtClasses(request.getPathToCompiledMicroservices(), request.getOrganizationPath());
+    return responseContext;
+  }
 
-        Set<Properties> propertiesSet = resourceService.getProperties(request.getPathToCompiledMicroservices(), request.getOrganizationPath());
-        Properties properties;
-        if (propertiesSet.size() > 0) {
-            properties = propertiesSet.iterator().next();
-        } else properties = null;
+  // rest entities for single jar
+  public RestEntityContext generateRestEntityContext(RequestContext request, String serviceDNS) {
+    List<CtClass> ctClasses =
+        resourceService.getCtClasses(
+            request.getPathToCompiledMicroservices(), request.getOrganizationPath());
 
-        return restEntityService.getRestEntityContext(ctClasses, request.getPathToCompiledMicroservices(), serviceDNS, properties);
-    }
+    Set<Properties> propertiesSet =
+        resourceService.getProperties(
+            request.getPathToCompiledMicroservices(), request.getOrganizationPath());
+    Properties properties;
+    if (propertiesSet.size() > 0) {
+      properties = propertiesSet.iterator().next();
+    } else properties = null;
+
+    return restEntityService.getRestEntityContext(
+        ctClasses, request.getPathToCompiledMicroservices(), serviceDNS, properties);
+  }
 }

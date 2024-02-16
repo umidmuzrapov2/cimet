@@ -14,104 +14,105 @@ import java.util.List;
 @Slf4j
 public class RestFlowService {
 
-    public List<RestFlow> findRestFlows(List<RestEntityContext> restEntityContexts) {
-        List<RestFlow> restFlows = new ArrayList<>();
+  public List<RestFlow> findRestFlows(List<RestEntityContext> restEntityContexts) {
+    List<RestFlow> restFlows = new ArrayList<>();
 
-        for (RestEntityContext contextA : restEntityContexts) {
-            for (RestEntityContext contextB : restEntityContexts) {
-                // don't match same MS
-                if (contextA.getPathToMsRoot().equals(contextB.getPathToMsRoot())) continue;
+    for (RestEntityContext contextA : restEntityContexts) {
+      for (RestEntityContext contextB : restEntityContexts) {
+        // don't match same MS
+        if (contextA.getPathToMsRoot().equals(contextB.getPathToMsRoot())) continue;
 
-                // consider contextA as clients and contextB as endpoints
-                restFlows.addAll(restFlowsForContexts(contextA.getRestCalls(), contextB.getRestEndpoints()));
-            }
-        }
-
-        return restFlows;
+        // consider contextA as clients and contextB as endpoints
+        restFlows.addAll(
+            restFlowsForContexts(contextA.getRestCalls(), contextB.getRestEndpoints()));
+      }
     }
 
-    private List<RestFlow> restFlowsForContexts(List<RestCall> restCalls, List<RestEndpoint> restEndpoints) {
-        List<RestFlow> restFlows = new ArrayList<>();
+    return restFlows;
+  }
 
-        for (RestCall restCall : restCalls) {
-            for (RestEndpoint restEndpoint : restEndpoints) {
-                if (restCall.getHttpMethod().equals(restEndpoint.getHttpMethod()) &&
-                        (isReturnTypeMatched(restCall, restEndpoint) || isPathMatched(restCall, restEndpoint))) {
-                    restFlows.add(new RestFlow(restCall, restEndpoint));
-                }
-            }
+  private List<RestFlow> restFlowsForContexts(
+      List<RestCall> restCalls, List<RestEndpoint> restEndpoints) {
+    List<RestFlow> restFlows = new ArrayList<>();
+
+    for (RestCall restCall : restCalls) {
+      for (RestEndpoint restEndpoint : restEndpoints) {
+        if (restCall.getHttpMethod().equals(restEndpoint.getHttpMethod())
+            && (isReturnTypeMatched(restCall, restEndpoint)
+                || isPathMatched(restCall, restEndpoint))) {
+          restFlows.add(new RestFlow(restCall, restEndpoint));
         }
-
-        return restFlows;
+      }
     }
 
-    private boolean isPathMatched(RestCall restCall, RestEndpoint restEndpoint) {
-        // use unified path variable {var}
-        String serverPath = Helper.unifyPathVariable(restEndpoint.getPath());
+    return restFlows;
+  }
 
-        // get path from restCall url
-        String clientPath = "/";
-        try {
-            clientPath = new URL(restCall.getUrl()).getPath();
-        } catch (MalformedURLException e) {
-            log.error(e.toString());
-        }
+  private boolean isPathMatched(RestCall restCall, RestEndpoint restEndpoint) {
+    // use unified path variable {var}
+    String serverPath = Helper.unifyPathVariable(restEndpoint.getPath());
 
-        log.debug("server-path: " + serverPath);
-        log.debug("client-path: " + clientPath);
-
-        return Helper.matchUrl(clientPath, serverPath);
+    // get path from restCall url
+    String clientPath = "/";
+    try {
+      clientPath = new URL(restCall.getUrl()).getPath();
+    } catch (MalformedURLException e) {
+      log.error(e.toString());
     }
 
-    // match class name instead of FQ name
-    private boolean isReturnTypeMatched(RestCall restCall, RestEndpoint restEndpoint) {
-        if (restCall.isCollection() != restEndpoint.isCollection()) {
-            return false;
-        }
+    log.debug("server-path: " + serverPath);
+    log.debug("client-path: " + clientPath);
 
-        String returnTypeA = trimFQName(restCall.getReturnType());
-        String returnTypeB = trimFQName(restEndpoint.getReturnType());
+    return Helper.matchUrl(clientPath, serverPath);
+  }
 
-        if (isGenericReturnType(returnTypeA) || isGenericReturnType(returnTypeB)) {
-            return false;
-        } else if (returnTypeA.equals(returnTypeB)) {
-            return true;
-        } else {
-            return matchIgnoringResponseEntity(returnTypeA, returnTypeB);
-        }
+  // match class name instead of FQ name
+  private boolean isReturnTypeMatched(RestCall restCall, RestEndpoint restEndpoint) {
+    if (restCall.isCollection() != restEndpoint.isCollection()) {
+      return false;
     }
 
-    // ignore ResponseEntity wrapper
-    // ResponseEntity<Exam> should match with Exam
-    private boolean matchIgnoringResponseEntity(String returnTypeA, String returnTypeB) {
-        returnTypeA = trimResponseEntity(returnTypeA);
-        returnTypeB = trimResponseEntity(returnTypeB);
+    String returnTypeA = trimFQName(restCall.getReturnType());
+    String returnTypeB = trimFQName(restEndpoint.getReturnType());
 
-        return returnTypeA.equals(returnTypeB);
+    if (isGenericReturnType(returnTypeA) || isGenericReturnType(returnTypeB)) {
+      return false;
+    } else if (returnTypeA.equals(returnTypeB)) {
+      return true;
+    } else {
+      return matchIgnoringResponseEntity(returnTypeA, returnTypeB);
+    }
+  }
+
+  // ignore ResponseEntity wrapper
+  // ResponseEntity<Exam> should match with Exam
+  private boolean matchIgnoringResponseEntity(String returnTypeA, String returnTypeB) {
+    returnTypeA = trimResponseEntity(returnTypeA);
+    returnTypeB = trimResponseEntity(returnTypeB);
+
+    return returnTypeA.equals(returnTypeB);
+  }
+
+  private String trimFQName(String returnType) {
+    if (returnType.contains(".")) {
+      return returnType.substring(returnType.lastIndexOf('.') + 1);
+    }
+    return returnType;
+  }
+
+  private boolean isGenericReturnType(String returnType) {
+    // template class, not generic
+    if (returnType.endsWith(">")) {
+      return false;
+    }
+    return returnType.contains("Response") || returnType.contains("HttpEntity");
+  }
+
+  private String trimResponseEntity(String returnType) {
+    if (returnType.startsWith("ResponseEntity<") && returnType.endsWith(">")) {
+      return returnType.replaceAll("ResponseEntity<", "").replaceAll(">", "");
     }
 
-    private String trimFQName(String returnType) {
-        if (returnType.contains(".")) {
-            return returnType.substring(returnType.lastIndexOf('.') + 1);
-        }
-        return returnType;
-    }
-
-    private boolean isGenericReturnType(String returnType) {
-        // template class, not generic
-        if (returnType.endsWith(">")) {
-            return false;
-        }
-        return returnType.contains("Response") || returnType.contains("HttpEntity");
-    }
-
-    private String trimResponseEntity(String returnType) {
-        if (returnType.startsWith("ResponseEntity<") && returnType.endsWith(">")) {
-            return returnType
-                    .replaceAll("ResponseEntity<", "")
-                    .replaceAll(">", "");
-        }
-
-        return returnType;
-    }
+    return returnType;
+  }
 }

@@ -11,6 +11,8 @@ public class MsLabel {
 
   @Override
   public String toString() {
-    return String.format("argument: %s, return: %s, type: %s, endpoint function: %s", argument, msReturn, type, endpointFunction);
+    return String.format(
+        "argument: %s, return: %s, type: %s, endpoint function: %s",
+        argument, msReturn, type, endpointFunction);
   }
 }

@@ -9,6 +9,7 @@ import java.util.List;
 public class Facade {
   /**
    * Uses the RAD source analyzer to get an MsModel from a directory
+   *
    * @param path Path to the ms roots
    * @return MsModel of the microservice communication
    */
@@ -17,7 +18,8 @@ public class Facade {
     SourceParser parser = new SourceParser();
 
     // get the full paths to the microservice directories
-    // List<String> msPaths = Arrays.asList(DirectoryUtils.getMsPaths(path)).stream().map(ms -> path + "/" + ms).collect(Collectors.toList());
+    // List<String> msPaths = Arrays.asList(DirectoryUtils.getMsPaths(path)).stream().map(ms -> path
+    // + "/" + ms).collect(Collectors.toList());
     List<String> msPaths = Arrays.asList(DirectoryUtils.getMsFullPaths(path));
 
     // get the microservice communication model

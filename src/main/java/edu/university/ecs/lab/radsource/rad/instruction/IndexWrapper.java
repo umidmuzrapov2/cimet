@@ -10,13 +10,12 @@ import lombok.ToString;
  *
  * @author Dipta Das
  */
-
 @Getter
 @Setter
 @AllArgsConstructor
 @ToString
 public class IndexWrapper {
-    private int index;
-    private String type;
-    private Object value;
+  private int index;
+  private String type;
+  private Object value;
 }

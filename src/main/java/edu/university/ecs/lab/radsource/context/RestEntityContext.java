@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RestEntityContext {
-    String pathToMsRoot;
-    private List<RestCall> restCalls;
-    private List<RestEndpoint> restEndpoints;
+  String pathToMsRoot;
+  private List<RestCall> restCalls;
+  private List<RestEndpoint> restEndpoints;
 }

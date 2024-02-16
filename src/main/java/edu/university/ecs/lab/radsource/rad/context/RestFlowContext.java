@@ -13,9 +13,8 @@ import java.util.List;
  *
  * @author Dipta Das
  */
-
 @Getter
 @ToString
 public class RestFlowContext {
-    private List<RestFlow> restFlows = new ArrayList<>();
+  private List<RestFlow> restFlows = new ArrayList<>();
 }

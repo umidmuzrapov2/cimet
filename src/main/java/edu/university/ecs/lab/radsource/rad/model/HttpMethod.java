@@ -5,7 +5,12 @@ package edu.university.ecs.lab.radsource.rad.model;
  *
  * @author Dipta Das
  */
-
 public enum HttpMethod {
-    GET, PUT, POST, DELETE, OPTIONS, HEAD, PATCH
+  GET,
+  PUT,
+  POST,
+  DELETE,
+  OPTIONS,
+  HEAD,
+  PATCH
 }
