@@ -8,7 +8,7 @@ This project tracks microservice system evolution changes across repositories.
 * Maven 3.6+
 * Java 11+ (11 Recommended) 
 
-## Reproducing results
+## Reproducing results 
 
 - To compile:
     ``mvn clean install -DskipTests``
