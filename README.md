@@ -1,4 +1,4 @@
-# Prophet Microservice System Evolution Tool
+# Microservice System Evolution Tool
 
 This project tracks microservice system evolution changes across repositories.
 
