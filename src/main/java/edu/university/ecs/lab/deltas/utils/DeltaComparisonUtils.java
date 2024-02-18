@@ -24,10 +24,9 @@ public class DeltaComparisonUtils {
         return "Unknown difference";
       }
     } else {
-      return  "'" + line1.substring(diffIndex) + "' vs '" + line2.substring(diffIndex) + "'";
+      return "'" + line1.substring(diffIndex) + "' vs '" + line2.substring(diffIndex) + "'";
     }
   }
-
 
   public JsonArray extractDeltaChanges(String decodedFile, String pathToLocal) throws IOException {
     JsonArrayBuilder jsonArrayBuilder = Json.createArrayBuilder();
@@ -41,7 +40,8 @@ public class DeltaComparisonUtils {
     while ((line = reader.readLine()) != null) {
       // record each line-by-line difference
       if (i < decodedLines.length && !line.equals(decodedLines[i])) {
-        JsonObjectBuilder differenceBuilder = Json.createObjectBuilder()
+        JsonObjectBuilder differenceBuilder =
+            Json.createObjectBuilder()
                 .add("line-index", i)
                 .add("exact", getExactDifference(line, decodedLines[i]));
 
