@@ -42,7 +42,7 @@ public class MsFileUtils {
         endpointBuilder.add("api", dependency.getUrl());
         endpointBuilder.add("source-file", dependency.getSourceFile());
         endpointBuilder.add("call-dest", dependency.getDestFile());
-        endpointBuilder.add("call-method", dependency.getCallType());
+        endpointBuilder.add("call-method", dependency.getCallType() + "()");
 
         endpointsArrayBuilder.add(endpointBuilder.build());
       }
