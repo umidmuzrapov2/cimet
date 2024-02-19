@@ -6,7 +6,7 @@ This project tracks microservice system evolution changes across repositories.
 ## Prerequisites
 
 * Maven 3.6+
-* Java 11+ (11 Recommended) 
+* Java 11+ (11 Recommended)  
 
 ## To Compile:
     ``mvn clean install -DskipTests``

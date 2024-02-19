@@ -42,14 +42,15 @@ public class GitFetchUtils {
       try (ObjectReader reader = repo.newObjectReader()) {
         // get the difference between local main and origin/main
         return git.diff()
-                .setOldTree(prepareTreeParser(reader, repo, "refs/remotes/origin/" + branch))
-                .setNewTree(prepareTreeParser(reader, repo, "refs/heads/" + branch))
-                .call();
+            .setOldTree(prepareTreeParser(reader, repo, "refs/remotes/origin/" + branch))
+            .setNewTree(prepareTreeParser(reader, repo, "refs/heads/" + branch))
+            .call();
       }
     }
   }
 
-  private CanonicalTreeParser prepareTreeParser(ObjectReader reader, Repository repo, String ref) throws IOException {
+  private CanonicalTreeParser prepareTreeParser(ObjectReader reader, Repository repo, String ref)
+      throws IOException {
     try (RevWalk walk = new RevWalk(reader)) {
       Ref head = repo.exactRef(ref);
       RevCommit commit = repo.parseCommit(head.getObjectId());
@@ -81,7 +82,7 @@ public class GitFetchUtils {
     String changeData = fetchJsonFromUrl(url);
     JsonObject changeDetails = gson.fromJson(changeData, JsonObject.class);
     String encodedContent =
-            changeDetails.getAsJsonObject().get("content").getAsString().replaceAll("\\s", "");
+        changeDetails.getAsJsonObject().get("content").getAsString().replaceAll("\\s", "");
     return new String(Base64.getDecoder().decode(encodedContent), StandardCharsets.UTF_8);
   }
 
