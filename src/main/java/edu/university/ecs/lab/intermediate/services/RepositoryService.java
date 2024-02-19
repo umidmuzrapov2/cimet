@@ -1,6 +1,7 @@
 package edu.university.ecs.lab.intermediate.services;
 
 import edu.university.ecs.lab.common.models.*;
+import org.checkerframework.checker.units.qual.A;
 
 import javax.sound.midi.SysexMessage;
 import java.io.BufferedReader;
@@ -27,6 +28,15 @@ public class RepositoryService {
     }
 
     scanDirectory(localDir, endpoints, dependencies);
+
+    int i = 0;
+    for (Dependency dependency : dependencies) {
+      // dest file was not recursively found (or added yet)
+      if (dependency.getDestFile().equals("UNKNOWN")) {
+        dependency.setDestFile(scanForDestination(dependency.getUrl(), endpoints));
+      }
+    }
+
     model.setEndpoints(endpoints);
     model.setDependencies(dependencies);
 
@@ -66,7 +76,7 @@ public class RepositoryService {
           }
 
           //url = trimUrlApi(url);
-          addEndpoint(endpoints, url, fileName);
+          addEndpoint(endpoints, url, fileName, declarationAnnotation.getAnnotation());
         }
 
         // scan for rest declarations (endpoints)
@@ -77,7 +87,7 @@ public class RepositoryService {
           }
 
           //url = trimUrlApi(url);
-          addDependency(dependencies, url, fileName, endpoints);
+          addDependency(dependencies, url, fileName, endpoints, callAnnotation.getAnnotation());
         }
       }
     } catch (IOException e) {
@@ -126,25 +136,31 @@ public class RepositoryService {
     return api;
   }
 
-  private static void addEndpoint(List<Endpoint> endpoints, String url, String sourceFile) {
+  private static void addEndpoint(List<Endpoint> endpoints, String url, String sourceFile, String restAnnotiation) {
     if (url == null) {
       url = "";
     }
 
-    endpoints.add(new Endpoint(url, sourceFile));
+    endpoints.add(new Endpoint(url, sourceFile, restAnnotiation));
   }
 
-  private static void addDependency(List<Dependency> dependencies, String url, String sourceFile, List<Endpoint> endpoints) {
+  private static void addDependency(List<Dependency> dependencies, String url, String sourceFile,
+                                    List<Endpoint> endpoints, String restAnnotation) {
     if (url == null) {
       url = "";
     }
-
-    String destFile = "UNKNOWN";
 
     // cut off ending '/' if exists
     if (url.endsWith("/")) {
       url = url.substring(0, url.length()-1);
     }
+
+    // search for source file in endpoints list
+    dependencies.add(new Dependency(url, sourceFile, scanForDestination(url, endpoints), restAnnotation));
+  }
+
+  private static String scanForDestination(String url, List<Endpoint> endpoints) {
+    String destFile = "UNKNOWN";
 
     // search for source file in endpoints list
     for (Endpoint endpoint : endpoints) {
@@ -154,6 +170,6 @@ public class RepositoryService {
       }
     }
 
-    dependencies.add(new Dependency(url, sourceFile, destFile));
+    return destFile;
   }
 }

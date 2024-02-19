@@ -9,8 +9,11 @@ import lombok.ToString;
 @AllArgsConstructor
 public class Endpoint {
   @NonNull
-  private final String url;
+  private String url;
 
   @NonNull
-  private final String sourceFile;
+  private String sourceFile;
+
+  @NonNull
+  private String restType;
 }
