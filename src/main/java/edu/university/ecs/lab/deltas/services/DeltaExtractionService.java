@@ -1,8 +1,8 @@
 package edu.university.ecs.lab.deltas.services;
 
+import edu.university.ecs.lab.common.writers.MsJsonWriter;
 import edu.university.ecs.lab.deltas.utils.DeltaComparisonUtils;
 import edu.university.ecs.lab.deltas.utils.GitFetchUtils;
-import edu.university.ecs.lab.deltas.writers.DeltaWriter;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.Repository;
 
@@ -44,7 +44,7 @@ public class DeltaExtractionService {
 
       // write differences to output file
       String outputName = "delta-changes-[" + (new Date()).getTime() + "]-" + entry.getNewId().name() + ".json";
-      DeltaWriter.writeJsonToFile(jout.build(), outputName);
+      MsJsonWriter.writeJsonToFile(jout.build(), outputName);
 
       System.out.println("Delta extracted: " + outputName);
     }
