@@ -1,5 +1,6 @@
 package edu.university.ecs.lab.intermediate.utils;
 
+import edu.university.ecs.lab.common.models.Dependency;
 import edu.university.ecs.lab.common.models.Endpoint;
 import edu.university.ecs.lab.common.models.MsModel;
 
@@ -27,18 +28,19 @@ public class MsFileUtils {
         JsonObjectBuilder endpointBuilder = Json.createObjectBuilder();
 
         endpointBuilder.add("api", endpoint.getUrl());
-        endpointBuilder.add("file", endpoint.getSourceFile());
+        endpointBuilder.add("source-file", endpoint.getSourceFile());
 
         endpointsArrayBuilder.add(endpointBuilder.build());
       }
       jsonObjectBuilder.add("endpoints", endpointsArrayBuilder.build());
 
-      List<Endpoint> dependencies = microservice.getValue().getDependencies();
-      for (Endpoint dependency : dependencies) {
+      List<Dependency> dependencies = microservice.getValue().getDependencies();
+      for (Dependency dependency : dependencies) {
         JsonObjectBuilder endpointBuilder = Json.createObjectBuilder();
 
         endpointBuilder.add("api", dependency.getUrl());
-        endpointBuilder.add("file", dependency.getSourceFile());
+        endpointBuilder.add("source-file", dependency.getSourceFile());
+        endpointBuilder.add("call-dest", dependency.getDestFile());
 
         endpointsArrayBuilder.add(endpointBuilder.build());
       }

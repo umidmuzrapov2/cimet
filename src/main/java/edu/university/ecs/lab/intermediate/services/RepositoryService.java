@@ -1,16 +1,16 @@
 package edu.university.ecs.lab.intermediate.services;
 
-import edu.university.ecs.lab.common.models.Endpoint;
-import edu.university.ecs.lab.common.models.MsModel;
-import edu.university.ecs.lab.common.models.RestCallAnnotation;
-import edu.university.ecs.lab.common.models.RestDeclarationAnnotation;
+import edu.university.ecs.lab.common.models.*;
 
+import javax.sound.midi.SysexMessage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class RepositoryService {
   public MsModel recursivelyScanFiles(String repoPath) {
@@ -18,7 +18,7 @@ public class RepositoryService {
     MsModel model = new MsModel();
 
     List<Endpoint> endpoints = new ArrayList<>();
-    List<Endpoint> dependencies = new ArrayList<>();
+    List<Dependency> dependencies = new ArrayList<>();
 
     File localDir = new File(repoPath);
     if (!localDir.exists() || !localDir.isDirectory()) {
@@ -34,7 +34,7 @@ public class RepositoryService {
     return model;
   }
 
-  private static void scanDirectory(File directory, List<Endpoint> endpoints, List<Endpoint> dependencies) {
+  private static void scanDirectory(File directory, List<Endpoint> endpoints, List<Dependency> dependencies) {
     File[] files = directory.listFiles();
 
     if (files != null) {
@@ -42,34 +42,42 @@ public class RepositoryService {
         if (file.isDirectory()) {
           scanDirectory(file, endpoints, dependencies);
         } else if (file.getName().endsWith(".java")) {
-          findEndpointsInFile(file, endpoints, dependencies);
+          scanFile(file, endpoints, dependencies);
         }
       }
     }
   }
 
-  private static void findEndpointsInFile(File file, List<Endpoint> endpoints, List<Endpoint> dependencies) {
+  private static void scanFile(File file, List<Endpoint> endpoints, List<Dependency> dependencies) {
     try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
       String line;
-      while ((line = reader.readLine()) != null) {
-        // scan for rest declarations (endpoints)
-        for (RestDeclarationAnnotation annotation : RestDeclarationAnnotation.values()) {
-          String url = extractAnnotationAPI(line, annotation.getAnnotation());
-          if (url == null) {
-            continue;
-          }
+      String fileName = file.getPath().replaceAll("\\\\", "/");
 
-          addEndpoint(endpoints, url, file.getPath().replaceAll("\\\\", "/"));
+      while ((line = reader.readLine()) != null) {
+        if (line.startsWith("//")) {
+          continue;
         }
 
         // scan for rest declarations (endpoints)
-        for (RestCallAnnotation annotation : RestCallAnnotation.values()) {
-          String url = extractAnnotationAPI(line, annotation.getAnnotation());
+        for (RestDeclarationAnnotation declarationAnnotation : RestDeclarationAnnotation.values()) {
+          String url = extractAnnotationAPI(line, declarationAnnotation.getAnnotation());
           if (url == null) {
             continue;
           }
 
-          addDependency(dependencies, url, endpoints);
+          //url = trimUrlApi(url);
+          addEndpoint(endpoints, url, fileName);
+        }
+
+        // scan for rest declarations (endpoints)
+        for (RestCallAnnotation callAnnotation : RestCallAnnotation.values()) {
+          String url = extractAnnotationAPI(line, callAnnotation.getAnnotation());
+          if (url == null) {
+            continue;
+          }
+
+          //url = trimUrlApi(url);
+          addDependency(dependencies, url, fileName, endpoints);
         }
       }
     } catch (IOException e) {
@@ -100,6 +108,24 @@ public class RepositoryService {
     return lineCpy.substring(0, endQuoteIndex);
   }
 
+  private static String trimUrlApi(String api) {
+    String commonPrefix = "/api";
+
+    if (api.startsWith(commonPrefix)) {
+      api = api.substring(commonPrefix.length());
+    }
+
+    // check any version number (ex: /v1, /v2, ...) following
+    Pattern pattern = Pattern.compile("^/v[0-9]+");
+    Matcher matcher = pattern.matcher(api);
+
+    if (matcher.find()) {
+      return api.substring(matcher.end());
+    }
+
+    return api;
+  }
+
   private static void addEndpoint(List<Endpoint> endpoints, String url, String sourceFile) {
     if (url == null) {
       url = "";
@@ -108,21 +134,26 @@ public class RepositoryService {
     endpoints.add(new Endpoint(url, sourceFile));
   }
 
-  private static void addDependency(List<Endpoint> dependencies, String url, List<Endpoint> endpoints) {
+  private static void addDependency(List<Dependency> dependencies, String url, String sourceFile, List<Endpoint> endpoints) {
     if (url == null) {
       url = "";
     }
 
-    String sourceFile = "";
+    String destFile = "UNKNOWN";
+
+    // cut off ending '/' if exists
+    if (url.endsWith("/")) {
+      url = url.substring(0, url.length()-1);
+    }
 
     // search for source file in endpoints list
     for (Endpoint endpoint : endpoints) {
       if (endpoint.getUrl().contains(url)) {
-        sourceFile = endpoint.getSourceFile();
+        destFile = endpoint.getSourceFile();
         break;
       }
     }
 
-    dependencies.add(new Endpoint(url, sourceFile));
+    dependencies.add(new Dependency(url, sourceFile, destFile));
   }
 }

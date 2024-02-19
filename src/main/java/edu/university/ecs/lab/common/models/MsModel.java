@@ -8,7 +8,7 @@ import java.util.List;
 @Data
 public class MsModel {
   private List<Endpoint> endpoints;
-  private List<Endpoint> dependencies;
+  private List<Dependency> dependencies;
 
   public MsModel() {
     endpoints = new ArrayList<>();
@@ -19,7 +19,7 @@ public class MsModel {
     endpoints.add(endpoint);
   }
 
-  public void addDependency(Endpoint dependency) {
+  public void addDependency(Dependency dependency) {
     dependencies.add(dependency);
   }
 }
