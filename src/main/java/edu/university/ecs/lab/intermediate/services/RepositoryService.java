@@ -1,9 +1,7 @@
 package edu.university.ecs.lab.intermediate.services;
 
 import edu.university.ecs.lab.common.models.*;
-import org.checkerframework.checker.units.qual.A;
 
-import javax.sound.midi.SysexMessage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -23,7 +21,7 @@ public class RepositoryService {
 
     File localDir = new File(repoPath);
     if (!localDir.exists() || !localDir.isDirectory()) {
-      System.err.println("Invalid path given: "  + repoPath);
+      System.err.println("Invalid path given: " + repoPath);
       return null;
     }
 
@@ -44,7 +42,8 @@ public class RepositoryService {
     return model;
   }
 
-  private static void scanDirectory(File directory, List<Endpoint> endpoints, List<Dependency> dependencies) {
+  private static void scanDirectory(
+      File directory, List<Endpoint> endpoints, List<Dependency> dependencies) {
     File[] files = directory.listFiles();
 
     if (files != null) {
@@ -75,7 +74,7 @@ public class RepositoryService {
             continue;
           }
 
-          //url = trimUrlApi(url);
+          // url = trimUrlApi(url);
           addEndpoint(endpoints, url, fileName, declarationAnnotation.getAnnotation());
         }
 
@@ -86,7 +85,7 @@ public class RepositoryService {
             continue;
           }
 
-          //url = trimUrlApi(url);
+          // url = trimUrlApi(url);
           addDependency(dependencies, url, fileName, endpoints, callAnnotation.getAnnotation());
         }
       }
@@ -136,7 +135,8 @@ public class RepositoryService {
     return api;
   }
 
-  private static void addEndpoint(List<Endpoint> endpoints, String url, String sourceFile, String restAnnotiation) {
+  private static void addEndpoint(
+      List<Endpoint> endpoints, String url, String sourceFile, String restAnnotiation) {
     if (url == null) {
       url = "";
     }
@@ -144,19 +144,24 @@ public class RepositoryService {
     endpoints.add(new Endpoint(url, sourceFile, restAnnotiation));
   }
 
-  private static void addDependency(List<Dependency> dependencies, String url, String sourceFile,
-                                    List<Endpoint> endpoints, String restAnnotation) {
+  private static void addDependency(
+      List<Dependency> dependencies,
+      String url,
+      String sourceFile,
+      List<Endpoint> endpoints,
+      String restAnnotation) {
     if (url == null) {
       url = "";
     }
 
     // cut off ending '/' if exists
     if (url.endsWith("/")) {
-      url = url.substring(0, url.length()-1);
+      url = url.substring(0, url.length() - 1);
     }
 
     // search for source file in endpoints list
-    dependencies.add(new Dependency(url, sourceFile, scanForDestination(url, endpoints), restAnnotation));
+    dependencies.add(
+        new Dependency(url, sourceFile, scanForDestination(url, endpoints), restAnnotation));
   }
 
   private static String scanForDestination(String url, List<Endpoint> endpoints) {

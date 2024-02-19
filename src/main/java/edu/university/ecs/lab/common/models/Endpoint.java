@@ -5,15 +5,13 @@ import lombok.Data;
 import lombok.NonNull;
 import lombok.ToString;
 
-@Data @ToString
+@Data
+@ToString
 @AllArgsConstructor
 public class Endpoint {
-  @NonNull
-  private String url;
+  @NonNull private String url;
 
-  @NonNull
-  private String sourceFile;
+  @NonNull private String sourceFile;
 
-  @NonNull
-  private String restType;
+  @NonNull private String restType;
 }

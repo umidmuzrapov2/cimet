@@ -5,18 +5,15 @@ import lombok.Data;
 import lombok.NonNull;
 import lombok.ToString;
 
-@Data @ToString
+@Data
+@ToString
 @AllArgsConstructor
 public class Dependency {
-  @NonNull
-  private String url;
+  @NonNull private String url;
 
-  @NonNull
-  private String sourceFile;
+  @NonNull private String sourceFile;
 
-  @NonNull
-  private String destFile;
+  @NonNull private String destFile;
 
-  @NonNull
-  private String callType;
+  @NonNull private String callType;
 }

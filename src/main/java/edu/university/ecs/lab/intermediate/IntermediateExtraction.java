@@ -13,7 +13,8 @@ public class IntermediateExtraction {
   /**
    * main method entry point to intermediate extraction
    *
-   * @param args /path/to/clone/folder 'comma,separated,list,of,remote,microservices' /path/to/output
+   * @param args /path/to/clone/folder 'comma,separated,list,of,remote,microservices'
+   *     /path/to/output
    */
   public static void main(String[] args) throws Exception {
     if (args.length < 3) {
@@ -37,8 +38,10 @@ public class IntermediateExtraction {
     //  write each service and endpoints to intermediate representation
     Scanner scanner = new Scanner(System.in); // read system name from command line
     System.out.println("Enter system name: ");
-    JsonObject jout = MsFileUtils.constructJsonMsSystem(scanner.nextLine(), "0.0.1", msEndpointsMap);
+    JsonObject jout =
+        MsFileUtils.constructJsonMsSystem(scanner.nextLine(), "0.0.1", msEndpointsMap);
 
-    MsJsonWriter.writeJsonToFile(jout, outputPath + "/intermediate-output-["+(new Date()).getTime() + "].json");
+    MsJsonWriter.writeJsonToFile(
+        jout, outputPath + "/intermediate-output-[" + (new Date()).getTime() + "].json");
   }
 }

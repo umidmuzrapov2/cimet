@@ -9,7 +9,8 @@ import java.util.List;
 import java.util.Map;
 
 public class MsFileUtils {
-  public static JsonObject constructJsonMsSystem(String systemName, String version, Map<String, MsModel> msEndpointsMap) {
+  public static JsonObject constructJsonMsSystem(
+      String systemName, String version, Map<String, MsModel> msEndpointsMap) {
     JsonObjectBuilder parentBuilder = Json.createObjectBuilder();
 
     parentBuilder.add("systemName", systemName);
