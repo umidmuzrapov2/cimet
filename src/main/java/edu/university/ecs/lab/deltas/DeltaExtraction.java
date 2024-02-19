@@ -5,7 +5,7 @@ import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.Repository;
 import java.util.*;
 
-public class DeltaExtractionCommand {
+public class DeltaExtraction {
   /**
    * main method entry point to delta extraction
    *
