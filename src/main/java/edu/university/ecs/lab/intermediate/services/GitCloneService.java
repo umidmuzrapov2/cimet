@@ -4,18 +4,9 @@ import edu.university.ecs.lab.common.config.Microservice;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import javax.naming.spi.DirectoryManager;
 import java.io.File;
-import java.io.FileFilter;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 import static java.nio.file.Files.*;
 
@@ -52,38 +43,37 @@ public class GitCloneService {
 
           exitCode = process.waitFor();
 
-          //TODO exit code not working
+          // TODO exit code not working
           if (exitCode < 400) {
             System.out.println("Git reset of " + ms.getRepoUrl() + " successful ");
           } else {
-            throw new Exception("Git reset of " + ms.getRepoUrl() + " failed with status code: " + exitCode);
+            throw new Exception(
+                "Git reset of " + ms.getRepoUrl() + " failed with status code: " + exitCode);
           }
         }
       } else {
-        throw new Exception("Git clone of " + ms.getRepoUrl() + " failed with status code: " + exitCode);
+        throw new Exception(
+            "Git clone of " + ms.getRepoUrl() + " failed with status code: " + exitCode);
       }
 
       output = output.replaceAll("\\\\", "/");
 
       // add microservices to path
       if (ms.getPaths().length > 0) {
-        for (String subPath: ms.getPaths()) {
+        for (String subPath : ms.getPaths()) {
           String path;
           if (subPath.substring(0, 1).equals(File.separator)) {
             path = output + subPath;
-          }
-          else {
-            path = output + File.separator +  subPath;
+          } else {
+            path = output + File.separator + subPath;
           }
 
           File f = new File(path);
           if (f.isDirectory()) {
             repoNames.add(path);
           }
-
         }
-      }
-      else {
+      } else {
         repoNames.add(output);
       }
     }

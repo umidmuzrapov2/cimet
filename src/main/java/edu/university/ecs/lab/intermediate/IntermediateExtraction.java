@@ -27,8 +27,7 @@ public class IntermediateExtraction {
 
     if (args.length == 1) {
       jsonFilePath = args[0];
-    }
-    else {
+    } else {
       jsonFilePath = "config.json";
     }
 
@@ -46,14 +45,14 @@ public class IntermediateExtraction {
       System.err.println("Config file requires attribute \"microservices\"");
     }
 
-
     Map<String, MsModel> msEndpointsMap = new HashMap<>();
     RepositoryService repositoryService = new RepositoryService();
     String outputPath = System.getProperty("user.dir") + inputConfig.getOutputPath();
 
     // clone remote services (ideal scenario: 1 service per repo)
     Microservice[] microservices = inputConfig.getMicroservices().toArray(new Microservice[0]);
-    GitCloneService gitCloneService = new GitCloneService(System.getProperty("user.dir") + inputConfig.getClonePath());
+    GitCloneService gitCloneService =
+        new GitCloneService(System.getProperty("user.dir") + inputConfig.getClonePath());
     List<String> msPathRoots = gitCloneService.cloneRemotes(microservices);
 
     System.out.println(msPathRoots);
