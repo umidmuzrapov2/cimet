@@ -35,7 +35,7 @@ public class RepositoryService {
         dependency.setDestFile(scanForDestination(dependency.getUrl(), endpoints));
       }
 
-      if(!dependency.getSourceFile().contains(repoPath)){
+      if (!dependency.getSourceFile().contains(repoPath)) {
         externalDependencies.add(dependency);
       }
     }
@@ -171,7 +171,11 @@ public class RepositoryService {
   }
 
   private static void addEndpoint(
-      List<Endpoint> endpoints, String url, String sourceFile, String restAnnotiation, String httpMethod) {
+      List<Endpoint> endpoints,
+      String url,
+      String sourceFile,
+      String restAnnotiation,
+      String httpMethod) {
     if (url == null) {
       url = "";
     }

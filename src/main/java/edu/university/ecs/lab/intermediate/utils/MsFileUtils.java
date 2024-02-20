@@ -50,8 +50,7 @@ public class MsFileUtils {
       }
       jsonObjectBuilder.add("dependencies", endpointsArrayBuilder.build());
 
-
-      //external dependencies
+      // external dependencies
       List<Dependency> externalDependencies = microservice.getValue().getExternalDependencies();
       for (Dependency dependency : externalDependencies) {
         JsonObjectBuilder endpointBuilder = Json.createObjectBuilder();
