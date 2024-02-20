@@ -31,6 +31,7 @@ public class MsFileUtils {
         endpointBuilder.add("api", endpoint.getUrl());
         endpointBuilder.add("source-file", endpoint.getSourceFile());
         endpointBuilder.add("type", endpoint.getRestType());
+        endpointBuilder.add("httpMethod", endpoint.getHttpMethod());
 
         endpointsArrayBuilder.add(endpointBuilder.build());
       }
@@ -48,6 +49,21 @@ public class MsFileUtils {
         endpointsArrayBuilder.add(endpointBuilder.build());
       }
       jsonObjectBuilder.add("dependencies", endpointsArrayBuilder.build());
+
+
+      //external dependencies
+      List<Dependency> externalDependencies = microservice.getValue().getExternalDependencies();
+      for (Dependency dependency : externalDependencies) {
+        JsonObjectBuilder endpointBuilder = Json.createObjectBuilder();
+
+        endpointBuilder.add("api", dependency.getUrl());
+        endpointBuilder.add("source-file", dependency.getSourceFile());
+        endpointBuilder.add("call-dest", dependency.getDestFile());
+        endpointBuilder.add("call-method", dependency.getCallType() + "()");
+
+        endpointsArrayBuilder.add(endpointBuilder.build());
+      }
+      jsonObjectBuilder.add("external dependencies", endpointsArrayBuilder.build());
 
       jsonArrayBuilder.add(jsonObjectBuilder.build());
     }

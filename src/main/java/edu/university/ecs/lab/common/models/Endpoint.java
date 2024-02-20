@@ -14,4 +14,6 @@ public class Endpoint {
   @NonNull private String sourceFile;
 
   @NonNull private String restType;
+
+  @NonNull private String httpMethod;
 }

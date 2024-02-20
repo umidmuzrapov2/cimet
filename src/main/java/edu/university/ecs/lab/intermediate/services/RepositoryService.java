@@ -18,6 +18,7 @@ public class RepositoryService {
 
     List<Endpoint> endpoints = new ArrayList<>();
     List<Dependency> dependencies = new ArrayList<>();
+    List<Dependency> externalDependencies = new ArrayList<>();
 
     File localDir = new File(repoPath);
     if (!localDir.exists() || !localDir.isDirectory()) {
@@ -32,6 +33,10 @@ public class RepositoryService {
       // dest file was not recursively found (or added yet)
       if (dependency.getDestFile().equals("UNKNOWN")) {
         dependency.setDestFile(scanForDestination(dependency.getUrl(), endpoints));
+      }
+
+      if(!dependency.getSourceFile().contains(repoPath)){
+        externalDependencies.add(dependency);
       }
     }
 
@@ -67,19 +72,48 @@ public class RepositoryService {
           continue;
         }
 
+        String httpMethod = "";
+        String decAnnotation;
         // scan for rest declarations (endpoints)
         for (RestDeclarationAnnotation declarationAnnotation : RestDeclarationAnnotation.values()) {
-          String url = extractAnnotationAPI(line, declarationAnnotation.getAnnotation());
+          decAnnotation = declarationAnnotation.getAnnotation();
+          switch (decAnnotation) {
+            case "@GetMapping":
+              httpMethod = "GET";
+              break;
+            case "@PostMapping":
+              httpMethod = "POST";
+              break;
+            case "@DeleteMapping":
+              httpMethod = "DELETE";
+              break;
+            case "@PutMapping":
+              httpMethod = "PUT";
+              break;
+            case "@RequestMapping":
+              if (decAnnotation.contains("RequestMethod.POST")) {
+                httpMethod = "POST";
+              } else if (decAnnotation.contains("RequestMethod.DELETE")) {
+                httpMethod = "DELETE";
+              } else if (decAnnotation.contains("RequestMethod.PUT")) {
+                httpMethod = "PUT";
+              } else {
+                httpMethod = "GET";
+              }
+              break;
+          }
+          String url = extractAnnotationAPI(line, decAnnotation);
           if (url == null) {
             continue;
           }
 
           // url = trimUrlApi(url);
-          addEndpoint(endpoints, url, fileName, declarationAnnotation.getAnnotation());
+          addEndpoint(endpoints, url, fileName, declarationAnnotation.getAnnotation(), httpMethod);
         }
 
         // scan for rest declarations (endpoints)
         for (RestCallAnnotation callAnnotation : RestCallAnnotation.values()) {
+
           String url = extractAnnotationAPI(line, callAnnotation.getAnnotation());
           if (url == null) {
             continue;
@@ -95,6 +129,7 @@ public class RepositoryService {
   }
 
   private static String extractAnnotationAPI(String line, String annotation) {
+
     int callIndex = line.indexOf(annotation);
 
     if (callIndex < 0) {
@@ -136,12 +171,12 @@ public class RepositoryService {
   }
 
   private static void addEndpoint(
-      List<Endpoint> endpoints, String url, String sourceFile, String restAnnotiation) {
+      List<Endpoint> endpoints, String url, String sourceFile, String restAnnotiation, String httpMethod) {
     if (url == null) {
       url = "";
     }
 
-    endpoints.add(new Endpoint(url, sourceFile, restAnnotiation));
+    endpoints.add(new Endpoint(url, sourceFile, restAnnotiation, httpMethod));
   }
 
   private static void addDependency(
@@ -160,6 +195,7 @@ public class RepositoryService {
     }
 
     // search for source file in endpoints list
+
     dependencies.add(
         new Dependency(url, sourceFile, scanForDestination(url, endpoints), restAnnotation));
   }
