@@ -65,8 +65,7 @@ public class DeltaExtractionService {
     }
 
     // write differences to output file
-    String outputName =
-            "delta-changes-[" + (new Date()).getTime() + "].json";
+    String outputName = "delta-changes-[" + (new Date()).getTime() + "].json";
     MsJsonWriter.writeJsonToFile(outputBuilder.build(), outputName);
 
     System.out.println("Delta extracted: " + outputName);
