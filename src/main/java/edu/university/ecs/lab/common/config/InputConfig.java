@@ -6,7 +6,7 @@ import java.util.List;
 
 @Getter
 public class InputConfig {
-    private String outputPath;
-    private String clonePath;
-    private List<Microservice> microservices;
+  private String outputPath;
+  private String clonePath;
+  private List<Microservice> microservices;
 }

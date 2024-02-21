@@ -24,6 +24,8 @@ public class DeltaExtractionService {
 
   public void processDifferences(String path, Repository repo, List<DiffEntry> diffEntries)
       throws IOException {
+    JsonObjectBuilder outputBuilder = Json.createObjectBuilder();
+
     // process each difference
     for (DiffEntry entry : diffEntries) {
       System.out.println(
@@ -32,25 +34,40 @@ public class DeltaExtractionService {
       String changeURL = gitFetchUtils.getGithubFileUrl(repo, entry);
       System.out.println("Extracting changes from: " + changeURL);
 
-      // fetch changed file
-      String fileContents = gitFetchUtils.fetchAndDecodeFile(changeURL);
-
-      // compare differences with local path
       String localPath = path + "/" + entry.getOldPath();
-      javax.json.JsonArray deltaChanges =
-          comparisonUtils.extractDeltaChanges(fileContents, localPath);
+
+      javax.json.JsonArray deltaChanges;
+
+      switch (entry.getChangeType()) {
+        case MODIFY:
+          // fetch changed file
+          String fileContents = gitFetchUtils.fetchAndDecodeFile(changeURL);
+
+          // compare differences with local path
+          deltaChanges = comparisonUtils.extractDeltaChanges(fileContents, localPath);
+          break;
+        case DELETE:
+        case COPY:
+        case RENAME:
+        case ADD:
+        default:
+          deltaChanges = Json.createArrayBuilder().build();
+          break;
+      }
 
       JsonObjectBuilder jout = Json.createObjectBuilder();
-      jout.add("local-file", localPath);
+      jout.add("local-previous", localPath);
       jout.add("remote-api", changeURL);
+      jout.add("change-type", entry.getChangeType().name());
       jout.add("changes", deltaChanges);
 
-      // write differences to output file
-      String outputName =
-          "delta-changes-[" + (new Date()).getTime() + "]-" + entry.getNewId().name() + ".json";
-      MsJsonWriter.writeJsonToFile(jout.build(), outputName);
-
-      System.out.println("Delta extracted: " + outputName);
+      outputBuilder.add(entry.getNewId().name(), jout);
     }
+
+    // write differences to output file
+    String outputName = "delta-changes-[" + (new Date()).getTime() + "].json";
+    MsJsonWriter.writeJsonToFile(outputBuilder.build(), outputName);
+
+    System.out.println("Delta extracted: " + outputName);
   }
 }
