@@ -1,19 +1,15 @@
 package edu.university.ecs.lab.common.models;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NonNull;
-import lombok.ToString;
+import lombok.*;
 
 @Data
 @ToString
 @AllArgsConstructor
+@NoArgsConstructor
 public class Endpoint {
-  @NonNull private String url;
-
-  @NonNull private String sourceFile;
-
-  @NonNull private String restType;
-
-  @NonNull private String httpMethod;
+  private String url;
+  private String sourceFile;
+  private String decorator;
+  private String httpMethod;
+  private String parentMethod;
 }

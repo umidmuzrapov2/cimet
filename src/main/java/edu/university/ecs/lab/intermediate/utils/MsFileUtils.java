@@ -37,44 +37,41 @@ public class MsFileUtils {
 
         endpointBuilder.add("api", endpoint.getUrl());
         endpointBuilder.add("source-file", endpoint.getSourceFile());
-        endpointBuilder.add("type", endpoint.getRestType());
+        endpointBuilder.add("decorator", endpoint.getDecorator());
         endpointBuilder.add("httpMethod", endpoint.getHttpMethod());
+        endpointBuilder.add("parent-method", endpoint.getParentMethod());
 
         endpointsArrayBuilder.add(endpointBuilder.build());
       }
       jsonObjectBuilder.add("endpoints", endpointsArrayBuilder.build());
 
       List<Dependency> dependencies = microservice.getValue().getDependencies();
-      for (Dependency dependency : dependencies) {
-        JsonObjectBuilder endpointBuilder = Json.createObjectBuilder();
-
-        endpointBuilder.add("api", dependency.getUrl());
-        endpointBuilder.add("source-file", dependency.getSourceFile());
-        endpointBuilder.add("call-dest", dependency.getDestFile());
-        endpointBuilder.add("call-method", dependency.getCallType() + "()");
-
-        endpointsArrayBuilder.add(endpointBuilder.build());
-      }
+      writeDependency(endpointsArrayBuilder, dependencies);
       jsonObjectBuilder.add("dependencies", endpointsArrayBuilder.build());
 
       // external dependencies
       List<Dependency> externalDependencies = microservice.getValue().getExternalDependencies();
-      for (Dependency dependency : externalDependencies) {
-        JsonObjectBuilder endpointBuilder = Json.createObjectBuilder();
-
-        endpointBuilder.add("api", dependency.getUrl());
-        endpointBuilder.add("source-file", dependency.getSourceFile());
-        endpointBuilder.add("call-dest", dependency.getDestFile());
-        endpointBuilder.add("call-method", dependency.getCallType() + "()");
-
-        endpointsArrayBuilder.add(endpointBuilder.build());
-      }
-      jsonObjectBuilder.add("external dependencies", endpointsArrayBuilder.build());
+      writeDependency(endpointsArrayBuilder, externalDependencies);
+      jsonObjectBuilder.add("external-dependencies", endpointsArrayBuilder.build());
 
       jsonArrayBuilder.add(jsonObjectBuilder.build());
     }
 
     parentBuilder.add("services", jsonArrayBuilder.build());
     return parentBuilder.build();
+  }
+
+  private static void writeDependency(JsonArrayBuilder endpointsArrayBuilder, List<Dependency> dependencies) {
+    for (Dependency dependency : dependencies) {
+      JsonObjectBuilder endpointBuilder = Json.createObjectBuilder();
+
+      endpointBuilder.add("api", dependency.getUrl());
+      endpointBuilder.add("source-file", dependency.getSourceFile());
+      endpointBuilder.add("call-dest", dependency.getDestFile());
+      endpointBuilder.add("call-method", dependency.getParentMethod() + "()");
+      endpointBuilder.add("httpMethod", dependency.getHttpMethod());
+
+      endpointsArrayBuilder.add(endpointBuilder.build());
+    }
   }
 }
