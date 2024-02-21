@@ -13,7 +13,27 @@ This project tracks microservice system evolution changes across repositories.
 
 ## Extracting an Intermediate Representation:
 - Run or compile the main method of ``IntermediateExtraction.java`` in the IDE of your choice or via the command line.
-- Required parameters: ``/path/to/clone/folder 'comma,separated,list,of,remote,microservices' /path/to/output``
+- Default input configuration is defined in `./config.json`
+- Optional parameters: ``/path/to/config/file``
+
+Sample input config file:
+
+```json
+{
+  "clonePath": "/repos",
+  "outputPath": "/out",
+  "microservices": [
+    {
+      "repoUrl": "https://github.com/cloudhubs/train-ticket-microservices.git",
+      "baseCommit": "f34c476",
+      "paths": [ "path/to/microservice", "ts-admins-service"]
+    },
+    {
+      "repoUrl": "https://github.com/cloudhubs/tms2020.git"
+    }
+  ]
+}
+```
 
 Sample output produced:
 ```json
