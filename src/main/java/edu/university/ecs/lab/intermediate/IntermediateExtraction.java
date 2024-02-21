@@ -65,8 +65,10 @@ public class IntermediateExtraction {
           repositoryService.recursivelyScanFiles(clonePath, msPath.substring(clonePath.length())));
     }
 
-    // todo: scan external dependencies here
-    List<Dependency> externalDependencies = new ArrayList<>();
+//    List<Dependency> externalDependencies = new ArrayList<>();
+
+    // find dependency endpoints
+
 
     //  write each service and endpoints to intermediate representation
     Scanner scanner = new Scanner(System.in); // read system name from command line
@@ -76,4 +78,6 @@ public class IntermediateExtraction {
     MsJsonWriter.writeJsonToFile(
         jout, outputPath + "/intermediate-output-[" + (new Date()).getTime() + "].json");
   }
+
+
 }

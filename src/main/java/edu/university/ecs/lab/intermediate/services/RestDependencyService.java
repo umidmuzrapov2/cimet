@@ -65,6 +65,11 @@ public class RestDependencyService {
               // find url
               dependency.setUrl(findUrl(mce, cid));
 
+              // skip empty urls
+              if (dependency.getUrl().equals("")) {
+                continue;
+              }
+
               // add to list of restCall
               dependencies.add(dependency);
             }
@@ -181,6 +186,6 @@ public class RestDependencyService {
       }
     }
 
-    return StringParserUtils.removeEnclosedQuotations(url);
+    return url;
   }
 }
