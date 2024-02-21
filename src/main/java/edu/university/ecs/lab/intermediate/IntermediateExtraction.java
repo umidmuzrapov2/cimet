@@ -18,6 +18,7 @@ import java.util.*;
 public class IntermediateExtraction {
 
   public static String clonePath;
+
   /**
    * main method entry point to intermediate extraction
    *
@@ -55,11 +56,8 @@ public class IntermediateExtraction {
 
     // clone remote services (ideal scenario: 1 service per repo)
     Microservice[] microservices = inputConfig.getMicroservices().toArray(new Microservice[0]);
-    GitCloneService gitCloneService =
-        new GitCloneService(clonePath);
+    GitCloneService gitCloneService = new GitCloneService(clonePath);
     List<String> msPathRoots = gitCloneService.cloneRemotes(microservices);
-
-    System.out.println(msPathRoots);
 
     // scan through each local repo and extract endpoints/dependencies
     for (String msPath : msPathRoots) {
