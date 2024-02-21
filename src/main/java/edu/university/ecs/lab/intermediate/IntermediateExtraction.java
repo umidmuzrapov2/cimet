@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import edu.university.ecs.lab.common.config.InputConfig;
 import edu.university.ecs.lab.common.config.Microservice;
-import edu.university.ecs.lab.common.models.Dependency;
 import edu.university.ecs.lab.common.models.MsModel;
 import edu.university.ecs.lab.common.writers.MsJsonWriter;
 import edu.university.ecs.lab.intermediate.services.GitCloneService;
@@ -65,19 +64,17 @@ public class IntermediateExtraction {
           repositoryService.recursivelyScanFiles(clonePath, msPath.substring(clonePath.length())));
     }
 
-//    List<Dependency> externalDependencies = new ArrayList<>();
+    //    List<Dependency> externalDependencies = new ArrayList<>();
 
     // find dependency endpoints
-
 
     //  write each service and endpoints to intermediate representation
     Scanner scanner = new Scanner(System.in); // read system name from command line
     System.out.println("Enter system name: ");
-    JsonObject jout = MsFileUtils.constructJsonMsSystem(scanner.nextLine(), "0.0.1", msEndpointsMap);
+    JsonObject jout =
+        MsFileUtils.constructJsonMsSystem(scanner.nextLine(), "0.0.1", msEndpointsMap);
 
     MsJsonWriter.writeJsonToFile(
         jout, outputPath + "/intermediate-output-[" + (new Date()).getTime() + "].json");
   }
-
-
 }

@@ -2,7 +2,6 @@ package edu.university.ecs.lab.intermediate.services;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.PackageDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.AnnotationExpr;
@@ -94,7 +93,8 @@ public class RestEndpointService {
     }
 
     if (ae.isSingleMemberAnnotationExpr()) {
-      return StringParserUtils.removeEnclosedQuotations(ae.asSingleMemberAnnotationExpr().getMemberValue().toString());
+      return StringParserUtils.removeEnclosedQuotations(
+          ae.asSingleMemberAnnotationExpr().getMemberValue().toString());
     }
 
     if (ae.isNormalAnnotationExpr() && ae.asNormalAnnotationExpr().getPairs().size() > 0) {

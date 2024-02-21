@@ -1,16 +1,11 @@
 package edu.university.ecs.lab.intermediate.services;
 
 import edu.university.ecs.lab.common.models.*;
-import edu.university.ecs.lab.intermediate.IntermediateExtraction;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class RepositoryService {
   private final RestEndpointService restEndpointService = new RestEndpointService();
@@ -42,7 +37,8 @@ public class RepositoryService {
     return model;
   }
 
-  private void scanDirectory(File directory, List<Endpoint> endpoints, List<Dependency> dependencies) {
+  private void scanDirectory(
+      File directory, List<Endpoint> endpoints, List<Dependency> dependencies) {
     File[] files = directory.listFiles();
 
     if (files != null) {

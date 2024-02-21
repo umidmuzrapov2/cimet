@@ -6,7 +6,6 @@ import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.BinaryExpr;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
@@ -128,7 +127,8 @@ public class RestDependencyService {
     }
 
     // field access: this.restTemplate
-    if (scope.isFieldAccessExpr() && isRestTemplateField(cid, scope.asFieldAccessExpr().getNameAsString())) {
+    if (scope.isFieldAccessExpr()
+        && isRestTemplateField(cid, scope.asFieldAccessExpr().getNameAsString())) {
       return true;
     }
 
@@ -142,8 +142,8 @@ public class RestDependencyService {
 
   private boolean isRestTemplateField(ClassOrInterfaceDeclaration cid, String fieldName) {
     for (FieldDeclaration fd : cid.findAll(FieldDeclaration.class)) {
-      if (fd.getElementType().toString().equals("RestTemplate") &&
-              fd.getVariables().toString().contains(fieldName)) {
+      if (fd.getElementType().toString().equals("RestTemplate")
+          && fd.getVariables().toString().contains(fieldName)) {
 
         return true;
       }
@@ -174,7 +174,7 @@ public class RestDependencyService {
       url = right.substring(right.indexOf('/'));
 
       if (url.endsWith("\"")) {
-        url = url.substring(0, url.length()-1);
+        url = url.substring(0, url.length() - 1);
       }
     }
 
@@ -182,7 +182,7 @@ public class RestDependencyService {
       url += left.substring(left.indexOf('/'));
 
       if (url.endsWith("\"")) {
-        url = url.substring(0, url.length()-1);
+        url = url.substring(0, url.length() - 1);
       }
     }
 

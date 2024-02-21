@@ -16,7 +16,8 @@ public class StringParserUtils {
     if (classPath.startsWith("/")) classPath = classPath.substring(1);
     if (methodPath.startsWith("/")) methodPath = methodPath.substring(1);
 
-    String path = FilenameUtils.normalizeNoEndSeparator(FilenameUtils.concat(classPath, methodPath), true);
+    String path =
+        FilenameUtils.normalizeNoEndSeparator(FilenameUtils.concat(classPath, methodPath), true);
     if (!path.startsWith("/")) path = "/" + path;
 
     return path;
