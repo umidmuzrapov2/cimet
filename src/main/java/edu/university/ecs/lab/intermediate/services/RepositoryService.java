@@ -182,7 +182,8 @@ public class RepositoryService {
       url = "";
     }
 
-    if (sourceFile.contains(IntermediateExtraction.clonePath) && sourceFile.length() > IntermediateExtraction.clonePath.length() + 1) {
+    if (sourceFile.contains(IntermediateExtraction.clonePath)
+        && sourceFile.length() > IntermediateExtraction.clonePath.length() + 1) {
       sourceFile = sourceFile.substring(IntermediateExtraction.clonePath.length() + 1);
     }
 
@@ -205,7 +206,8 @@ public class RepositoryService {
     }
 
     // cut source file
-    if (sourceFile.contains(IntermediateExtraction.clonePath) && sourceFile.length() > IntermediateExtraction.clonePath.length() + 1) {
+    if (sourceFile.contains(IntermediateExtraction.clonePath)
+        && sourceFile.length() > IntermediateExtraction.clonePath.length() + 1) {
       sourceFile = sourceFile.substring(IntermediateExtraction.clonePath.length() + 1);
     }
 
@@ -213,12 +215,12 @@ public class RepositoryService {
 
     String destFile = scanForDestination(url, endpoints);
 
-    if (destFile.contains(IntermediateExtraction.clonePath) && destFile.length() > IntermediateExtraction.clonePath.length() + 1) {
+    if (destFile.contains(IntermediateExtraction.clonePath)
+        && destFile.length() > IntermediateExtraction.clonePath.length() + 1) {
       destFile = destFile.substring(IntermediateExtraction.clonePath.length() + 1);
     }
 
-    dependencies.add(
-        new Dependency(url, sourceFile, destFile, restAnnotation));
+    dependencies.add(new Dependency(url, sourceFile, destFile, restAnnotation));
   }
 
   private static String scanForDestination(String url, List<Endpoint> endpoints) {
