@@ -11,7 +11,6 @@ import edu.university.ecs.lab.intermediate.services.RepositoryService;
 import edu.university.ecs.lab.intermediate.utils.MsFileUtils;
 
 import javax.json.JsonObject;
-import java.io.File;
 import java.io.FileReader;
 import java.util.*;
 
@@ -65,7 +64,9 @@ public class IntermediateExtraction {
       if (msPath.contains(clonePath) && msPath.length() > clonePath.length() + 1) {
         path = msPath.substring(clonePath.length() + 1);
       }
-      msEndpointsMap.put(path, repositoryService.recursivelyScanFiles(clonePath, msPath.substring(clonePath.length())));
+      msEndpointsMap.put(
+          path,
+          repositoryService.recursivelyScanFiles(clonePath, msPath.substring(clonePath.length())));
     }
 
     //  write each service and endpoints to intermediate representation

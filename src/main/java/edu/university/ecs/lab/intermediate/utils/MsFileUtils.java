@@ -23,7 +23,8 @@ public class MsFileUtils {
       JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
       String msName = microservice.getKey();
       if (microservice.getKey().contains(File.separator)) {
-        msName = microservice.getKey().substring(microservice.getKey().lastIndexOf(File.separator) + 1);
+        msName =
+            microservice.getKey().substring(microservice.getKey().lastIndexOf(File.separator) + 1);
       }
       jsonObjectBuilder.add("msName", msName);
       jsonObjectBuilder.add("msPath", microservice.getKey());
