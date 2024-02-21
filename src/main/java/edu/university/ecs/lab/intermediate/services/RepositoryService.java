@@ -1,6 +1,7 @@
 package edu.university.ecs.lab.intermediate.services;
 
 import edu.university.ecs.lab.common.models.*;
+import edu.university.ecs.lab.intermediate.IntermediateExtraction;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -12,7 +13,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RepositoryService {
-  public MsModel recursivelyScanFiles(String repoPath) {
+  public MsModel recursivelyScanFiles(String clonePath, String relativePath) {
+    String repoPath = clonePath + relativePath;
     System.out.println("Scanning repository '" + repoPath + "'...");
     MsModel model = new MsModel();
 
@@ -180,6 +182,10 @@ public class RepositoryService {
       url = "";
     }
 
+    if (sourceFile.contains(IntermediateExtraction.clonePath) && sourceFile.length() > IntermediateExtraction.clonePath.length() + 1) {
+      sourceFile = sourceFile.substring(IntermediateExtraction.clonePath.length() + 1);
+    }
+
     endpoints.add(new Endpoint(url, sourceFile, restAnnotiation, httpMethod));
   }
 
@@ -198,10 +204,21 @@ public class RepositoryService {
       url = url.substring(0, url.length() - 1);
     }
 
+    // cut source file
+    if (sourceFile.contains(IntermediateExtraction.clonePath) && sourceFile.length() > IntermediateExtraction.clonePath.length() + 1) {
+      sourceFile = sourceFile.substring(IntermediateExtraction.clonePath.length() + 1);
+    }
+
     // search for source file in endpoints list
 
+    String destFile = scanForDestination(url, endpoints);
+
+    if (destFile.contains(IntermediateExtraction.clonePath) && destFile.length() > IntermediateExtraction.clonePath.length() + 1) {
+      destFile = destFile.substring(IntermediateExtraction.clonePath.length() + 1);
+    }
+
     dependencies.add(
-        new Dependency(url, sourceFile, scanForDestination(url, endpoints), restAnnotation));
+        new Dependency(url, sourceFile, destFile, restAnnotation));
   }
 
   private static String scanForDestination(String url, List<Endpoint> endpoints) {

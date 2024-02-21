@@ -11,10 +11,13 @@ import edu.university.ecs.lab.intermediate.services.RepositoryService;
 import edu.university.ecs.lab.intermediate.utils.MsFileUtils;
 
 import javax.json.JsonObject;
+import java.io.File;
 import java.io.FileReader;
 import java.util.*;
 
 public class IntermediateExtraction {
+
+  public static String clonePath;
   /**
    * main method entry point to intermediate extraction
    *
@@ -48,18 +51,20 @@ public class IntermediateExtraction {
     Map<String, MsModel> msEndpointsMap = new HashMap<>();
     RepositoryService repositoryService = new RepositoryService();
     String outputPath = System.getProperty("user.dir") + inputConfig.getOutputPath();
+    clonePath = System.getProperty("user.dir") + inputConfig.getClonePath();
 
     // clone remote services (ideal scenario: 1 service per repo)
     Microservice[] microservices = inputConfig.getMicroservices().toArray(new Microservice[0]);
     GitCloneService gitCloneService =
-        new GitCloneService(System.getProperty("user.dir") + inputConfig.getClonePath());
+        new GitCloneService(clonePath);
     List<String> msPathRoots = gitCloneService.cloneRemotes(microservices);
 
     System.out.println(msPathRoots);
 
     // scan through each local repo and extract endpoints/dependencies
     for (String msPath : msPathRoots) {
-      msEndpointsMap.put(msPath, repositoryService.recursivelyScanFiles(msPath));
+      String msName = msPath.substring(msPath.lastIndexOf(File.separator) + 1);
+      msEndpointsMap.put(msName, repositoryService.recursivelyScanFiles(clonePath, msPath.substring(clonePath.length())));
     }
 
     //  write each service and endpoints to intermediate representation
