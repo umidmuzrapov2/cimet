@@ -63,8 +63,11 @@ public class IntermediateExtraction {
 
     // scan through each local repo and extract endpoints/dependencies
     for (String msPath : msPathRoots) {
-      String msName = msPath.substring(msPath.lastIndexOf(File.separator) + 1);
-      msEndpointsMap.put(msName, repositoryService.recursivelyScanFiles(clonePath, msPath.substring(clonePath.length())));
+      String path = msPath;
+      if (msPath.contains(clonePath) && msPath.length() > clonePath.length() + 1) {
+        path = msPath.substring(clonePath.length() + 1);
+      }
+      msEndpointsMap.put(path, repositoryService.recursivelyScanFiles(clonePath, msPath.substring(clonePath.length())));
     }
 
     //  write each service and endpoints to intermediate representation

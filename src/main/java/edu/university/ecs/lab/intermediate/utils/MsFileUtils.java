@@ -5,6 +5,7 @@ import edu.university.ecs.lab.common.models.Endpoint;
 import edu.university.ecs.lab.common.models.MsModel;
 
 import javax.json.*;
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -20,7 +21,12 @@ public class MsFileUtils {
 
     for (Map.Entry<String, MsModel> microservice : msEndpointsMap.entrySet()) {
       JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
-      jsonObjectBuilder.add("msName", microservice.getKey());
+      String msName = microservice.getKey();
+      if (microservice.getKey().contains(File.separator)) {
+        msName = microservice.getKey().substring(microservice.getKey().lastIndexOf(File.separator) + 1);
+      }
+      jsonObjectBuilder.add("msName", msName);
+      jsonObjectBuilder.add("msPath", microservice.getKey());
 
       JsonArrayBuilder endpointsArrayBuilder = Json.createArrayBuilder();
 
