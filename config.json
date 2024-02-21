@@ -32,9 +32,7 @@
       ]
     },
     {
-      "repoUrl": "https://github.com/cloudhubs/tms2020.git",
-      "baseCommit": "",
-      "paths": []
+      "repoUrl": "https://github.com/cloudhubs/tms2020.git"
     }
   ]
 }

@@ -59,7 +59,7 @@ public class GitCloneService {
       output = output.replaceAll("\\\\", "/");
 
       // add microservices to path
-      if (ms.getPaths().length > 0) {
+      if (ms.getPaths() != null && ms.getPaths().length > 0) {
         for (String subPath : ms.getPaths()) {
           String path;
           if (subPath.substring(0, 1).equals(File.separator)) {
