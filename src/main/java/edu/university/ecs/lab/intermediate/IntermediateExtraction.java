@@ -16,19 +16,20 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
-
 /**
  * IntermediateExtraction is the main entry point for the intermediate extraction process.
- * <p>
- *     The IR extraction process is responsible for cloning remote services, scanning
- *     through each local repo and extracting endpoints/dependencies, and writing each
- *     service and endpoints to intermediate representation.
+ *
+ * <p>The IR extraction process is responsible for cloning remote services, scanning through each
+ * local repo and extracting endpoints/dependencies, and writing each service and endpoints to
+ * intermediate representation.
+ *
  * <p>
  */
 public class IntermediateExtraction {
 
   /** Exit code: invalid config path */
   private static final int BAD_CONFIG = 2;
+
   /** Exit code: error writing IR to json */
   private static final int BAD_IR_WRITE = 3;
 
@@ -52,37 +53,40 @@ public class IntermediateExtraction {
 
     //  Write each service and endpoints to IR
     try {
-        writeToIntermediateRepresentation(inputConfig, msDataMap);
+      writeToIntermediateRepresentation(inputConfig, msDataMap);
     } catch (IOException e) {
       System.err.println("Error writing to IR json: " + e.getMessage());
       System.exit(BAD_IR_WRITE);
     }
   }
 
-    /**
-     * Write each service and endpoints to intermediate representation
-     * @param inputConfig the config file object
-     * @param msEndpointsMap a map of service to their information
-     */
-  private static void writeToIntermediateRepresentation(InputConfig inputConfig,
-                                                        Map<String, MsModel> msEndpointsMap) throws IOException {
+  /**
+   * Write each service and endpoints to intermediate representation
+   *
+   * @param inputConfig the config file object
+   * @param msEndpointsMap a map of service to their information
+   */
+  private static void writeToIntermediateRepresentation(
+      InputConfig inputConfig, Map<String, MsModel> msEndpointsMap) throws IOException {
 
     String outputPath = System.getProperty(SYS_USER_DIR) + inputConfig.getOutputPath();
     Scanner scanner = new Scanner(System.in); // read system name from command line
     System.out.println("Enter system name: ");
-    JsonObject jout = MsFileUtils
-            .constructJsonMsSystem(scanner.nextLine(), "0.0.1", msEndpointsMap);
+    JsonObject jout =
+        MsFileUtils.constructJsonMsSystem(scanner.nextLine(), "0.0.1", msEndpointsMap);
 
     MsJsonWriter.writeJsonToFile(
-            jout, outputPath + "/intermediate-output-[" + (new Date()).getTime() + "].json");
+        jout, outputPath + "/intermediate-output-[" + (new Date()).getTime() + "].json");
   }
 
   /**
-     * Clone remote repositories and scan through each local repo and extract endpoints/dependencies
-     * @param inputConfig the input config object
-     * @return a map of services and their endpoints
-     */
-  private static Map<String, MsModel> cloneAndScanServices(InputConfig inputConfig) throws Exception {
+   * Clone remote repositories and scan through each local repo and extract endpoints/dependencies
+   *
+   * @param inputConfig the input config object
+   * @return a map of services and their endpoints
+   */
+  private static Map<String, MsModel> cloneAndScanServices(InputConfig inputConfig)
+      throws Exception {
     Map<String, MsModel> msEndpointsMap = new HashMap<>();
 
     // Clone remote repositories
@@ -99,15 +103,16 @@ public class IntermediateExtraction {
         path = msPath.substring(clonePath.length() + 1);
       }
 
-      msEndpointsMap.put(path,
-              repositoryService.recursivelyScanFiles(clonePath,
-                      msPath.substring(clonePath.length())));
+      msEndpointsMap.put(
+          path,
+          repositoryService.recursivelyScanFiles(clonePath, msPath.substring(clonePath.length())));
     }
     return msEndpointsMap;
   }
 
   /**
    * Validate the input config file
+   *
    * @param jsonFilePath path to the input config file
    * @return the input config as an object
    */

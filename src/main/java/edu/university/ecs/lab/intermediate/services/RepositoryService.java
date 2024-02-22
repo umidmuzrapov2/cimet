@@ -7,14 +7,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Service for extracting REST endpoints and dependencies for a given microservice.
- */
-//TODO probably rename this to something like "RestModelService" or something
+/** Service for extracting REST endpoints and dependencies for a given microservice. */
+// TODO probably rename this to something like "RestModelService" or something
 public class RepositoryService {
   /** Service for rest endpoints from services */
-  private final EndpointExtractionService endpointExtractionService = new EndpointExtractionService();
-    /** Service for extracting rest calls to other services */
+  private final EndpointExtractionService endpointExtractionService =
+      new EndpointExtractionService();
+
+  /** Service for extracting rest calls to other services */
   private final CallExtractionService callExtractionService = new CallExtractionService();
 
   /**
@@ -53,12 +53,12 @@ public class RepositoryService {
 
   /**
    * Recursively scan the given directory for files and extract the endpoints and dependencies.
+   *
    * @param directory the directory to scan
    * @param endpoints the list of endpoints
    * @param calls the list of calls to other services
    */
-  private void scanDirectory(File directory, List<Endpoint> endpoints,
-                             List<RestDependency> calls) {
+  private void scanDirectory(File directory, List<Endpoint> endpoints, List<RestDependency> calls) {
     File[] files = directory.listFiles();
 
     if (files != null) {
@@ -74,6 +74,7 @@ public class RepositoryService {
 
   /**
    * Scan the given file for endpoints and calls to other services.
+   *
    * @param file the file to scan
    * @param endpoints the list of endpoints
    * @param calls the list of calls to other services
@@ -94,10 +95,11 @@ public class RepositoryService {
     }
   }
 
-  //TODO internal dependencies does not make sense for our purposes, probably
+  // TODO internal dependencies does not make sense for our purposes, probably
   // can remove, we likely want to only refer to "dependencies" as items between two
   // services, not within
-  private void scanInternalDependencies(List<RestDependency> dependencies, List<Endpoint> endpoints) {
+  private void scanInternalDependencies(
+      List<RestDependency> dependencies, List<Endpoint> endpoints) {
     for (RestDependency restDependency : dependencies) {
       String url = restDependency.getUrl();
 

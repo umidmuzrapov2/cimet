@@ -19,13 +19,13 @@ import java.util.List;
  * relative microservice.
  */
 public class EndpointExtractionService {
-    /**
-     * Parse the REST endpoints from the given source file.
-     *
-     * @param sourceFile the source file to parse
-     * @return the list of parsed endpoints
-     * @throws IOException if an I/O error occurs
-     */
+  /**
+   * Parse the REST endpoints from the given source file.
+   *
+   * @param sourceFile the source file to parse
+   * @return the list of parsed endpoints
+   * @throws IOException if an I/O error occurs
+   */
   public List<Endpoint> parseEndpoints(File sourceFile) throws IOException {
     List<Endpoint> endpoints = new ArrayList<>();
 
@@ -91,7 +91,6 @@ public class EndpointExtractionService {
           endpoint.setParentMethod(packageName + "." + className + "." + methodName);
 
           endpoints.add(endpoint);
-
         }
       }
     }

@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Service for parsing REST dependencies from source files and
- * describing them in relation to the microservice that calls the endpoint.
+ * Service for parsing REST dependencies from source files and describing them in relation to the
+ * microservice that calls the endpoint.
  */
 public class CallExtractionService {
   /**
@@ -69,7 +69,8 @@ public class CallExtractionService {
 
               // get http methods for exchange method
               if (restTemplateMethod.getMethodName().equals("exchange")) {
-                restDependency.setHttpMethod(getHttpMethodForExchange(mce.getArguments().toString()));
+                restDependency.setHttpMethod(
+                    getHttpMethodForExchange(mce.getArguments().toString()));
               }
 
               // find url
@@ -111,6 +112,7 @@ public class CallExtractionService {
 
   /**
    * Find the URL from the given method call expression.
+   *
    * @param mce the method call to extract url from
    * @param cid the class or interface to search
    * @return the URL found
@@ -135,13 +137,13 @@ public class CallExtractionService {
     return "";
   }
 
-    /**
-     * Check if the given compilation unit has a RestTemplate import in order to determine
-     * if it would have any dependencies in the file.
-     *
-     * @param cu the compilation unit to check
-     * @return if a RestTemplate import exists else false
-     */
+  /**
+   * Check if the given compilation unit has a RestTemplate import in order to determine if it would
+   * have any dependencies in the file.
+   *
+   * @param cu the compilation unit to check
+   * @return if a RestTemplate import exists else false
+   */
   private boolean hasRestTemplateImport(CompilationUnit cu) {
     for (ImportDeclaration id : cu.findAll(ImportDeclaration.class)) {
       if (id.getNameAsString().equals("org.springframework.web.client.RestTemplate")) {
@@ -181,7 +183,6 @@ public class CallExtractionService {
     return false;
   }
 
-
   private String fieldValue(ClassOrInterfaceDeclaration cid, String fieldName) {
     for (FieldDeclaration fd : cid.findAll(FieldDeclaration.class)) {
       if (fd.getVariables().toString().contains(fieldName)) {
@@ -191,7 +192,6 @@ public class CallExtractionService {
         }
       }
     }
-
 
     return "";
   }

@@ -15,8 +15,8 @@ public class MsFileUtils {
   private MsFileUtils() {}
 
   /**
-   * Construct a JSON object representing the
-   * given ms system name, version, and microservice data map.
+   * Construct a JSON object representing the given ms system name, version, and microservice data
+   * map.
    *
    * @param systemName the name of the system
    * @param version the version of the system
@@ -69,12 +69,12 @@ public class MsFileUtils {
     return parentBuilder.build();
   }
 
-    /**
-     * Write the given endpoint list to the given json list.
-     *
-     * @param endpointsArrayBuilder the endpoints array builder
-     * @param dependencies the list of dependencies
-     */
+  /**
+   * Write the given endpoint list to the given json list.
+   *
+   * @param endpointsArrayBuilder the endpoints array builder
+   * @param dependencies the list of dependencies
+   */
   private static void writeDependency(
       JsonArrayBuilder endpointsArrayBuilder, List<RestDependency> dependencies) {
     for (RestDependency endpoint : dependencies) {
