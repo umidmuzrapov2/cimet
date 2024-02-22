@@ -92,7 +92,8 @@ public class IntermediateExtraction {
     // Clone remote repositories
     String clonePath = System.getProperty(SYS_USER_DIR) + inputConfig.getClonePath();
 
-    InputRepository[] inputRepositories = inputConfig.getRepositories().toArray(new InputRepository[0]);
+    InputRepository[] inputRepositories =
+        inputConfig.getRepositories().toArray(new InputRepository[0]);
 
     // first one
     InputRepository[] reposFirst = new InputRepository[1]; // Create a new array with size 1

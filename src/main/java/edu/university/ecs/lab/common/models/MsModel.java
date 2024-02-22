@@ -5,13 +5,12 @@ import lombok.Data;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Model to represent the microservice object as seen in IR output
- */
+/** Model to represent the microservice object as seen in IR output */
 @Data
 public class MsModel {
   /** List of rest endpoints found in the service */
   private List<Endpoint> endpoints;
+
   /** Direct API dependencies that this service has to another service */
   private List<RestDependency> restDependencies;
 
@@ -19,13 +18,10 @@ public class MsModel {
 
   private String id;
 
-  //TODO remove
-  @Deprecated
-  private List<RestDependency> externalDependencies;
+  // TODO remove
+  @Deprecated private List<RestDependency> externalDependencies;
 
-  /**
-   * Default constructor, init lists as empty
-   */
+  /** Default constructor, init lists as empty */
   public MsModel() {
     endpoints = new ArrayList<>();
     restDependencies = new ArrayList<>();
@@ -37,7 +33,7 @@ public class MsModel {
     endpoints.add(endpoint);
   }
 
-    /** Add a direct call dependency to the list of dependencies */
+  /** Add a direct call dependency to the list of dependencies */
   public void addDependency(RestDependency restDependency) {
     restDependencies.add(restDependency);
   }

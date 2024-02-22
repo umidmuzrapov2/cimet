@@ -5,9 +5,7 @@ import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.Repository;
 import java.util.*;
 
-/**
- * Service for extracting the differences between a local and remote repository.
- */
+/** Service for extracting the differences between a local and remote repository. */
 public class DeltaExtraction {
   /**
    * main method entry point to delta extraction
