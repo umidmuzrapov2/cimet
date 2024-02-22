@@ -15,6 +15,10 @@ public class MsModel {
   /** Direct API dependencies that this service has to another service */
   private List<RestDependency> restDependencies;
 
+  private String commit;
+
+  private String id;
+
   //TODO remove
   @Deprecated
   private List<RestDependency> externalDependencies;

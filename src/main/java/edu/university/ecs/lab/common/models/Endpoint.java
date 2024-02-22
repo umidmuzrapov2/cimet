@@ -21,4 +21,8 @@ public class Endpoint {
   private String httpMethod;
   /** The method that the endpoint is a part of as full class path a.b.c.methodName */
   private String parentMethod;
+  private String id;
+  private String methodName;
+  private String parameter;
+  private String returnType;
 }

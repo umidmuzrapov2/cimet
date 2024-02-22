@@ -2,8 +2,10 @@ package edu.university.ecs.lab.intermediate.services;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.expr.MemberValuePair;
 import edu.university.ecs.lab.common.models.Endpoint;
@@ -49,7 +51,23 @@ public class EndpointExtractionService {
 
       // loop through methods
       for (MethodDeclaration md : cid.findAll(MethodDeclaration.class)) {
+
         String methodName = md.getNameAsString();
+
+        NodeList<Parameter> parameterList = md.getParameters();
+        String parameter = "";
+        if (parameterList.size() != 0) {
+          parameter = "[";
+
+          for (int i = 0; i < parameterList.size(); i++) {
+            parameter = parameter + parameterList.get(i).toString();
+            if (i != parameterList.size() - 1) {
+              parameter = parameter + ", ";
+            } else {
+              parameter = parameter + "]";
+            }
+          }
+        }
 
         // loop through annotations
         for (AnnotationExpr ae : md.getAnnotations()) {
@@ -89,7 +107,9 @@ public class EndpointExtractionService {
           endpoint.setSourceFile(sourceFile.getCanonicalPath());
           endpoint.setUrl(StringParserUtils.mergePaths(classLevelPath, pathFromAnnotation(ae)));
           endpoint.setParentMethod(packageName + "." + className + "." + methodName);
-
+          endpoint.setMethodName(methodName);
+          endpoint.setParameter(parameter);
+          endpoint.setReturnType(md.getTypeAsString());
           endpoints.add(endpoint);
         }
       }
