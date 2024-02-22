@@ -3,7 +3,7 @@ package edu.university.ecs.lab.intermediate;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import edu.university.ecs.lab.common.config.InputConfig;
-import edu.university.ecs.lab.common.config.Microservice;
+import edu.university.ecs.lab.common.config.InputRepository;
 import edu.university.ecs.lab.common.models.MsModel;
 import edu.university.ecs.lab.common.writers.MsJsonWriter;
 import edu.university.ecs.lab.intermediate.services.GitCloneService;
@@ -91,9 +91,9 @@ public class IntermediateExtraction {
 
     // Clone remote repositories
     String clonePath = System.getProperty(SYS_USER_DIR) + inputConfig.getClonePath();
-    Microservice[] microservices = inputConfig.getMicroservices().toArray(new Microservice[0]);
+    InputRepository[] inputRepositories = inputConfig.getRepositories().toArray(new InputRepository[0]);
     GitCloneService gitCloneService = new GitCloneService(clonePath);
-    List<String> msPathRoots = gitCloneService.cloneRemotes(microservices);
+    List<String> msPathRoots = gitCloneService.cloneRemotes(inputRepositories);
 
     // Scan through each local repo and extract endpoints/dependencies
     for (String msPath : msPathRoots) {
@@ -134,8 +134,8 @@ public class IntermediateExtraction {
     } else if (inputConfig.getOutputPath() == null) {
       System.err.println("Config file requires attribute \"outputPath\"");
       System.exit(BAD_CONFIG);
-    } else if (inputConfig.getMicroservices() == null) {
-      System.err.println("Config file requires attribute \"microservices\"");
+    } else if (inputConfig.getRepositories() == null) {
+      System.err.println("Config file requires attribute \"repositories\"");
       System.exit(BAD_CONFIG);
     }
 

@@ -1,14 +1,12 @@
 package edu.university.ecs.lab.intermediate.services;
 
-import edu.university.ecs.lab.common.config.Microservice;
+import edu.university.ecs.lab.common.config.InputRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
-import static java.nio.file.Files.*;
 
 /** Service for cloning remote repositories to the local file system. */
 @Data
@@ -20,25 +18,25 @@ public class GitCloneService {
   /**
    * This method clones remote repositories to the local file system
    *
-   * @param microservices the microservices to be cloned
+   * @param inputRepositories the repositories to be cloned
    * @throws Exception if Git clone failed
    */
-  public List<String> cloneRemotes(Microservice[] microservices) throws Exception {
+  public List<String> cloneRemotes(InputRepository[] inputRepositories) throws Exception {
     List<String> repoNames = new ArrayList<>();
 
-    for (Microservice ms : microservices) {
-      String output = clonePath + File.separator + getRepositoryName(ms.getRepoUrl());
-      ProcessBuilder processBuilder = new ProcessBuilder("git", "clone", ms.getRepoUrl(), output);
+    for (InputRepository repo : inputRepositories) {
+      String output = clonePath + File.separator + getRepositoryName(repo.getRepoUrl());
+      ProcessBuilder processBuilder = new ProcessBuilder("git", "clone", repo.getRepoUrl(), output);
       processBuilder.redirectErrorStream(true);
       Process process = processBuilder.start();
 
       int exitCode = process.waitFor();
 
       if (exitCode < 400) {
-        System.out.println("Git clone of " + ms.getRepoUrl() + " successful ");
+        System.out.println("Git clone of " + repo.getRepoUrl() + " successful ");
 
-        if (ms.getBaseCommit() != null && !ms.getBaseCommit().isEmpty()) {
-          processBuilder = new ProcessBuilder("git", "reset", "--hard", ms.getBaseCommit());
+        if (repo.getBaseCommit() != null && !repo.getBaseCommit().isEmpty()) {
+          processBuilder = new ProcessBuilder("git", "reset", "--hard", repo.getBaseCommit());
           processBuilder.directory(new File(output));
           processBuilder.redirectErrorStream(true);
           process = processBuilder.start();
@@ -47,22 +45,22 @@ public class GitCloneService {
 
           // TODO exit code not working
           if (exitCode < 400) {
-            System.out.println("Git reset of " + ms.getRepoUrl() + " successful ");
+            System.out.println("Git reset of " + repo.getRepoUrl() + " successful ");
           } else {
             throw new Exception(
-                "Git reset of " + ms.getRepoUrl() + " failed with status code: " + exitCode);
+                "Git reset of " + repo.getRepoUrl() + " failed with status code: " + exitCode);
           }
         }
       } else {
         throw new Exception(
-            "Git clone of " + ms.getRepoUrl() + " failed with status code: " + exitCode);
+            "Git clone of " + repo.getRepoUrl() + " failed with status code: " + exitCode);
       }
 
       output = output.replaceAll("\\\\", "/");
 
       // add microservices to path
-      if (ms.getPaths() != null && ms.getPaths().length > 0) {
-        for (String subPath : ms.getPaths()) {
+      if (repo.getPaths() != null && repo.getPaths().length > 0) {
+        for (String subPath : repo.getPaths()) {
           String path;
           if (subPath.substring(0, 1).equals(File.separator)) {
             path = output + subPath;

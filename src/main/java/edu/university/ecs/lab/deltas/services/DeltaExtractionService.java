@@ -10,18 +10,50 @@ import javax.json.*;
 import java.io.*;
 import java.util.*;
 
+/**
+ * Service for extracting the differences between a local and remote repository and generating delta son.
+ */
 public class DeltaExtractionService {
+  /** The GitFetchUtils object for fetching git differences */
   private final GitFetchUtils gitFetchUtils = new GitFetchUtils();
+  /** Service to compare service dependency model to the git differences */
   private final DeltaComparisonUtils comparisonUtils = new DeltaComparisonUtils();
 
+  /**
+   * Wrapper of {@link GitFetchUtils#establishLocalEndpoint(String)}
+   * a local endpoint for the given repository path.
+   *
+   * @param path the path to the repository
+   * @return the repository object
+   * @throws IOException if an I/O error occurs
+   */
   public Repository establishLocalEndpoint(String path) throws IOException {
     return gitFetchUtils.establishLocalEndpoint(path);
   }
 
+    /**
+     * Wrapper of {@link GitFetchUtils#fetchRemoteDifferences(Repository, String)}
+     * fetch the differences between the local repository (established from {@link #establishLocalEndpoint(String)}
+     * and remote repository.
+     *
+     * @param repo the repository object established by {@link #establishLocalEndpoint(String)}
+     * @param branch the branch name to compare to the local repository
+     * @return the list of differences
+     * @throws Exception if an error from {@link GitFetchUtils#fetchRemoteDifferences(Repository, String)}
+     */
   public List<DiffEntry> fetchRemoteDifferences(Repository repo, String branch) throws Exception {
     return gitFetchUtils.fetchRemoteDifferences(repo, branch);
   }
 
+    /**
+     * Process the differences between the local and remote repository and write the differences to a file.
+     * Differences can be generated from {@link #fetchRemoteDifferences(Repository, String)}
+     *
+     * @param path the path to the microservice TLD
+     * @param repo the repository object established by {@link #establishLocalEndpoint(String)}
+     * @param diffEntries the list of differences extracted from {@link #fetchRemoteDifferences(Repository, String)}
+     * @throws IOException if an I/O error occurs
+     */
   public void processDifferences(String path, Repository repo, List<DiffEntry> diffEntries)
       throws IOException {
     JsonObjectBuilder outputBuilder = Json.createObjectBuilder();

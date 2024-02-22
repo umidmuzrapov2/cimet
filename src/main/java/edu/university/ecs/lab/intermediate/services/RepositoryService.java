@@ -45,7 +45,7 @@ public class RepositoryService {
     scanInternalDependencies(calls, endpoints);
 
     model.setEndpoints(endpoints);
-    model.setDependencies(calls);
+    model.setRestDependencies(calls);
 
     System.out.println("Done!");
     return model;

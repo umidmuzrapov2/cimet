@@ -58,7 +58,7 @@ public class MsFileUtils {
       }
       jsonObjectBuilder.add("endpoints", endpointsArrayBuilder.build());
 
-      List<RestDependency> dependencies = microservice.getValue().getDependencies();
+      List<RestDependency> dependencies = microservice.getValue().getRestDependencies();
       writeDependency(endpointsArrayBuilder, dependencies);
       jsonObjectBuilder.add("dependencies", endpointsArrayBuilder.build());
 

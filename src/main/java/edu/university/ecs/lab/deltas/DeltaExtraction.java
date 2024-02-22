@@ -5,6 +5,9 @@ import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.Repository;
 import java.util.*;
 
+/**
+ * Service for extracting the differences between a local and remote repository.
+ */
 public class DeltaExtraction {
   /**
    * main method entry point to delta extraction
@@ -12,18 +15,18 @@ public class DeltaExtraction {
    * @param args command line args list containing /path/to/repo(s)
    */
   public static void main(String[] args) throws Exception {
-    DeltaExtractionService extractionService = new DeltaExtractionService();
+    DeltaExtractionService deltaService = new DeltaExtractionService();
 
     // iterate through each repository path
     for (String path : args) {
       // point to local repository
-      Repository localRepo = extractionService.establishLocalEndpoint(path);
+      Repository localRepo = deltaService.establishLocalEndpoint(path);
 
       // extract remote differences with local
-      List<DiffEntry> differences = extractionService.fetchRemoteDifferences(localRepo, "main");
+      List<DiffEntry> differences = deltaService.fetchRemoteDifferences(localRepo, "main");
 
       // process/write differences to delta output
-      extractionService.processDifferences(path, localRepo, differences);
+      deltaService.processDifferences(path, localRepo, differences);
     }
   }
 }

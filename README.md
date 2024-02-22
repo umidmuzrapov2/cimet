@@ -22,7 +22,7 @@ Sample input config file:
 {
   "clonePath": "/repos",
   "outputPath": "/out",
-  "microservices": [
+  "repositories": [
     {
       "repoUrl": "https://github.com/cloudhubs/train-ticket-microservices.git",
       "baseCommit": "f34c476",
