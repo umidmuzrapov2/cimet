@@ -8,6 +8,10 @@ import java.util.List;
 @Data
 public class MsModel {
   private List<Endpoint> endpoints;
+
+  private String commit;
+
+  private String id;
   private List<RestDependency> dependencies;
 
   private List<RestDependency> externalDependencies;
@@ -17,6 +21,8 @@ public class MsModel {
     dependencies = new ArrayList<>();
     externalDependencies = new ArrayList<>();
   }
+
+
 
   public void addEndpoint(Endpoint endpoint) {
     endpoints.add(endpoint);

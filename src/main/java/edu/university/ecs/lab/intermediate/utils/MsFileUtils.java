@@ -39,20 +39,26 @@ public class MsFileUtils {
         msName =
             microservice.getKey().substring(microservice.getKey().lastIndexOf(File.separator) + 1);
       }
+      jsonObjectBuilder.add("id", microservice.getValue().getId());
       jsonObjectBuilder.add("msName", msName);
       jsonObjectBuilder.add("msPath", microservice.getKey());
+      jsonObjectBuilder.add("commitId", microservice.getValue().getCommit());
 
       JsonArrayBuilder endpointsArrayBuilder = Json.createArrayBuilder();
 
       List<Endpoint> endpoints = microservice.getValue().getEndpoints();
       for (Endpoint endpoint : endpoints) {
         JsonObjectBuilder endpointBuilder = Json.createObjectBuilder();
-
+        endpoint.setId(endpoint.getHttpMethod() + ":" + msName + "." + endpoint.getMethodName() + "#" + Math.abs(endpoint.getParameter().hashCode()));
+        endpointBuilder.add("id", endpoint.getId());
         endpointBuilder.add("api", endpoint.getUrl());
         endpointBuilder.add("source-file", endpoint.getSourceFile());
-        endpointBuilder.add("decorator", endpoint.getDecorator());
+        endpointBuilder.add("type", endpoint.getDecorator());
         endpointBuilder.add("httpMethod", endpoint.getHttpMethod());
         endpointBuilder.add("parent-method", endpoint.getParentMethod());
+        endpointBuilder.add("methodName", endpoint.getMethodName());
+        endpointBuilder.add("arguments", endpoint.getParameter());
+        endpointBuilder.add("return", endpoint.getReturnType());
 
         endpointsArrayBuilder.add(endpointBuilder.build());
       }

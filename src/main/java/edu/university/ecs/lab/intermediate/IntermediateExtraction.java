@@ -92,20 +92,31 @@ public class IntermediateExtraction {
     // Clone remote repositories
     String clonePath = System.getProperty(SYS_USER_DIR) + inputConfig.getClonePath();
     Microservice[] microservices = inputConfig.getMicroservices().toArray(new Microservice[0]);
+
+    //first one
+    Microservice[] microservicesFirst = new Microservice[1]; // Create a new array with size 1
+    microservicesFirst[0] = microservices[0];
+
+    MsModel model = new MsModel();
+    String commit = microservicesFirst[0].getBaseCommit();
     GitCloneService gitCloneService = new GitCloneService(clonePath);
-    List<String> msPathRoots = gitCloneService.cloneRemotes(microservices);
+    List<String> msPathRoots = gitCloneService.cloneRemotes(microservicesFirst);
 
     // Scan through each local repo and extract endpoints/dependencies
     for (String msPath : msPathRoots) {
+
       String path = msPath;
 
       if (msPath.contains(clonePath) && msPath.length() > clonePath.length() + 1) {
         path = msPath.substring(clonePath.length() + 1);
       }
 
+      model = repositoryService.recursivelyScanFiles(clonePath, msPath.substring(clonePath.length()));
+      model.setCommit(commit);
+      model.setId(msPath.substring(msPath.lastIndexOf('/') + 1));
       msEndpointsMap.put(
-          path,
-          repositoryService.recursivelyScanFiles(clonePath, msPath.substring(clonePath.length())));
+          path,model
+          );
     }
     return msEndpointsMap;
   }

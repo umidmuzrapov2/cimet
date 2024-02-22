@@ -12,4 +12,8 @@ public class Endpoint {
   private String decorator;
   private String httpMethod;
   private String parentMethod;
+  private String id;
+  private String methodName;
+  private String parameter;
+  private String returnType;
 }

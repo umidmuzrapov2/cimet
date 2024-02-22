@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public class Microservice {
+  private String id;
   private String repoUrl;
   private String baseCommit;
   private String endCommit;
