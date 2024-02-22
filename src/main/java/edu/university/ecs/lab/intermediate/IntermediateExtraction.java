@@ -11,47 +11,87 @@ import edu.university.ecs.lab.intermediate.services.RepositoryService;
 import edu.university.ecs.lab.intermediate.utils.MsFileUtils;
 
 import javax.json.JsonObject;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 
+
+/**
+ * IntermediateExtraction is the main entry point for the intermediate extraction process.
+ * <p>
+ *     The IR extraction process is responsible for cloning remote services, scanning
+ *     through each local repo and extracting endpoints/dependencies, and writing each
+ *     service and endpoints to intermediate representation.
+ * <p>
+ */
 public class IntermediateExtraction {
 
-  public static String clonePath;
+  /** Exit code: invalid config path */
+  private static final int BAD_CONFIG = 2;
+  /** Exit code: error writing IR to json */
+  private static final int BAD_IR_WRITE = 3;
+
+  /** system property for user directory */
+  private static final String SYS_USER_DIR = "user.dir";
+
+  private static final RepositoryService repositoryService = new RepositoryService();
 
   /**
-   * main method entry point to intermediate extraction
+   * Main method entry point to intermediate extraction
    *
-   * @param args (optional) /path/to/config/file
+   * @param args (optional) /path/to/config/file, defaults to config.json in the project directory.
    */
   public static void main(String[] args) throws Exception {
+    // Get input config
     String jsonFilePath = (args.length == 1) ? args[0] : "config.json";
+    InputConfig inputConfig = validateConfig(jsonFilePath);
 
-    JsonReader jsonReader = new JsonReader(new FileReader(jsonFilePath));
-    Gson gson = new Gson();
-    InputConfig inputConfig = gson.fromJson(jsonReader, InputConfig.class);
+    // Clone remote repositories and scan through each cloned repo to extract endpoints/dependencies
+    Map<String, MsModel> msDataMap = cloneAndScanServices(inputConfig);
 
-    if (inputConfig.getClonePath() == null) {
-      System.err.println("Config file requires attribute \"clonePath\"");
-    } else if (inputConfig.getOutputPath() == null) {
-      System.err.println("Config file requires attribute \"outputPath\"");
-    } else if (inputConfig.getMicroservices() == null) {
-      System.err.println("Config file requires attribute \"microservices\"");
+    //  Write each service and endpoints to IR
+    try {
+        writeToIntermediateRepresentation(inputConfig, msDataMap);
+    } catch (IOException e) {
+      System.err.println("Error writing to IR json: " + e.getMessage());
+      System.exit(BAD_IR_WRITE);
     }
+  }
 
+    /**
+     * Write each service and endpoints to intermediate representation
+     * @param inputConfig the config file object
+     * @param msEndpointsMap a map of service to their information
+     */
+  private static void writeToIntermediateRepresentation(InputConfig inputConfig,
+                                                        Map<String, MsModel> msEndpointsMap) throws IOException {
+
+    String outputPath = System.getProperty(SYS_USER_DIR) + inputConfig.getOutputPath();
+    Scanner scanner = new Scanner(System.in); // read system name from command line
+    System.out.println("Enter system name: ");
+    JsonObject jout = MsFileUtils
+            .constructJsonMsSystem(scanner.nextLine(), "0.0.1", msEndpointsMap);
+
+    MsJsonWriter.writeJsonToFile(
+            jout, outputPath + "/intermediate-output-[" + (new Date()).getTime() + "].json");
+  }
+
+  /**
+     * Clone remote repositories and scan through each local repo and extract endpoints/dependencies
+     * @param inputConfig the input config object
+     * @return a map of services and their endpoints
+     */
+  private static Map<String, MsModel> cloneAndScanServices(InputConfig inputConfig) throws Exception {
     Map<String, MsModel> msEndpointsMap = new HashMap<>();
 
-    String outputPath = System.getProperty("user.dir") + inputConfig.getOutputPath();
-
-    clonePath = System.getProperty("user.dir") + inputConfig.getClonePath();
-
-    // clone remote services (ideal scenario: 1 service per repo)
+    // Clone remote repositories
+    String clonePath = System.getProperty(SYS_USER_DIR) + inputConfig.getClonePath();
     Microservice[] microservices = inputConfig.getMicroservices().toArray(new Microservice[0]);
     GitCloneService gitCloneService = new GitCloneService(clonePath);
     List<String> msPathRoots = gitCloneService.cloneRemotes(microservices);
 
-    RepositoryService repositoryService = new RepositoryService();
-
-    // scan through each local repo and extract endpoints/dependencies
+    // Scan through each local repo and extract endpoints/dependencies
     for (String msPath : msPathRoots) {
       String path = msPath;
 
@@ -59,22 +99,41 @@ public class IntermediateExtraction {
         path = msPath.substring(clonePath.length() + 1);
       }
 
-      msEndpointsMap.put(
-          path,
-          repositoryService.recursivelyScanFiles(clonePath, msPath.substring(clonePath.length())));
+      msEndpointsMap.put(path,
+              repositoryService.recursivelyScanFiles(clonePath,
+                      msPath.substring(clonePath.length())));
+    }
+    return msEndpointsMap;
+  }
+
+  /**
+   * Validate the input config file
+   * @param jsonFilePath path to the input config file
+   * @return the input config as an object
+   */
+  private static InputConfig validateConfig(String jsonFilePath) {
+    JsonReader jsonReader = null;
+    try {
+      jsonReader = new JsonReader(new FileReader(jsonFilePath));
+    } catch (FileNotFoundException e) {
+      System.err.println("Config file not found: " + jsonFilePath);
+      System.exit(BAD_CONFIG);
     }
 
-    //    List<Dependency> externalDependencies = new ArrayList<>();
+    Gson gson = new Gson();
+    InputConfig inputConfig = gson.fromJson(jsonReader, InputConfig.class);
 
-    // find dependency endpoints
+    if (inputConfig.getClonePath() == null) {
+      System.err.println("Config file requires attribute \"clonePath\"");
+      System.exit(BAD_CONFIG);
+    } else if (inputConfig.getOutputPath() == null) {
+      System.err.println("Config file requires attribute \"outputPath\"");
+      System.exit(BAD_CONFIG);
+    } else if (inputConfig.getMicroservices() == null) {
+      System.err.println("Config file requires attribute \"microservices\"");
+      System.exit(BAD_CONFIG);
+    }
 
-    //  write each service and endpoints to intermediate representation
-    Scanner scanner = new Scanner(System.in); // read system name from command line
-    System.out.println("Enter system name: ");
-    JsonObject jout =
-        MsFileUtils.constructJsonMsSystem(scanner.nextLine(), "0.0.1", msEndpointsMap);
-
-    MsJsonWriter.writeJsonToFile(
-        jout, outputPath + "/intermediate-output-[" + (new Date()).getTime() + "].json");
+    return inputConfig;
   }
 }

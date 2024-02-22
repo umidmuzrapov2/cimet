@@ -6,7 +6,7 @@ import lombok.*;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class Dependency {
+public class RestDependency {
   private String url;
   private String sourceFile;
   private String destFile;

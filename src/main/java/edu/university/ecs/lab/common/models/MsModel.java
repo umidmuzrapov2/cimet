@@ -8,9 +8,9 @@ import java.util.List;
 @Data
 public class MsModel {
   private List<Endpoint> endpoints;
-  private List<Dependency> dependencies;
+  private List<RestDependency> dependencies;
 
-  private List<Dependency> externalDependencies;
+  private List<RestDependency> externalDependencies;
 
   public MsModel() {
     endpoints = new ArrayList<>();
@@ -22,11 +22,11 @@ public class MsModel {
     endpoints.add(endpoint);
   }
 
-  public void addDependency(Dependency dependency) {
-    dependencies.add(dependency);
+  public void addDependency(RestDependency restDependency) {
+    dependencies.add(restDependency);
   }
 
-  public void addExternalDependency(Dependency dependency) {
-    externalDependencies.add(dependency);
+  public void addExternalDependency(RestDependency restDependency) {
+    externalDependencies.add(restDependency);
   }
 }

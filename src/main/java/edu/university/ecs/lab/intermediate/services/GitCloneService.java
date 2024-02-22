@@ -10,9 +10,13 @@ import java.util.List;
 
 import static java.nio.file.Files.*;
 
+/**
+ * Service for cloning remote repositories to the local file system.
+ */
 @Data
 @AllArgsConstructor
 public class GitCloneService {
+  /** The absolute root path to clone the repositories to */
   private final String clonePath;
 
   /**

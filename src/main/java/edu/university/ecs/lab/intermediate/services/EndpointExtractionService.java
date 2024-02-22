@@ -14,7 +14,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RestEndpointService {
+/**
+ * Service for parsing REST endpoints from source files and describing them in relation to their
+ * relative microservice.
+ */
+public class EndpointExtractionService {
+    /**
+     * Parse the REST endpoints from the given source file.
+     *
+     * @param sourceFile the source file to parse
+     * @return the list of parsed endpoints
+     * @throws IOException if an I/O error occurs
+     */
   public List<Endpoint> parseEndpoints(File sourceFile) throws IOException {
     List<Endpoint> endpoints = new ArrayList<>();
 
@@ -80,6 +91,7 @@ public class RestEndpointService {
           endpoint.setParentMethod(packageName + "." + className + "." + methodName);
 
           endpoints.add(endpoint);
+
         }
       }
     }
@@ -87,20 +99,26 @@ public class RestEndpointService {
     return endpoints;
   }
 
+  /**
+   * Get the api path from the given annotation.
+   *
+   * @param ae the annotation expression
+   * @return the path else an empty string if not found or ae was null
+   */
   private String pathFromAnnotation(AnnotationExpr ae) {
     if (ae == null) {
       return "";
     }
 
     if (ae.isSingleMemberAnnotationExpr()) {
-      return StringParserUtils.removeEnclosedQuotations(
+      return StringParserUtils.removeOuterQuotations(
           ae.asSingleMemberAnnotationExpr().getMemberValue().toString());
     }
 
     if (ae.isNormalAnnotationExpr() && ae.asNormalAnnotationExpr().getPairs().size() > 0) {
       for (MemberValuePair mvp : ae.asNormalAnnotationExpr().getPairs()) {
         if (mvp.getName().toString().equals("path") || mvp.getName().toString().equals("value")) {
-          return StringParserUtils.removeEnclosedQuotations(mvp.getValue().toString());
+          return StringParserUtils.removeOuterQuotations(mvp.getValue().toString());
         }
       }
     }

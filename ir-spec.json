@@ -3,13 +3,13 @@
     "version": "0.0.1",
     "services": [
         {
-            "id": "ms1111111",
+            "id": "ts-service1",
             "msName": "ts-service1",
             "msPath": "train-ticket-microservices/ts-service1",
             "commitId": "abcdef123456789abcdef123456789",
             "endpoints": [
                 {
-                    "id": "endpoint111111",
+                    "id": "GET:ts-service1.getRoutes#123",
                     "api": "/api/v1/service1/routes",
                     "file": "train-ticket-microservices/ts-service1/src/main/java/com/cloudhubs/trainticket/service1/controller/RouteController.java",
                     "type": "@RequestMapping",

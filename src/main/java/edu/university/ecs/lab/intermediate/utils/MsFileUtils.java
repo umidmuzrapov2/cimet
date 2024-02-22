@@ -1,6 +1,6 @@
 package edu.university.ecs.lab.intermediate.utils;
 
-import edu.university.ecs.lab.common.models.Dependency;
+import edu.university.ecs.lab.common.models.RestDependency;
 import edu.university.ecs.lab.common.models.Endpoint;
 import edu.university.ecs.lab.common.models.MsModel;
 
@@ -9,9 +9,22 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
+/** Utility class for handling microservice files. */
 public class MsFileUtils {
+  /** Private constructor to prevent instantiation. */
+  private MsFileUtils() {}
+
+  /**
+   * Construct a JSON object representing the
+   * given ms system name, version, and microservice data map.
+   *
+   * @param systemName the name of the system
+   * @param version the version of the system
+   * @param msDataMap the map of microservices to their data models
+   * @return the constructed JSON object
+   */
   public static JsonObject constructJsonMsSystem(
-      String systemName, String version, Map<String, MsModel> msEndpointsMap) {
+      String systemName, String version, Map<String, MsModel> msDataMap) {
     JsonObjectBuilder parentBuilder = Json.createObjectBuilder();
 
     parentBuilder.add("systemName", systemName);
@@ -19,7 +32,7 @@ public class MsFileUtils {
 
     JsonArrayBuilder jsonArrayBuilder = Json.createArrayBuilder();
 
-    for (Map.Entry<String, MsModel> microservice : msEndpointsMap.entrySet()) {
+    for (Map.Entry<String, MsModel> microservice : msDataMap.entrySet()) {
       JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
       String msName = microservice.getKey();
       if (microservice.getKey().contains(File.separator)) {
@@ -45,14 +58,9 @@ public class MsFileUtils {
       }
       jsonObjectBuilder.add("endpoints", endpointsArrayBuilder.build());
 
-      List<Dependency> dependencies = microservice.getValue().getDependencies();
+      List<RestDependency> dependencies = microservice.getValue().getDependencies();
       writeDependency(endpointsArrayBuilder, dependencies);
       jsonObjectBuilder.add("dependencies", endpointsArrayBuilder.build());
-
-      // external dependencies
-      // List<Dependency> externalDependencies = microservice.getValue().getExternalDependencies();
-      // writeDependency(endpointsArrayBuilder, externalDependencies);
-      // jsonObjectBuilder.add("external-dependencies", endpointsArrayBuilder.build());
 
       jsonArrayBuilder.add(jsonObjectBuilder.build());
     }
@@ -61,16 +69,22 @@ public class MsFileUtils {
     return parentBuilder.build();
   }
 
+    /**
+     * Write the given endpoint list to the given json list.
+     *
+     * @param endpointsArrayBuilder the endpoints array builder
+     * @param dependencies the list of dependencies
+     */
   private static void writeDependency(
-      JsonArrayBuilder endpointsArrayBuilder, List<Dependency> dependencies) {
-    for (Dependency dependency : dependencies) {
+      JsonArrayBuilder endpointsArrayBuilder, List<RestDependency> dependencies) {
+    for (RestDependency endpoint : dependencies) {
       JsonObjectBuilder endpointBuilder = Json.createObjectBuilder();
 
-      endpointBuilder.add("api", dependency.getUrl());
-      endpointBuilder.add("source-file", dependency.getSourceFile());
-      endpointBuilder.add("call-dest", dependency.getDestFile());
-      endpointBuilder.add("call-method", dependency.getParentMethod() + "()");
-      endpointBuilder.add("httpMethod", dependency.getHttpMethod());
+      endpointBuilder.add("api", endpoint.getUrl());
+      endpointBuilder.add("source-file", endpoint.getSourceFile());
+      endpointBuilder.add("call-dest", endpoint.getDestFile());
+      endpointBuilder.add("call-method", endpoint.getParentMethod() + "()");
+      endpointBuilder.add("httpMethod", endpoint.getHttpMethod());
 
       endpointsArrayBuilder.add(endpointBuilder.build());
     }
