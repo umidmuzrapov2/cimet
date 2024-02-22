@@ -93,7 +93,7 @@ public class IntermediateExtraction {
     String clonePath = System.getProperty(SYS_USER_DIR) + inputConfig.getClonePath();
     Microservice[] microservices = inputConfig.getMicroservices().toArray(new Microservice[0]);
 
-    //first one
+    // first one
     Microservice[] microservicesFirst = new Microservice[1]; // Create a new array with size 1
     microservicesFirst[0] = microservices[0];
 
@@ -111,12 +111,11 @@ public class IntermediateExtraction {
         path = msPath.substring(clonePath.length() + 1);
       }
 
-      model = repositoryService.recursivelyScanFiles(clonePath, msPath.substring(clonePath.length()));
+      model =
+          repositoryService.recursivelyScanFiles(clonePath, msPath.substring(clonePath.length()));
       model.setCommit(commit);
       model.setId(msPath.substring(msPath.lastIndexOf('/') + 1));
-      msEndpointsMap.put(
-          path,model
-          );
+      msEndpointsMap.put(path, model);
     }
     return msEndpointsMap;
   }

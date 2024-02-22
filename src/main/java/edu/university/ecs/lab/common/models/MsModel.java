@@ -22,8 +22,6 @@ public class MsModel {
     externalDependencies = new ArrayList<>();
   }
 
-
-
   public void addEndpoint(Endpoint endpoint) {
     endpoints.add(endpoint);
   }

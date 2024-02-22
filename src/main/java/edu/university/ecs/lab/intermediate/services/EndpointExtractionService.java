@@ -54,17 +54,16 @@ public class EndpointExtractionService {
 
         String methodName = md.getNameAsString();
 
-
-        NodeList<Parameter>  parameterList= md.getParameters();
+        NodeList<Parameter> parameterList = md.getParameters();
         String parameter = "";
-        if(parameterList.size() != 0){
+        if (parameterList.size() != 0) {
           parameter = "[";
 
-          for(int i = 0; i < parameterList.size(); i++){
+          for (int i = 0; i < parameterList.size(); i++) {
             parameter = parameter + parameterList.get(i).toString();
-            if(i !=  parameterList.size()-1){
+            if (i != parameterList.size() - 1) {
               parameter = parameter + ", ";
-            }else{
+            } else {
               parameter = parameter + "]";
             }
           }
@@ -112,7 +111,6 @@ public class EndpointExtractionService {
           endpoint.setParameter(parameter);
           endpoint.setReturnType(md.getTypeAsString());
           endpoints.add(endpoint);
-
         }
       }
     }

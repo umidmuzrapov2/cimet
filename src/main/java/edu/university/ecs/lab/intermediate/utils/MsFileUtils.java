@@ -49,7 +49,14 @@ public class MsFileUtils {
       List<Endpoint> endpoints = microservice.getValue().getEndpoints();
       for (Endpoint endpoint : endpoints) {
         JsonObjectBuilder endpointBuilder = Json.createObjectBuilder();
-        endpoint.setId(endpoint.getHttpMethod() + ":" + msName + "." + endpoint.getMethodName() + "#" + Math.abs(endpoint.getParameter().hashCode()));
+        endpoint.setId(
+            endpoint.getHttpMethod()
+                + ":"
+                + msName
+                + "."
+                + endpoint.getMethodName()
+                + "#"
+                + Math.abs(endpoint.getParameter().hashCode()));
         endpointBuilder.add("id", endpoint.getId());
         endpointBuilder.add("api", endpoint.getUrl());
         endpointBuilder.add("source-file", endpoint.getSourceFile());
