@@ -10,15 +10,15 @@ import org.eclipse.jgit.api.FetchCommand;
 import org.eclipse.jgit.api.DiffCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.diff.DiffEntry;
-import org.eclipse.jgit.lib.Config;
-import org.eclipse.jgit.lib.ObjectReader;
-import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
+import org.eclipse.jgit.treewalk.FileTreeIterator;
+import org.eclipse.jgit.treewalk.TreeWalk;
 
 import java.io.File;
 import java.io.IOException;
@@ -63,8 +63,8 @@ public class GitFetchUtils {
       try (ObjectReader reader = repo.newObjectReader()) {
         // get the difference between local main and origin/main
         return git.diff()
-            .setOldTree(prepareTreeParser(reader, repo, "refs/remotes/origin/" + branch))
-            .setNewTree(prepareTreeParser(reader, repo, "refs/heads/" + branch))
+            .setOldTree(prepareRemoteTreeParser(reader, repo, "refs/remotes/origin/" + branch))
+            .setNewTree(prepareLocalTreeParser(repo)) // current local branch
             .call();
       }
     }
@@ -79,7 +79,7 @@ public class GitFetchUtils {
    * @return the canonical tree parser
    * @throws IOException if an I/O error occurs from parsing the tree
    */
-  private CanonicalTreeParser prepareTreeParser(ObjectReader reader, Repository repo, String ref)
+  private CanonicalTreeParser prepareRemoteTreeParser(ObjectReader reader, Repository repo, String ref)
       throws IOException {
     try (RevWalk walk = new RevWalk(reader)) {
       Ref head = repo.exactRef(ref);
@@ -94,6 +94,10 @@ public class GitFetchUtils {
       walk.dispose();
       return treeParser;
     }
+  }
+
+  private static AbstractTreeIterator prepareLocalTreeParser(Repository repo) {
+    return new FileTreeIterator(repo);
   }
 
   /**
