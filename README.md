@@ -42,36 +42,36 @@ Sample output produced:
   "version": "0.0.1",
   "services": [
     {
-      "msName": "../repos/train-ticket-microservices",
+      "id": "train-ticket-microservices\\ts-price-service",
+      "msName": "ts-price-service",
+      "msPath": "C:/Users/.../train-ticket-microservices\\ts-price-service",
+      "commitId": "f34c476",
       "endpoints": [
         {
-          "api": "/api/v1/auth",
-          "source-file": "../repos/train-ticket-microservices/ts-admin-service/src/main/java/com/cloudhubs/trainticket/adminservice/controller/AuthController.java",
-          "type": "@RequestMapping"
+          "id": "GET:ts-price-service.home#0",
+          "api": "/api/v1/priceservice/prices/welcome",
+          "source-file": "C:\\Users\\...\\train-ticket-microservices\\ts-price-service\\...\\PriceController.java",
+          "type": "GetMapping",
+          "httpMethod": "GET",
+          "parent-method": "com.cloudhubs.trainticket.price.controller.PriceController.home",
+          "methodName": "home",
+          "arguments": "",
+          "return": "String"
         },
-        {
-          "api": "/hello",
-          "source-file": "../repos/train-ticket-microservices/ts-admin-service/src/main/java/com/cloudhubs/trainticket/adminservice/controller/AuthController.java",
-          "type": "@GetMapping"
-        },
-        ...
+        ...,
       ],
       "dependencies": [
         {
-          "api": "/api/v1/auth",
-          "source-file": "../repos/train-ticket-microservices/ts-assurance-service/src/main/java/com/cloudhubs/trainticket/assurance/service/impl/UserServiceImpl.java",
-          "call-dest": "../repos/train-ticket-microservices/ts-admin-service/src/main/java/com/cloudhubs/trainticket/adminservice/controller/AuthController.java",
-          "call-method": "exchange()"
-        },
-        {
-          "api": "/users",
-          "source-file": "../repos/train-ticket-microservices/ts-assurance-service/src/main/java/com/cloudhubs/trainticket/assurance/service/impl/UserServiceImpl.java",
-          "call-dest": "../repos/train-ticket-microservices/ts-auth-service/src/main/java/com/cloudhubs/trainticket/auth/controller/AuthUserController.java",
-          "call-method": "exchange()"
+          "api": "/api/v1/paymentservice/payment",
+          "source-file": "C:\\Users\\...\\train-ticket-microservices\\ts-price-service\\...\\InsidePaymentServiceImpl.java",
+          "call-dest": "< TODO >",
+          "call-method": "com.cloudhubs.trainticket.price.service.impl.InsidePaymentServiceImpl.pay()",
+          "httpMethod": "POST"
         },
         ...
       ]
-    }
+    },
+    ...
   ]
 }
 ```
@@ -83,10 +83,24 @@ Sample output produced:
 Sample output produced:
 ```json
 {
-    "local-file": "../train-ticket-microservices/.../AuthController.java",
-    "remote-api": "https://api.github.com/repos/cloudhubs/train-ticket-microservices/contents/.../AuthController.java",
+    "local-file": "/cimet/.../services/DeltaExtractionService.java",
+    "remote-api": "https://api.github.com/repos/cloudhubs/cimet/contents/.../DeltaExtractionService.java",
+    "change-type": "MODIFY",
     "changes": [
-      "line 5",
+      {
+        "className": "DeltaExtractionService",
+        "methodName": "processDifferences",
+        "remote-line": "    System.out.println(\"Delta extracted: \" + outputName);",
+        "local-line": "      jout.add(\"change-type\", entry.getChangeType().name());",
+        "line-number": 107
+      },
+      {
+        "className": "DeltaExtractionService",
+        "methodName": "processDifferences",
+        "remote-line": "  }",
+        "local-line": "      jout.add(\"changes\", deltaChanges);",
+        "line-number": 108
+      },
       ...
     ]
 }
