@@ -1,26 +1,34 @@
 package edu.university.ecs.lab.deltas.utils;
 
-import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.stmt.*;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
 public class StatementEqualityUtils {
-  public static boolean checkEquality(Statement localStatement, Statement targetStatement) {
-    if (localStatement == null || targetStatement == null) {
+  /**
+   * Check equality between two statements
+   *
+   * @param localStatement statement in local files
+   * @param changeStatement changed line statement
+   * @return true if statements are equal, false otherwise
+   */
+  public static boolean checkEquality(Statement localStatement, Statement changeStatement) {
+    if (localStatement == null || changeStatement == null) {
       return false;
     }
 
-    StatementEqualityVisitor visitor = new StatementEqualityVisitor(targetStatement);
+    // use visitor pattern to make comparison via statement subtype
+    StatementEqualityVisitor visitor = new StatementEqualityVisitor(changeStatement);
     localStatement.accept(visitor, null);
     return visitor.isEqual();
   }
 
+  /** Visitor class for checking equality of statement subtypes. */
   private static class StatementEqualityVisitor extends VoidVisitorAdapter<Void> {
-    private final Statement targetStatement;
+    private final Statement changeStatement;
     private boolean equal;
 
-    public StatementEqualityVisitor(Statement targetStatement) {
-      this.targetStatement = targetStatement;
+    public StatementEqualityVisitor(Statement changeStatement) {
+      this.changeStatement = changeStatement;
       this.equal = false;
     }
 
@@ -30,29 +38,29 @@ public class StatementEqualityUtils {
 
     @Override
     public void visit(ExpressionStmt exprStmt, Void arg) {
-      if (targetStatement.isExpressionStmt()) {
-        equal = exprStmt.getExpression().equals(targetStatement.asExpressionStmt().getExpression());
+      if (changeStatement.isExpressionStmt()) {
+        equal = exprStmt.getExpression().equals(changeStatement.asExpressionStmt().getExpression());
       }
     }
 
     @Override
     public void visit(BlockStmt blockStmt, Void arg) {
-      if (targetStatement.isBlockStmt()) {
-        equal = blockStmt.equals(targetStatement);
+      if (changeStatement.isBlockStmt()) {
+        equal = blockStmt.equals(changeStatement);
       }
     }
 
     @Override
     public void visit(IfStmt ifStmt, Void arg) {
-      if (targetStatement.isIfStmt()) {
-        equal = ifStmt.equals(targetStatement);
+      if (changeStatement.isIfStmt()) {
+        equal = ifStmt.equals(changeStatement);
       }
     }
 
     @Override
     public void visit(ForStmt forStmt, Void arg) {
-      if (targetStatement.isForStmt()) {
-        equal = forStmt.equals(targetStatement);
+      if (changeStatement.isForStmt()) {
+        equal = forStmt.equals(changeStatement);
       }
     }
   }

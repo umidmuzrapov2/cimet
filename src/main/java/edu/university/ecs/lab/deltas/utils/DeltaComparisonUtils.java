@@ -115,21 +115,31 @@ public class DeltaComparisonUtils {
     return jsonArrayBuilder.build();
   }
 
-  private static boolean containsStatement(Statement localStatement, Statement targetStatement) {
-    if (localStatement == null || targetStatement == null) {
+  /**
+   * Recursively determine if local statement contains or is equal to target (change)
+   *
+   * @param localStatement method statement potentially encompassing change
+   * @param changeStatement changed statement to search for
+   * @return true if provided local statement contains the change, false otherwise
+   */
+  private static boolean containsStatement(Statement localStatement, Statement changeStatement) {
+    if (localStatement == null || changeStatement == null) {
       return false;
     }
 
-    if (StatementEqualityUtils.checkEquality(localStatement, targetStatement)) {
+    // check equality of current statement point
+    if (StatementEqualityUtils.checkEquality(localStatement, changeStatement)) {
       return true;
     }
 
     for (Node child : localStatement.getChildNodes()) {
+      // skip non-statement nodes (like comments and blank lines?)
       if (!(child instanceof Statement)) {
         continue;
       }
 
-      if (containsStatement((Statement) child, targetStatement)) {
+      // recursively check child statements
+      if (containsStatement((Statement) child, changeStatement)) {
         return true;
       }
     }
