@@ -1,11 +1,24 @@
 package edu.university.ecs.lab.deltas.utils;
 
+import com.github.javaparser.ParseProblemException;
+import com.github.javaparser.StaticJavaParser;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.stmt.Statement;
+import edu.university.ecs.lab.common.models.ChangeInformation;
 import org.eclipse.jgit.diff.DiffEntry;
 
 import javax.json.*;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /** Utility class for comparing differences between two files. */
 public class DeltaComparisonUtils {
@@ -52,26 +65,112 @@ public class DeltaComparisonUtils {
   public JsonArray extractDeltaChanges(String decodedFile, String pathToLocal) throws IOException {
     JsonArrayBuilder jsonArrayBuilder = Json.createArrayBuilder();
 
-    BufferedReader reader = new BufferedReader(new FileReader(pathToLocal));
+    File localFile = new File(pathToLocal);
+
+    CompilationUnit localCu = StaticJavaParser.parse(localFile);
+
+    List<ChangeInformation> changedLines = findChangedLines(decodedFile.split("\n"), localFile);
+
+    // iterate through local file class and methods
+    for (ClassOrInterfaceDeclaration localCid : localCu.findAll(ClassOrInterfaceDeclaration.class)) {
+      String className = localCid.getNameAsString();
+
+      // iterate through method declarations
+      for (MethodDeclaration localMd : localCid.findAll(MethodDeclaration.class)) {
+        String methodName = localMd.getNameAsString();
+
+        // get method body statements
+        NodeList<Statement> localStatements = Objects.requireNonNull(localMd.getBody().orElse(null)).getStatements();
+
+        // iterate through all method statements
+        for (Statement localStatement : localStatements) {
+
+          // iterate through changes
+          for (ChangeInformation ci : changedLines) {
+            Statement changeStatement;
+
+            try {
+              changeStatement = StaticJavaParser.parseStatement(ci.getLocalLine());
+            } catch (ParseProblemException e) {
+              continue;
+            }
+
+            // change is contained within method statement?
+            if (containsStatement(localStatement, changeStatement)) {
+              JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
+
+              jsonObjectBuilder.add("className", className);
+              jsonObjectBuilder.add("methodName", methodName);
+              jsonObjectBuilder.add("remote-line", ci.getRemoteLine());
+              jsonObjectBuilder.add("local-line", ci.getLocalLine());
+              jsonObjectBuilder.add("line-number", ci.getLineNumber());
+
+              jsonArrayBuilder.add(jsonObjectBuilder.build());
+            }
+          }
+        }
+      }
+    }
+
+    return jsonArrayBuilder.build();
+  }
+
+  /**
+   * Recursively determine if local statement contains or is equal to target (change)
+   *
+   * @param localStatement method statement potentially encompassing change
+   * @param changeStatement changed statement to search for
+   * @return true if provided local statement contains the change, false otherwise
+   */
+  private static boolean containsStatement(Statement localStatement, Statement changeStatement) {
+    if (localStatement == null || changeStatement == null) {
+      return false;
+    }
+
+    // check equality of current statement point
+    if (StatementEqualityUtils.checkEquality(localStatement, changeStatement)) {
+      return true;
+    }
+
+    for (Node child : localStatement.getChildNodes()) {
+      // skip non-statement nodes (like comments and blank lines?)
+      if (!(child instanceof Statement)) {
+        continue;
+      }
+
+      // recursively check child statements
+      if (containsStatement((Statement) child, changeStatement)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Extract changed lines between the remote and local file
+   *
+   * @param remoteFile decoded file
+   * @param localFile local file object
+   * @return list of local file changed lines
+   * @throws IOException if an I/O error occurs
+   */
+  private List<ChangeInformation> findChangedLines(String[] remoteFile, File localFile) throws IOException {
+    List<ChangeInformation> changedLines = new ArrayList<>();
+
+    BufferedReader reader = new BufferedReader(new FileReader(localFile));
     String line;
     int i = 0;
 
-    String[] decodedLines = decodedFile.split("\n");
-
     while ((line = reader.readLine()) != null) {
       // record each line-by-line difference
-      if (i < decodedLines.length && !line.equals(decodedLines[i])) {
-        JsonObjectBuilder differenceBuilder =
-            Json.createObjectBuilder()
-                .add("line-index", i)
-                .add("exact", getExactDifference(line, decodedLines[i]));
-
-        jsonArrayBuilder.add(differenceBuilder);
+      if (i < remoteFile.length && !line.equals(remoteFile[i])) {
+        changedLines.add(new ChangeInformation(line, remoteFile[i], i+1));
       }
 
       i++;
     }
 
-    return jsonArrayBuilder.build();
+    return changedLines;
   }
 }

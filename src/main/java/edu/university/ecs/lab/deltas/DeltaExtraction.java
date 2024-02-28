@@ -25,6 +25,9 @@ public class DeltaExtraction {
 
       // process/write differences to delta output
       deltaService.processDifferences(path, localRepo, differences);
+
+      // close repository after use
+      localRepo.close();
     }
   }
 }

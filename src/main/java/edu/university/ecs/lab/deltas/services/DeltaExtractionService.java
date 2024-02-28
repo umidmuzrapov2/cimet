@@ -64,8 +64,10 @@ public class DeltaExtractionService {
 
     // process each difference
     for (DiffEntry entry : diffEntries) {
-      System.out.println(
-          "Change impact of type " + entry.getChangeType() + " detected in " + entry.getNewPath());
+      // skip non-Java files
+      if (!entry.getNewPath().endsWith(".java")) {
+        continue;
+      }
 
       String changeURL = gitFetchUtils.getGithubFileUrl(repo, entry);
       System.out.println("Extracting changes from: " + changeURL);
@@ -81,6 +83,12 @@ public class DeltaExtractionService {
 
           // compare differences with local path
           deltaChanges = comparisonUtils.extractDeltaChanges(fileContents, localPath);
+
+          // no changes found (likely an extra tail line not shown remotely)
+          if (deltaChanges.isEmpty()) {
+            continue;
+          }
+
           break;
         case DELETE:
         case COPY:
@@ -90,6 +98,8 @@ public class DeltaExtractionService {
           deltaChanges = Json.createArrayBuilder().build();
           break;
       }
+
+      System.out.println("Change impact of type " + entry.getChangeType() + " detected in " + entry.getNewPath());
 
       JsonObjectBuilder jout = Json.createObjectBuilder();
       jout.add("local-previous", localPath);
