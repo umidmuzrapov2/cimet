@@ -3,9 +3,7 @@ package edu.university.ecs.lab.common.models;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-/**
- * Model to represent any and all useful change information for calculation of delta
- */
+/** Model to represent any and all useful change information for calculation of delta */
 @Data
 @AllArgsConstructor
 public class ChangeInformation {

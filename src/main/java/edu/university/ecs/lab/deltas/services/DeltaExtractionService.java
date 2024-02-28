@@ -99,7 +99,8 @@ public class DeltaExtractionService {
           break;
       }
 
-      System.out.println("Change impact of type " + entry.getChangeType() + " detected in " + entry.getNewPath());
+      System.out.println(
+          "Change impact of type " + entry.getChangeType() + " detected in " + entry.getNewPath());
 
       JsonObjectBuilder jout = Json.createObjectBuilder();
       jout.add("local-previous", localPath);

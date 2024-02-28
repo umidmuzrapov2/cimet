@@ -72,7 +72,8 @@ public class DeltaComparisonUtils {
     List<ChangeInformation> changedLines = findChangedLines(decodedFile.split("\n"), localFile);
 
     // iterate through local file class and methods
-    for (ClassOrInterfaceDeclaration localCid : localCu.findAll(ClassOrInterfaceDeclaration.class)) {
+    for (ClassOrInterfaceDeclaration localCid :
+        localCu.findAll(ClassOrInterfaceDeclaration.class)) {
       String className = localCid.getNameAsString();
 
       // iterate through method declarations
@@ -80,7 +81,8 @@ public class DeltaComparisonUtils {
         String methodName = localMd.getNameAsString();
 
         // get method body statements
-        NodeList<Statement> localStatements = Objects.requireNonNull(localMd.getBody().orElse(null)).getStatements();
+        NodeList<Statement> localStatements =
+            Objects.requireNonNull(localMd.getBody().orElse(null)).getStatements();
 
         // iterate through all method statements
         for (Statement localStatement : localStatements) {
@@ -155,7 +157,8 @@ public class DeltaComparisonUtils {
    * @return list of local file changed lines
    * @throws IOException if an I/O error occurs
    */
-  private List<ChangeInformation> findChangedLines(String[] remoteFile, File localFile) throws IOException {
+  private List<ChangeInformation> findChangedLines(String[] remoteFile, File localFile)
+      throws IOException {
     List<ChangeInformation> changedLines = new ArrayList<>();
 
     BufferedReader reader = new BufferedReader(new FileReader(localFile));
@@ -165,7 +168,7 @@ public class DeltaComparisonUtils {
     while ((line = reader.readLine()) != null) {
       // record each line-by-line difference
       if (i < remoteFile.length && !line.equals(remoteFile[i])) {
-        changedLines.add(new ChangeInformation(line, remoteFile[i], i+1));
+        changedLines.add(new ChangeInformation(line, remoteFile[i], i + 1));
       }
 
       i++;

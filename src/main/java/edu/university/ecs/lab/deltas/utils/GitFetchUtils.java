@@ -18,7 +18,6 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.FileTreeIterator;
-import org.eclipse.jgit.treewalk.TreeWalk;
 
 import java.io.File;
 import java.io.IOException;
@@ -79,8 +78,8 @@ public class GitFetchUtils {
    * @return the canonical tree parser
    * @throws IOException if an I/O error occurs from parsing the tree
    */
-  private CanonicalTreeParser prepareRemoteTreeParser(ObjectReader reader, Repository repo, String ref)
-      throws IOException {
+  private CanonicalTreeParser prepareRemoteTreeParser(
+      ObjectReader reader, Repository repo, String ref) throws IOException {
     try (RevWalk walk = new RevWalk(reader)) {
       Ref head = repo.exactRef(ref);
       RevCommit commit = repo.parseCommit(head.getObjectId());
