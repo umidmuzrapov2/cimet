@@ -3,11 +3,12 @@ package edu.university.ecs.lab.deltas.utils;
 import com.github.javaparser.ParseProblemException;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.stmt.Statement;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import edu.university.ecs.lab.common.models.ChangeInformation;
 import org.eclipse.jgit.diff.DiffEntry;
 
 import javax.json.*;
@@ -79,27 +80,30 @@ public class DeltaComparisonUtils {
         String methodName = localMd.getNameAsString();
 
         // get method body statements
-        List<Statement> localStatements = Objects.requireNonNull(localMd.getBody().orElse(null)).getStatements();
+        NodeList<Statement> localStatements = Objects.requireNonNull(localMd.getBody().orElse(null)).getStatements();
 
-        for (Statement statement : localStatements) {
+        // iterate through all method statements
+        for (Statement localStatement : localStatements) {
+
+          // iterate through changes
           for (ChangeInformation ci : changedLines) {
-            Statement checkAgainstStatement;
+            Statement changeStatement;
 
             try {
-              checkAgainstStatement = StaticJavaParser.parseStatement(ci.getLocalLine());
+              changeStatement = StaticJavaParser.parseStatement(ci.getLocalLine());
             } catch (ParseProblemException e) {
               continue;
             }
 
-            // statement matches local line statement?
-            if (checkAgainstStatement.equals(statement)) {
+            // change is contained within method statement?
+            if (containsStatement(localStatement, changeStatement)) {
               JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
 
               jsonObjectBuilder.add("className", className);
               jsonObjectBuilder.add("methodName", methodName);
               jsonObjectBuilder.add("remote-line", ci.getRemoteLine());
               jsonObjectBuilder.add("local-line", ci.getLocalLine());
-              jsonObjectBuilder.add("line-index", ci.getLineIndex());
+              jsonObjectBuilder.add("line-number", ci.getLineNumber());
 
               jsonArrayBuilder.add(jsonObjectBuilder.build());
             }
@@ -109,6 +113,28 @@ public class DeltaComparisonUtils {
     }
 
     return jsonArrayBuilder.build();
+  }
+
+  private static boolean containsStatement(Statement localStatement, Statement targetStatement) {
+    if (localStatement == null || targetStatement == null) {
+      return false;
+    }
+
+    if (StatementEqualityUtils.checkEquality(localStatement, targetStatement)) {
+      return true;
+    }
+
+    for (Node child : localStatement.getChildNodes()) {
+      if (!(child instanceof Statement)) {
+        continue;
+      }
+
+      if (containsStatement((Statement) child, targetStatement)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   /**
@@ -129,7 +155,7 @@ public class DeltaComparisonUtils {
     while ((line = reader.readLine()) != null) {
       // record each line-by-line difference
       if (i < remoteFile.length && !line.equals(remoteFile[i])) {
-        changedLines.add(new ChangeInformation(line, remoteFile[i], i));
+        changedLines.add(new ChangeInformation(line, remoteFile[i], i+1));
       }
 
       i++;
@@ -137,12 +163,4 @@ public class DeltaComparisonUtils {
 
     return changedLines;
   }
-}
-
-@Data
-@AllArgsConstructor
-class ChangeInformation {
-  private String localLine;
-  private String remoteLine;
-  private int lineIndex;
 }
