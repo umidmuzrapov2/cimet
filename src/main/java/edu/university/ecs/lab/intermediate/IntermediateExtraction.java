@@ -2,6 +2,7 @@ package edu.university.ecs.lab.intermediate;
 
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
+import edu.university.ecs.lab.common.config.ConfigUtil;
 import edu.university.ecs.lab.common.config.InputConfig;
 import edu.university.ecs.lab.common.config.InputRepository;
 import edu.university.ecs.lab.common.models.MsModel;
@@ -26,10 +27,6 @@ import java.util.*;
  * <p>
  */
 public class IntermediateExtraction {
-
-  /** Exit code: invalid config path */
-  private static final int BAD_CONFIG = 2;
-
   /** Exit code: error writing IR to json */
   private static final int BAD_IR_WRITE = 3;
 
@@ -46,7 +43,7 @@ public class IntermediateExtraction {
   public static void main(String[] args) throws Exception {
     // Get input config
     String jsonFilePath = (args.length == 1) ? args[0] : "config.json";
-    InputConfig inputConfig = validateConfig(jsonFilePath);
+    InputConfig inputConfig = ConfigUtil.validateConfig(jsonFilePath);
 
     // Clone remote repositories and scan through each cloned repo to extract endpoints/dependencies
     Map<String, MsModel> msDataMap = cloneAndScanServices(inputConfig);
@@ -120,37 +117,5 @@ public class IntermediateExtraction {
       msEndpointsMap.put(path, model);
     }
     return msEndpointsMap;
-  }
-
-  /**
-   * Validate the input config file
-   *
-   * @param jsonFilePath path to the input config file
-   * @return the input config as an object
-   */
-  private static InputConfig validateConfig(String jsonFilePath) {
-    JsonReader jsonReader = null;
-    try {
-      jsonReader = new JsonReader(new FileReader(jsonFilePath));
-    } catch (FileNotFoundException e) {
-      System.err.println("Config file not found: " + jsonFilePath);
-      System.exit(BAD_CONFIG);
-    }
-
-    Gson gson = new Gson();
-    InputConfig inputConfig = gson.fromJson(jsonReader, InputConfig.class);
-
-    if (inputConfig.getClonePath() == null) {
-      System.err.println("Config file requires attribute \"clonePath\"");
-      System.exit(BAD_CONFIG);
-    } else if (inputConfig.getOutputPath() == null) {
-      System.err.println("Config file requires attribute \"outputPath\"");
-      System.exit(BAD_CONFIG);
-    } else if (inputConfig.getRepositories() == null) {
-      System.err.println("Config file requires attribute \"repositories\"");
-      System.exit(BAD_CONFIG);
-    }
-
-    return inputConfig;
   }
 }
