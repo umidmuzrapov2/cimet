@@ -12,6 +12,7 @@ import edu.university.ecs.lab.intermediate.services.RepositoryService;
 import edu.university.ecs.lab.intermediate.utils.MsFileUtils;
 
 import javax.json.JsonObject;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -67,6 +68,18 @@ public class IntermediateExtraction {
       InputConfig inputConfig, Map<String, MsModel> msEndpointsMap) throws IOException {
 
     String outputPath = System.getProperty(SYS_USER_DIR) + inputConfig.getOutputPath();
+
+    File outputDir = new File(outputPath);
+
+    if (!outputDir.exists()) {
+      if (outputDir.mkdirs()) {
+        System.out.println("Successfully created output directory.");
+      } else {
+        System.err.println("Failed to create output directory.");
+        return;
+      }
+    }
+
     Scanner scanner = new Scanner(System.in); // read system name from command line
     System.out.println("Enter system name: ");
     JsonObject jout =
@@ -88,6 +101,16 @@ public class IntermediateExtraction {
 
     // Clone remote repositories
     String clonePath = System.getProperty(SYS_USER_DIR) + inputConfig.getClonePath();
+
+    File cloneDir = new File(clonePath);
+    if (!cloneDir.exists()) {
+      if (cloneDir.mkdirs()) {
+        System.out.println("Successfully created \"" + clonePath + "\" directory.");
+      } else {
+        System.err.println("Could not create clone directory");
+        return null;
+      }
+    }
 
     InputRepository[] inputRepositories =
         inputConfig.getRepositories().toArray(new InputRepository[0]);

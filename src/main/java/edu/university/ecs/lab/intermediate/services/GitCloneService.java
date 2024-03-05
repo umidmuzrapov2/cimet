@@ -25,7 +25,7 @@ public class GitCloneService {
     List<String> repoNames = new ArrayList<>();
 
     for (InputRepository repo : inputRepositories) {
-      String output = System.getProperty("user.dir") + clonePath + File.separator + getRepositoryName(repo.getRepoUrl());
+      String output = clonePath + File.separator + getRepositoryName(repo.getRepoUrl());
       ProcessBuilder processBuilder = new ProcessBuilder("git", "clone", repo.getRepoUrl(), output);
       processBuilder.redirectErrorStream(true);
       Process process = processBuilder.start();
