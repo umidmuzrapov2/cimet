@@ -2,6 +2,7 @@ package edu.university.ecs.lab.intermediate;
 
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
+import edu.university.ecs.lab.common.config.ConfigUtil;
 import edu.university.ecs.lab.common.config.InputConfig;
 import edu.university.ecs.lab.common.config.InputRepository;
 import edu.university.ecs.lab.common.models.MsModel;
@@ -11,6 +12,7 @@ import edu.university.ecs.lab.intermediate.services.RepositoryService;
 import edu.university.ecs.lab.intermediate.utils.MsFileUtils;
 
 import javax.json.JsonObject;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -26,10 +28,6 @@ import java.util.*;
  * <p>
  */
 public class IntermediateExtraction {
-
-  /** Exit code: invalid config path */
-  private static final int BAD_CONFIG = 2;
-
   /** Exit code: error writing IR to json */
   private static final int BAD_IR_WRITE = 3;
 
@@ -46,7 +44,7 @@ public class IntermediateExtraction {
   public static void main(String[] args) throws Exception {
     // Get input config
     String jsonFilePath = (args.length == 1) ? args[0] : "config.json";
-    InputConfig inputConfig = validateConfig(jsonFilePath);
+    InputConfig inputConfig = ConfigUtil.validateConfig(jsonFilePath);
 
     // Clone remote repositories and scan through each cloned repo to extract endpoints/dependencies
     Map<String, MsModel> msDataMap = cloneAndScanServices(inputConfig);
@@ -70,6 +68,18 @@ public class IntermediateExtraction {
       InputConfig inputConfig, Map<String, MsModel> msEndpointsMap) throws IOException {
 
     String outputPath = System.getProperty(SYS_USER_DIR) + inputConfig.getOutputPath();
+
+    File outputDir = new File(outputPath);
+
+    if (!outputDir.exists()) {
+      if (outputDir.mkdirs()) {
+        System.out.println("Successfully created output directory.");
+      } else {
+        System.err.println("Failed to create output directory.");
+        return;
+      }
+    }
+
     Scanner scanner = new Scanner(System.in); // read system name from command line
     System.out.println("Enter system name: ");
     JsonObject jout =
@@ -91,6 +101,16 @@ public class IntermediateExtraction {
 
     // Clone remote repositories
     String clonePath = System.getProperty(SYS_USER_DIR) + inputConfig.getClonePath();
+
+    File cloneDir = new File(clonePath);
+    if (!cloneDir.exists()) {
+      if (cloneDir.mkdirs()) {
+        System.out.println("Successfully created \"" + clonePath + "\" directory.");
+      } else {
+        System.err.println("Could not create clone directory");
+        return null;
+      }
+    }
 
     InputRepository[] inputRepositories =
         inputConfig.getRepositories().toArray(new InputRepository[0]);
@@ -120,37 +140,5 @@ public class IntermediateExtraction {
       msEndpointsMap.put(path, model);
     }
     return msEndpointsMap;
-  }
-
-  /**
-   * Validate the input config file
-   *
-   * @param jsonFilePath path to the input config file
-   * @return the input config as an object
-   */
-  private static InputConfig validateConfig(String jsonFilePath) {
-    JsonReader jsonReader = null;
-    try {
-      jsonReader = new JsonReader(new FileReader(jsonFilePath));
-    } catch (FileNotFoundException e) {
-      System.err.println("Config file not found: " + jsonFilePath);
-      System.exit(BAD_CONFIG);
-    }
-
-    Gson gson = new Gson();
-    InputConfig inputConfig = gson.fromJson(jsonReader, InputConfig.class);
-
-    if (inputConfig.getClonePath() == null) {
-      System.err.println("Config file requires attribute \"clonePath\"");
-      System.exit(BAD_CONFIG);
-    } else if (inputConfig.getOutputPath() == null) {
-      System.err.println("Config file requires attribute \"outputPath\"");
-      System.exit(BAD_CONFIG);
-    } else if (inputConfig.getRepositories() == null) {
-      System.err.println("Config file requires attribute \"repositories\"");
-      System.exit(BAD_CONFIG);
-    }
-
-    return inputConfig;
   }
 }

@@ -39,9 +39,9 @@ public class MsFileUtils {
         msName =
             microservice.getKey().substring(microservice.getKey().lastIndexOf(File.separator) + 1);
       }
-      jsonObjectBuilder.add("id", microservice.getValue().getId());
+      jsonObjectBuilder.add("id", microservice.getValue().getId().replaceAll("\\\\", "/"));
       jsonObjectBuilder.add("msName", msName);
-      jsonObjectBuilder.add("msPath", microservice.getKey());
+      jsonObjectBuilder.add("msPath", microservice.getKey().replaceAll("\\\\", "/"));
       jsonObjectBuilder.add("commitId", microservice.getValue().getCommit());
 
       JsonArrayBuilder endpointsArrayBuilder = Json.createArrayBuilder();
@@ -59,7 +59,7 @@ public class MsFileUtils {
                 + Math.abs(endpoint.getParameter().hashCode()));
         endpointBuilder.add("id", endpoint.getId());
         endpointBuilder.add("api", endpoint.getUrl());
-        endpointBuilder.add("source-file", endpoint.getSourceFile());
+        endpointBuilder.add("source-file", endpoint.getSourceFile().replaceAll("\\\\", "/"));
         endpointBuilder.add("type", endpoint.getDecorator());
         endpointBuilder.add("httpMethod", endpoint.getHttpMethod());
         endpointBuilder.add("parent-method", endpoint.getParentMethod());
@@ -94,8 +94,8 @@ public class MsFileUtils {
       JsonObjectBuilder endpointBuilder = Json.createObjectBuilder();
 
       endpointBuilder.add("api", endpoint.getUrl());
-      endpointBuilder.add("source-file", endpoint.getSourceFile());
-      endpointBuilder.add("call-dest", endpoint.getDestFile());
+      endpointBuilder.add("source-file", endpoint.getSourceFile().replaceAll("\\\\", "/"));
+      endpointBuilder.add("call-dest", endpoint.getDestFile().replaceAll("\\\\", "/"));
       endpointBuilder.add("call-method", endpoint.getParentMethod() + "()");
       endpointBuilder.add("httpMethod", endpoint.getHttpMethod());
 
