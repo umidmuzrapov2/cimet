@@ -11,7 +11,7 @@ import lombok.Getter;
  */
 
 @Getter
-class Cache {
+public class Cache {
     // Init all lists by default to empty. Cannot be reinitialized
     private final List<JClass> classList;
     private final List<Method> methodList;

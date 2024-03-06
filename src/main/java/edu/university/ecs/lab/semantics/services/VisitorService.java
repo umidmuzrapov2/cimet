@@ -91,16 +91,19 @@ public class VisitorService {
             role = ClassRole.REPOSITORY;
         }
 
+        Id msId = new Id();
+        msId.setProject(msName);
+        msId.setLocation(file.getAbsolutePath());
         if (role != null) {
             if (role.equals(ClassRole.CONTROLLER) || role.equals(ClassRole.SERVICE)) {
-                visitClass(file, role, msName);
-                visitMethods(file, role, msName);
-                visitMethodCalls(file, msName);
-                visitFields(file, path);
+                visitClass(file, role, msName, msId);
+                visitMethods(file, role, msName, msId);
+                visitMethodCalls(file, msName, msId);
+                visitFields(file, path, msId);
 
             } else if (role.equals(ClassRole.REPOSITORY)) {
-                visitClass(file, role, msName);
-                visitMethods(file, role, msName);
+                visitClass(file, role, msName, msId);
+                visitMethods(file, role, msName, msId);
             }
         }
 
@@ -183,7 +186,7 @@ public class VisitorService {
     }
 
 
-    public static void visitClass(File file, ClassRole role, String msName) {
+    public static void visitClass(File file, ClassRole role, String msName, Id id) {
         try {
             new VoidVisitorAdapter<Object>() {
                 @Override
@@ -192,9 +195,9 @@ public class VisitorService {
 
                     JClass jclass = new JClass();
                     jclass.setClassName(n.getNameAsString());
-                    Id id = new Id();
-                    id.setProject(msName);
-                    id.setLocation(file.getAbsolutePath());
+//                    Id id = new Id();
+//                    id.setProject(msName);
+//                    id.setLocation(file.getAbsolutePath());
 
                     Optional<Node> parentNode = n.getParentNode();
                     if (parentNode.isPresent()) {
@@ -240,15 +243,16 @@ public class VisitorService {
         }
     }
 
-    public static void visitMethods(File file, ClassRole role, String msName) {
+    public static void visitMethods(File file, ClassRole role, String msName, Id id) {
         try {
             new VoidVisitorAdapter<Object>() {
                 @Override
                 public void visit(MethodDeclaration n, Object arg) {
                     super.visit(n, arg);
 
-                    Id id = new Id();
-                    id.setProject(msName);
+//                    Id id = new Id();
+//                    id.setProject(msName);
+//                    id.setLocation(file.getAbsolutePath());
                     ParserService.parseMethod(n, role, id);
                 }
             }.visit(StaticJavaParser.parse(file), null);
@@ -257,7 +261,7 @@ public class VisitorService {
         }
     }
 
-    public static void visitMethodCalls(File file, String msName) {
+    public static void visitMethodCalls(File file, String msName, Id id) {
         try {
             Map<String, ArrayList<RestCall>> restCallsContainingMethods = new HashMap<>();
             List<String> usedServiceMethods = new ArrayList<>();
@@ -287,7 +291,7 @@ public class VisitorService {
                                 MethodCallExpr methodCallExpr = (MethodCallExpr) fae.getParentNode().get();
                                 methodCall.setCalledMethodName(methodCallExpr.getNameAsString());
                                 methodCall.setParentClassId();
-//                                methodCall.setId(id);
+                                methodCall.setId(id);
                                 // register method call to cache
                                 CachingService.getCache().getMethodCallList().add(methodCall);
 
@@ -309,7 +313,7 @@ public class VisitorService {
                                 MethodCallExpr methodCallExpr = (MethodCallExpr) fae.getParentNode().get();
                                 methodCall.setCalledMethodName(methodCallExpr.getNameAsString());
                                 methodCall.setParentClassId();
-//                                methodCall.setMsId(msId);
+                                methodCall.setId(id);
                                 // register method call to cache
                                 CachingService.getCache().getMethodCallList().add(methodCall);
 
@@ -322,7 +326,7 @@ public class VisitorService {
                                 ParentMethod parentMethodCall = visitParentMethod(n);
                                 msRestCall.setMsParentMethod(parentMethodCall);
                                 msRestCall.setParentClassId();
-//                                msRestCall.setMsId(msId);
+                                msRestCall.setId(id);
                                 CachingService.getCache().getRestCallList().add(msRestCall);
 
                                 String parentMethodFullName = msRestCall.getParentMethodFullName();
@@ -364,7 +368,7 @@ public class VisitorService {
                                                 restCall.getApiEndpoint(), restCall.getHttpMethod(), restCall.getReturnType());
                                 newRestCall.setMsParentMethod(updatedParentMethod);
                                 newRestCall.setParentClassId();
-//                                newRestCall.setMsId(restCall.getMsId());
+                                newRestCall.setId(restCall.getId());
                                 newRestCall.setLineNumber(restCall.getLineNumber());
                                 newRestCall.setCalledMethodName(restCall.getCalledMethodName());
                                 newRestCall.setCalledServiceId(restCall.getCalledServiceId());
@@ -392,7 +396,7 @@ public class VisitorService {
                                 // newRepositoryCall.setCalledMethodName(methodCallExpr.getNameAsString());
                                 newRepositoryCall.setCalledMethodName(repositoryCall.getCalledMethodName());
                                 newRepositoryCall.setParentClassId();
-//                                newRepositoryCall.setMsId(repositoryCall.getMsId());
+                                newRepositoryCall.setId(repositoryCall.getId());
                                 // register method call to cache
                                 CachingService.getCache().getMethodCallList().add(newRepositoryCall);
                             }
@@ -407,15 +411,16 @@ public class VisitorService {
     }
 
 
-    public static void visitFields(File file, String msName) {
+    public static void visitFields(File file, String msName, Id id) {
         try {
             new VoidVisitorAdapter<Object>() {
                 @Override
                 public void visit(FieldDeclaration n, Object arg) {
                     super.visit(n, arg);
 
-                    Id id = new Id();
-                    id.setProject(msName);
+//                    Id id = new Id();
+//                    id.setProject(msName);
+//                    id.setLocation(file.getAbsolutePath());
 
                     visitFieldDeclaration(n, id);
                 }

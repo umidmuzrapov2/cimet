@@ -2,6 +2,7 @@ package edu.university.ecs.lab.intermediate;
 
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
+import edu.university.ecs.lab.semantics.services.Cache;
 import edu.university.ecs.lab.common.config.ConfigUtil;
 import edu.university.ecs.lab.common.config.InputConfig;
 import edu.university.ecs.lab.common.config.InputRepository;
@@ -10,12 +11,17 @@ import edu.university.ecs.lab.common.writers.MsJsonWriter;
 import edu.university.ecs.lab.intermediate.services.GitCloneService;
 import edu.university.ecs.lab.intermediate.services.RepositoryService;
 import edu.university.ecs.lab.intermediate.utils.MsFileUtils;
+import edu.university.ecs.lab.semantics.services.CachingService;
+import edu.university.ecs.lab.semantics.services.FlowService;
+import edu.university.ecs.lab.semantics.services.VisitorService;
 
 import javax.json.JsonObject;
+import javax.naming.spi.DirectoryManager;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.SQLOutput;
 import java.util.*;
 
 /**
@@ -48,6 +54,9 @@ public class IntermediateExtraction {
 
     // Clone remote repositories and scan through each cloned repo to extract endpoints/dependencies
     Map<String, MsModel> msDataMap = cloneAndScanServices(inputConfig);
+
+    scanCodeClones(inputConfig.getClonePath(), msDataMap.keySet());
+
 
     //  Write each service and endpoints to IR
     try {
@@ -140,5 +149,38 @@ public class IntermediateExtraction {
       msEndpointsMap.put(path, model);
     }
     return msEndpointsMap;
+  }
+
+  public static  void scanCodeClones(String clonePath, Set<String> services) {
+
+    if (services == null) {
+      return;
+    }
+
+    CachingService cachingService = new CachingService();
+
+    for (String path: services) {
+
+      try {
+        String discoverPath = System.getProperty(SYS_USER_DIR) + clonePath + File.separator +  path;
+        File f = new File(System.getProperty(SYS_USER_DIR) + clonePath + File.separator +  path);
+        VisitorService.processRoot(f);
+      }
+      catch(Exception e) {
+        System.err.println(e.getMessage());
+      }
+
+    }
+
+    Cache cache = CachingService.getCache();
+    System.out.println(cache);
+
+    FlowService fs = new FlowService();
+    fs.buildFlows();
+
+    cache = CachingService.getCache();
+    System.out.println(cache);
+
+
   }
 }
