@@ -1,11 +1,9 @@
 package edu.university.ecs.lab.intermediate;
 
-import com.google.gson.Gson;
-import com.google.gson.stream.JsonReader;
 import edu.university.ecs.lab.common.config.ConfigUtil;
 import edu.university.ecs.lab.common.config.InputConfig;
 import edu.university.ecs.lab.common.config.InputRepository;
-import edu.university.ecs.lab.common.models.MsModel;
+import edu.university.ecs.lab.common.models.rest.MsModel;
 import edu.university.ecs.lab.common.writers.MsJsonWriter;
 import edu.university.ecs.lab.intermediate.services.GitCloneService;
 import edu.university.ecs.lab.intermediate.services.RepositoryService;
@@ -13,8 +11,6 @@ import edu.university.ecs.lab.intermediate.utils.MsFileUtils;
 
 import javax.json.JsonObject;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
@@ -22,7 +18,7 @@ import java.util.*;
  * IntermediateExtraction is the main entry point for the intermediate extraction process.
  *
  * <p>The IR extraction process is responsible for cloning remote services, scanning through each
- * local repo and extracting endpoints/dependencies, and writing each service and endpoints to
+ * local repo and extracting rest endpoints/calls, and writing each service and endpoints to
  * intermediate representation.
  *
  * <p>
@@ -46,8 +42,11 @@ public class IntermediateExtraction {
     String jsonFilePath = (args.length == 1) ? args[0] : "config.json";
     InputConfig inputConfig = ConfigUtil.validateConfig(jsonFilePath);
 
-    // Clone remote repositories and scan through each cloned repo to extract endpoints/dependencies
+    // Clone remote repositories and scan through each cloned repo to extract endpoints
     Map<String, MsModel> msDataMap = cloneAndScanServices(inputConfig);
+
+    // Scan through each endpoint to extract rest call destinations
+    extractCallDestinations(msDataMap);
 
     //  Write each service and endpoints to IR
     try {
@@ -67,7 +66,7 @@ public class IntermediateExtraction {
   private static void writeToIntermediateRepresentation(
       InputConfig inputConfig, Map<String, MsModel> msEndpointsMap) throws IOException {
 
-    String outputPath = System.getProperty(SYS_USER_DIR) + inputConfig.getOutputPath();
+    String outputPath = System.getProperty(SYS_USER_DIR) + File.separator + inputConfig.getOutputPath();
 
     File outputDir = new File(outputPath);
 
@@ -85,22 +84,24 @@ public class IntermediateExtraction {
     JsonObject jout =
         MsFileUtils.constructJsonMsSystem(scanner.nextLine(), "0.0.1", msEndpointsMap);
 
-    MsJsonWriter.writeJsonToFile(
-        jout, outputPath + "/intermediate-output-[" + (new Date()).getTime() + "].json");
+    String outputName = outputPath + File.separator + "intermediate-output-[" + (new Date()).getTime() + "].json";
+
+    MsJsonWriter.writeJsonToFile(jout, outputName);
+    System.out.println("Successfully wrote intermediate to: \"" + outputName + "\"");
   }
 
   /**
-   * Clone remote repositories and scan through each local repo and extract endpoints/dependencies
+   * Clone remote repositories and scan through each local repo and extract endpoints/calls
    *
    * @param inputConfig the input config object
    * @return a map of services and their endpoints
    */
   private static Map<String, MsModel> cloneAndScanServices(InputConfig inputConfig)
       throws Exception {
-    Map<String, MsModel> msEndpointsMap = new HashMap<>();
+    Map<String, MsModel> msModelMap = new HashMap<>();
 
     // Clone remote repositories
-    String clonePath = System.getProperty(SYS_USER_DIR) + inputConfig.getClonePath();
+    String clonePath = System.getProperty(SYS_USER_DIR) + File.separator + inputConfig.getClonePath();
 
     File cloneDir = new File(clonePath);
     if (!cloneDir.exists()) {
@@ -112,33 +113,37 @@ public class IntermediateExtraction {
       }
     }
 
-    InputRepository[] inputRepositories =
-        inputConfig.getRepositories().toArray(new InputRepository[0]);
+    for (InputRepository inputRepository : inputConfig.getRepositories()) {
+      MsModel model;
+      GitCloneService gitCloneService = new GitCloneService(clonePath);
+      List<String> msPathRoots = gitCloneService.cloneRemote(inputRepository);
 
-    // first one
-    InputRepository[] reposFirst = new InputRepository[1]; // Create a new array with size 1
-    reposFirst[0] = inputRepositories[0];
+      // Scan through each local repo and extract endpoints/calls
+      for (String msPath : msPathRoots) {
+        String path = msPath;
 
-    MsModel model;
-    String commit = reposFirst[0].getBaseCommit();
-    GitCloneService gitCloneService = new GitCloneService(clonePath);
-    List<String> msPathRoots = gitCloneService.cloneRemotes(reposFirst);
+        if (msPath.contains(clonePath) && msPath.length() > clonePath.length() + 1) {
+          path = msPath.substring(clonePath.length() + 1);
+        }
 
-    // Scan through each local repo and extract endpoints/dependencies
-    for (String msPath : msPathRoots) {
+        model = repositoryService.recursivelyScanFiles(clonePath, msPath.substring(clonePath.length()));
+        model.setCommit(inputRepository.getBaseCommit());
+        model.setId(msPath.substring(msPath.lastIndexOf('/') + 1));
 
-      String path = msPath;
-
-      if (msPath.contains(clonePath) && msPath.length() > clonePath.length() + 1) {
-        path = msPath.substring(clonePath.length() + 1);
+        msModelMap.put(path, model);
       }
-
-      model =
-          repositoryService.recursivelyScanFiles(clonePath, msPath.substring(clonePath.length()));
-      model.setCommit(commit);
-      model.setId(msPath.substring(msPath.lastIndexOf('/') + 1));
-      msEndpointsMap.put(path, model);
     }
-    return msEndpointsMap;
+
+    return msModelMap;
+  }
+
+  private static void extractCallDestinations(Map<String, MsModel> msModelMap) {
+    // TODO: scan and find source file matching url
+
+    msModelMap.forEach((name, model) -> {
+      model.getRestCalls().forEach(call -> {
+        String callMethod = call.getCallMethod();
+      });
+    });
   }
 }

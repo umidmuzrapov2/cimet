@@ -9,8 +9,8 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.BinaryExpr;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
-import edu.university.ecs.lab.common.models.RestDependency;
-import edu.university.ecs.lab.common.models.RestCallMethod;
+import edu.university.ecs.lab.common.models.rest.RestCall;
+import edu.university.ecs.lab.common.models.rest.RestCallMethod;
 import edu.university.ecs.lab.intermediate.utils.StringParserUtils;
 
 import java.io.File;
@@ -19,19 +19,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Service for parsing REST dependencies from source files and describing them in relation to the
+ * Service for parsing REST calls from source files and describing them in relation to the
  * microservice that calls the endpoint.
  */
 public class CallExtractionService {
   /**
-   * Parse the REST dependencies from the given source file.
+   * Parse the REST calls from the given source file.
    *
    * @param sourceFile the source file to parse
    * @return the list of parsed dependencies
    * @throws IOException if an I/O error occurs
    */
-  public List<RestDependency> parseCalls(File sourceFile) throws IOException {
-    List<RestDependency> dependencies = new ArrayList<>();
+  public List<RestCall> parseCalls(File sourceFile) throws IOException {
+    List<RestCall> dependencies = new ArrayList<>();
 
     CompilationUnit cu = StaticJavaParser.parse(sourceFile);
 
@@ -62,27 +62,29 @@ public class CallExtractionService {
             // match field access
             if (isRestTemplateScope(scope, cid)) {
               // construct rest call
-              RestDependency restDependency = new RestDependency();
-              restDependency.setSourceFile(sourceFile.getCanonicalPath());
-              restDependency.setParentMethod(packageName + "." + className + "." + methodName);
-              restDependency.setHttpMethod(restTemplateMethod.getHttpMethod().toString());
+              RestCall restCall = new RestCall();
+              restCall.setSourceFile(sourceFile.getCanonicalPath());
+              restCall.setCallMethod(packageName + "." + className + "." + methodName);
+              restCall.setHttpMethod(restTemplateMethod.getHttpMethod().toString());
 
               // get http methods for exchange method
               if (restTemplateMethod.getMethodName().equals("exchange")) {
-                restDependency.setHttpMethod(
+                restCall.setHttpMethod(
                     getHttpMethodForExchange(mce.getArguments().toString()));
               }
 
               // find url
-              restDependency.setUrl(findUrl(mce, cid));
+              restCall.setUrl(findUrl(mce, cid));
 
               // skip empty urls
-              if (restDependency.getUrl().equals("")) {
+              if (restCall.getUrl().equals("")) {
                 continue;
               }
 
+              restCall.setDestFile("");
+
               // add to list of restCall
-              dependencies.add(restDependency);
+              dependencies.add(restCall);
             }
           }
         }

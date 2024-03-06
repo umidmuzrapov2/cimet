@@ -1,4 +1,4 @@
-package edu.university.ecs.lab.common.models;
+package edu.university.ecs.lab.common.models.rest;
 
 import edu.university.ecs.lab.common.config.InputConfig;
 import lombok.*;
@@ -11,7 +11,7 @@ import lombok.*;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class Endpoint {
+public class RestEndpoint {
   /** URL of the endpoint including base from class: (ex: /api/v1/users/{id}) */
   private String url;
 
