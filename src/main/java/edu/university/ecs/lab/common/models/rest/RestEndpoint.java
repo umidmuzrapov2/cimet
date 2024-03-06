@@ -3,6 +3,8 @@ package edu.university.ecs.lab.common.models.rest;
 import edu.university.ecs.lab.common.config.InputConfig;
 import lombok.*;
 
+import java.util.List;
+
 /**
  * Model to represent a Java Spring api endpoint as extracted from a service controller and written
  * to IR JSON
@@ -34,4 +36,5 @@ public class RestEndpoint {
   private String methodName;
   private String parameter;
   private String returnType;
+  private List<String> services;
 }

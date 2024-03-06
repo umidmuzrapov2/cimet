@@ -4,10 +4,12 @@ import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.expr.MemberValuePair;
+import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import edu.university.ecs.lab.common.models.rest.RestEndpoint;
 import edu.university.ecs.lab.intermediate.utils.StringParserUtils;
 
@@ -41,6 +43,19 @@ public class EndpointExtractionService {
     // loop through class declarations
     for (ClassOrInterfaceDeclaration cid : cu.findAll(ClassOrInterfaceDeclaration.class)) {
       String className = cid.getNameAsString();
+
+      List<String> services = new ArrayList<>();
+
+      // find service variables
+      for (FieldDeclaration fd : cid.findAll(FieldDeclaration.class)) {
+        if (fd.getElementType().isClassOrInterfaceType()) {
+          ClassOrInterfaceType type = fd.getElementType().asClassOrInterfaceType();
+
+          if (type.getNameAsString().contains("Service")) {
+            services.add(fd.getVariables().get(0).getNameAsString());
+          }
+        }
+      }
 
       AnnotationExpr aExpr = cid.getAnnotationByName("RequestMapping").orElse(null);
       if (aExpr == null) {
@@ -110,6 +125,7 @@ public class EndpointExtractionService {
           restEndpoint.setMethodName(methodName);
           restEndpoint.setParameter(parameter);
           restEndpoint.setReturnType(md.getTypeAsString());
+          restEndpoint.setServices(services);
           restEndpoints.add(restEndpoint);
         }
       }
