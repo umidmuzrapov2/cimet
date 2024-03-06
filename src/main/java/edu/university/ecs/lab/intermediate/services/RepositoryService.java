@@ -1,6 +1,8 @@
 package edu.university.ecs.lab.intermediate.services;
 
-import edu.university.ecs.lab.common.models.*;
+import edu.university.ecs.lab.common.models.rest.MsModel;
+import edu.university.ecs.lab.common.models.rest.RestCall;
+import edu.university.ecs.lab.common.models.rest.RestEndpoint;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,8 +32,8 @@ public class RepositoryService {
     System.out.println("Scanning repository '" + repoPath + "'...");
     MsModel model = new MsModel();
 
-    List<Endpoint> endpoints = new ArrayList<>();
-    List<RestDependency> calls = new ArrayList<>();
+    List<RestEndpoint> restEndpoints = new ArrayList<>();
+    List<RestCall> calls = new ArrayList<>();
 
     File localDir = new File(repoPath);
     if (!localDir.exists() || !localDir.isDirectory()) {
@@ -39,13 +41,11 @@ public class RepositoryService {
       return null;
     }
 
-    scanDirectory(localDir, endpoints, calls);
+    // todo: find services (not just controllers)
+    scanDirectory(localDir, restEndpoints, calls);
 
-    // scan for internal dependency destinations
-    scanInternalDependencies(calls, endpoints);
-
-    model.setEndpoints(endpoints);
-    model.setRestDependencies(calls);
+    model.setRestEndpoints(restEndpoints);
+    model.setRestCalls(calls);
 
     System.out.println("Done!");
     return model;
@@ -55,18 +55,18 @@ public class RepositoryService {
    * Recursively scan the given directory for files and extract the endpoints and dependencies.
    *
    * @param directory the directory to scan
-   * @param endpoints the list of endpoints
+   * @param restEndpoints the list of endpoints
    * @param calls the list of calls to other services
    */
-  private void scanDirectory(File directory, List<Endpoint> endpoints, List<RestDependency> calls) {
+  private void scanDirectory(File directory, List<RestEndpoint> restEndpoints, List<RestCall> calls) {
     File[] files = directory.listFiles();
 
     if (files != null) {
       for (File file : files) {
         if (file.isDirectory()) {
-          scanDirectory(file, endpoints, calls);
+          scanDirectory(file, restEndpoints, calls);
         } else if (file.getName().endsWith(".java")) {
-          scanFile(file, endpoints, calls);
+          scanFile(file, restEndpoints, calls);
         }
       }
     }
@@ -76,43 +76,22 @@ public class RepositoryService {
    * Scan the given file for endpoints and calls to other services.
    *
    * @param file the file to scan
-   * @param endpoints the list of endpoints
+   * @param restEndpoints the list of endpoints
    * @param calls the list of calls to other services
    */
-  private void scanFile(File file, List<Endpoint> endpoints, List<RestDependency> calls) {
+  private void scanFile(File file, List<RestEndpoint> restEndpoints, List<RestCall> calls) {
     try {
-      List<Endpoint> fileEndpoints = endpointExtractionService.parseEndpoints(file);
-      endpoints.addAll(fileEndpoints);
+      List<RestEndpoint> fileRestEndpoints = endpointExtractionService.parseEndpoints(file);
+      restEndpoints.addAll(fileRestEndpoints);
     } catch (IOException e) {
       System.err.println("Could not extract endpoints from file: " + file.getName());
     }
 
     try {
-      List<RestDependency> fileDependencies = callExtractionService.parseCalls(file);
-      calls.addAll(fileDependencies);
+      List<RestCall> restCalls = callExtractionService.parseCalls(file);
+      calls.addAll(restCalls);
     } catch (IOException e) {
       System.err.println("Could not extract calls from file: " + file.getName());
-    }
-  }
-
-  // TODO internal dependencies does not make sense for our purposes, probably
-  // can remove, we likely want to only refer to "dependencies" as items between two
-  // services, not within
-  private void scanInternalDependencies(
-      List<RestDependency> dependencies, List<Endpoint> endpoints) {
-    for (RestDependency restDependency : dependencies) {
-      String url = restDependency.getUrl();
-
-      for (Endpoint endpoint : endpoints) {
-        if (endpoint.getUrl().contains(url)) {
-          restDependency.setDestFile(endpoint.getSourceFile());
-          break;
-        }
-      }
-
-      if (restDependency.getDestFile() == null) {
-        restDependency.setDestFile("UNKNOWN");
-      }
     }
   }
 }

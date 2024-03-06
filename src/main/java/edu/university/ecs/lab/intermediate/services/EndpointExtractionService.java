@@ -4,11 +4,13 @@ import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.expr.MemberValuePair;
-import edu.university.ecs.lab.common.models.Endpoint;
+import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import edu.university.ecs.lab.common.models.rest.RestEndpoint;
 import edu.university.ecs.lab.intermediate.utils.StringParserUtils;
 
 import java.io.File;
@@ -28,23 +30,36 @@ public class EndpointExtractionService {
    * @return the list of parsed endpoints
    * @throws IOException if an I/O error occurs
    */
-  public List<Endpoint> parseEndpoints(File sourceFile) throws IOException {
-    List<Endpoint> endpoints = new ArrayList<>();
+  public List<RestEndpoint> parseEndpoints(File sourceFile) throws IOException {
+    List<RestEndpoint> restEndpoints = new ArrayList<>();
 
     CompilationUnit cu = StaticJavaParser.parse(sourceFile);
 
     String packageName = StringParserUtils.findPackage(cu);
     if (packageName == null) {
-      return endpoints;
+      return restEndpoints;
     }
 
     // loop through class declarations
     for (ClassOrInterfaceDeclaration cid : cu.findAll(ClassOrInterfaceDeclaration.class)) {
       String className = cid.getNameAsString();
 
+      List<String> services = new ArrayList<>();
+
+      // find service variables
+      for (FieldDeclaration fd : cid.findAll(FieldDeclaration.class)) {
+        if (fd.getElementType().isClassOrInterfaceType()) {
+          ClassOrInterfaceType type = fd.getElementType().asClassOrInterfaceType();
+
+          if (type.getNameAsString().contains("Service")) {
+            services.add(fd.getVariables().get(0).getNameAsString());
+          }
+        }
+      }
+
       AnnotationExpr aExpr = cid.getAnnotationByName("RequestMapping").orElse(null);
       if (aExpr == null) {
-        return endpoints;
+        return restEndpoints;
       }
 
       String classLevelPath = pathFromAnnotation(aExpr);
@@ -71,51 +86,52 @@ public class EndpointExtractionService {
 
         // loop through annotations
         for (AnnotationExpr ae : md.getAnnotations()) {
-          Endpoint endpoint = new Endpoint();
-          endpoint.setDecorator(ae.getNameAsString());
+          RestEndpoint restEndpoint = new RestEndpoint();
+          restEndpoint.setDecorator(ae.getNameAsString());
 
           switch (ae.getNameAsString()) {
             case "GetMapping":
-              endpoint.setHttpMethod("GET");
+              restEndpoint.setHttpMethod("GET");
               break;
             case "PostMapping":
-              endpoint.setHttpMethod("POST");
+              restEndpoint.setHttpMethod("POST");
               break;
             case "DeleteMapping":
-              endpoint.setHttpMethod("DELETE");
+              restEndpoint.setHttpMethod("DELETE");
               break;
             case "PutMapping":
-              endpoint.setHttpMethod("PUT");
+              restEndpoint.setHttpMethod("PUT");
               break;
             case "RequestMapping":
               if (ae.toString().contains("RequestMethod.POST")) {
-                endpoint.setHttpMethod("POST");
+                restEndpoint.setHttpMethod("POST");
               } else if (ae.toString().contains("RequestMethod.DELETE")) {
-                endpoint.setHttpMethod("DELETE");
+                restEndpoint.setHttpMethod("DELETE");
               } else if (ae.toString().contains("RequestMethod.PUT")) {
-                endpoint.setHttpMethod("PUT");
+                restEndpoint.setHttpMethod("PUT");
               } else {
-                endpoint.setHttpMethod("GET");
+                restEndpoint.setHttpMethod("GET");
               }
               break;
           }
 
-          if (endpoint.getHttpMethod() == null) {
+          if (restEndpoint.getHttpMethod() == null) {
             continue;
           }
 
-          endpoint.setSourceFile(sourceFile.getCanonicalPath());
-          endpoint.setUrl(StringParserUtils.mergePaths(classLevelPath, pathFromAnnotation(ae)));
-          endpoint.setParentMethod(packageName + "." + className + "." + methodName);
-          endpoint.setMethodName(methodName);
-          endpoint.setParameter(parameter);
-          endpoint.setReturnType(md.getTypeAsString());
-          endpoints.add(endpoint);
+          restEndpoint.setSourceFile(sourceFile.getCanonicalPath());
+          restEndpoint.setUrl(StringParserUtils.mergePaths(classLevelPath, pathFromAnnotation(ae)));
+          restEndpoint.setParentMethod(packageName + "." + className + "." + methodName);
+          restEndpoint.setMethodName(methodName);
+          restEndpoint.setParameter(parameter);
+          restEndpoint.setReturnType(md.getTypeAsString());
+          restEndpoint.setServices(services);
+          restEndpoints.add(restEndpoint);
         }
       }
     }
 
-    return endpoints;
+    return restEndpoints;
   }
 
   /**

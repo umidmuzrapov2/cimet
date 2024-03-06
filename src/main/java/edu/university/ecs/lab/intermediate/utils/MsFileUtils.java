@@ -1,8 +1,8 @@
 package edu.university.ecs.lab.intermediate.utils;
 
-import edu.university.ecs.lab.common.models.RestDependency;
-import edu.university.ecs.lab.common.models.Endpoint;
-import edu.university.ecs.lab.common.models.MsModel;
+import edu.university.ecs.lab.common.models.rest.RestCall;
+import edu.university.ecs.lab.common.models.rest.RestEndpoint;
+import edu.university.ecs.lab.common.models.rest.MsModel;
 
 import javax.json.*;
 import java.io.File;
@@ -33,73 +33,86 @@ public class MsFileUtils {
     JsonArrayBuilder jsonArrayBuilder = Json.createArrayBuilder();
 
     for (Map.Entry<String, MsModel> microservice : msDataMap.entrySet()) {
-      JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
+      JsonObjectBuilder msObjectBuilder = Json.createObjectBuilder();
       String msName = microservice.getKey();
+
       if (microservice.getKey().contains(File.separator)) {
-        msName =
-            microservice.getKey().substring(microservice.getKey().lastIndexOf(File.separator) + 1);
+        msName = microservice.getKey().substring(microservice.getKey().lastIndexOf(File.separator) + 1);
       }
-      jsonObjectBuilder.add("id", microservice.getValue().getId().replaceAll("\\\\", "/"));
-      jsonObjectBuilder.add("msName", msName);
-      jsonObjectBuilder.add("msPath", microservice.getKey().replaceAll("\\\\", "/"));
-      jsonObjectBuilder.add("commitId", microservice.getValue().getCommit());
+
+      msObjectBuilder.add("id", microservice.getValue().getId().replaceAll("\\\\", "/"));
+      msObjectBuilder.add("msName", msName);
+      msObjectBuilder.add("msPath", microservice.getKey().replaceAll("\\\\", "/"));
+      msObjectBuilder.add("commitId", microservice.getValue().getCommit());
 
       JsonArrayBuilder endpointsArrayBuilder = Json.createArrayBuilder();
 
-      List<Endpoint> endpoints = microservice.getValue().getEndpoints();
-      for (Endpoint endpoint : endpoints) {
-        JsonObjectBuilder endpointBuilder = Json.createObjectBuilder();
-        endpoint.setId(
-            endpoint.getHttpMethod()
-                + ":"
+      List<RestEndpoint> restEndpoints = microservice.getValue().getRestEndpoints();
+      for (RestEndpoint restEndpoint : restEndpoints) {
+        restEndpoint.setId(
+            restEndpoint.getHttpMethod() + ":"
                 + msName
                 + "."
-                + endpoint.getMethodName()
+                + restEndpoint.getMethodName()
                 + "#"
-                + Math.abs(endpoint.getParameter().hashCode()));
-        endpointBuilder.add("id", endpoint.getId());
-        endpointBuilder.add("api", endpoint.getUrl());
-        endpointBuilder.add("source-file", endpoint.getSourceFile().replaceAll("\\\\", "/"));
-        endpointBuilder.add("type", endpoint.getDecorator());
-        endpointBuilder.add("httpMethod", endpoint.getHttpMethod());
-        endpointBuilder.add("parent-method", endpoint.getParentMethod());
-        endpointBuilder.add("methodName", endpoint.getMethodName());
-        endpointBuilder.add("arguments", endpoint.getParameter());
-        endpointBuilder.add("return", endpoint.getReturnType());
+                + Math.abs(restEndpoint.getParameter().hashCode()));
 
-        endpointsArrayBuilder.add(endpointBuilder.build());
+        endpointsArrayBuilder.add(buildRestEndpoint(restEndpoint));
       }
-      jsonObjectBuilder.add("endpoints", endpointsArrayBuilder.build());
 
-      List<RestDependency> dependencies = microservice.getValue().getRestDependencies();
-      writeDependency(endpointsArrayBuilder, dependencies);
-      jsonObjectBuilder.add("dependencies", endpointsArrayBuilder.build());
+      msObjectBuilder.add("restEndpoints", endpointsArrayBuilder.build());
 
-      jsonArrayBuilder.add(jsonObjectBuilder.build());
+      List<RestCall> restCalls = microservice.getValue().getRestCalls();
+      msObjectBuilder.add("restCalls", writeRestCall(restCalls));
+
+      jsonArrayBuilder.add(msObjectBuilder.build());
     }
 
     parentBuilder.add("services", jsonArrayBuilder.build());
     return parentBuilder.build();
   }
 
+  private static JsonObject buildRestEndpoint(RestEndpoint restEndpoint) {
+    JsonObjectBuilder endpointBuilder = Json.createObjectBuilder();
+
+    endpointBuilder.add("id", restEndpoint.getId());
+    endpointBuilder.add("api", restEndpoint.getUrl());
+    endpointBuilder.add("source-file", restEndpoint.getSourceFile().replaceAll("\\\\", "/"));
+    endpointBuilder.add("type", restEndpoint.getDecorator());
+    endpointBuilder.add("httpMethod", restEndpoint.getHttpMethod());
+    endpointBuilder.add("parent-method", restEndpoint.getParentMethod());
+    endpointBuilder.add("methodName", restEndpoint.getMethodName());
+    endpointBuilder.add("arguments", restEndpoint.getParameter());
+    endpointBuilder.add("return", restEndpoint.getReturnType());
+
+    JsonArrayBuilder serviceArrayBuilder = Json.createArrayBuilder();
+    restEndpoint.getServices().forEach(serviceArrayBuilder::add);
+
+    endpointBuilder.add("services", serviceArrayBuilder.build());
+
+    return endpointBuilder.build();
+  }
+
   /**
    * Write the given endpoint list to the given json list.
    *
-   * @param endpointsArrayBuilder the endpoints array builder
-   * @param dependencies the list of dependencies
+   * @param restCalls the list of calls
    */
-  private static void writeDependency(
-      JsonArrayBuilder endpointsArrayBuilder, List<RestDependency> dependencies) {
-    for (RestDependency endpoint : dependencies) {
-      JsonObjectBuilder endpointBuilder = Json.createObjectBuilder();
+  private static JsonArray writeRestCall(List<RestCall> restCalls) {
+    JsonArrayBuilder endpointsArrayBuilder = Json.createArrayBuilder();
 
-      endpointBuilder.add("api", endpoint.getUrl());
-      endpointBuilder.add("source-file", endpoint.getSourceFile().replaceAll("\\\\", "/"));
-      endpointBuilder.add("call-dest", endpoint.getDestFile().replaceAll("\\\\", "/"));
-      endpointBuilder.add("call-method", endpoint.getParentMethod() + "()");
-      endpointBuilder.add("httpMethod", endpoint.getHttpMethod());
+    for (RestCall restCall : restCalls) {
+      JsonObjectBuilder restCallBuilder = Json.createObjectBuilder();
 
-      endpointsArrayBuilder.add(endpointBuilder.build());
+      restCallBuilder.add("api", restCall.getUrl());
+      restCallBuilder.add("source-file", restCall.getSourceFile().replaceAll("\\\\", "/"));
+      restCallBuilder.add("call-dest", restCall.getDestFile().replaceAll("\\\\", "/"));
+      restCallBuilder.add("call-method", restCall.getCallMethod() + "()");
+      restCallBuilder.add("httpMethod", restCall.getHttpMethod());
+
+      endpointsArrayBuilder.add(restCallBuilder.build());
     }
+
+    return endpointsArrayBuilder.build();
   }
 }
