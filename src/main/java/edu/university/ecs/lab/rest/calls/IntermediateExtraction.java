@@ -150,7 +150,8 @@ public class IntermediateExtraction {
         RestEndpoint matchingEndpoint = null;
 
         for (MsModel ms : msModelMap.values()) {
-          matchingEndpoint = ms.getRestEndpoints().stream().filter(endpoint -> endpoint.getUrl().equals(callUrl) && endpoint.getHttpMethod().equals(httpMethod)).findFirst().orElse(null);
+          matchingEndpoint = ms.getRestEndpoints().stream()
+                  .filter(endpoint -> (endpoint.getUrl().equals(callUrl) || endpoint.getUrl().startsWith(callUrl)) && endpoint.getHttpMethod().equals(httpMethod)).findFirst().orElse(null);
 
           if (Objects.nonNull(matchingEndpoint)) {
             break;

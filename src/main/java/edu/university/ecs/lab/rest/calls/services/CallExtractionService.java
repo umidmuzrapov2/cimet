@@ -8,6 +8,7 @@ import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.BinaryExpr;
 import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import edu.university.ecs.lab.rest.calls.utils.StringParserUtils;
 import edu.university.ecs.lab.rest.calls.models.RestCall;
@@ -206,16 +207,25 @@ public class CallExtractionService {
     String right = exp.getRight().toString();
     String left = exp.getLeft().toString();
 
-    if (right.contains("/")) {
-      url = right.substring(right.indexOf('/'));
+    // check left side of expression
+    if (left.contains("/")) {
+      url = left.substring(left.indexOf('/'));
 
-      if (url.endsWith("\"")) {
+      // chop off any '+' in url expression
+      int plusNdx = url.indexOf("+");
+      if (plusNdx > 0) {
+        url = url.substring(0, plusNdx-1);
+      }
+
+      // chop off ending "
+      if (url.charAt(url.length()-1) == '\"') {
         url = url.substring(0, url.length() - 1);
       }
     }
 
-    if (left.contains("/")) {
-      url += left.substring(left.indexOf('/'));
+    // check right side of expression
+    if (right.contains("/")) {
+      url += right.substring(right.indexOf('/'));
 
       if (url.endsWith("\"")) {
         url = url.substring(0, url.length() - 1);
