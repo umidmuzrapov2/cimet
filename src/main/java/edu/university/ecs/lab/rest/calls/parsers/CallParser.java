@@ -1,13 +1,11 @@
-package edu.university.ecs.lab.rest.calls.services;
+package edu.university.ecs.lab.rest.calls.parsers;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
-import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.*;
 import edu.university.ecs.lab.rest.calls.utils.StringParserUtils;
 import edu.university.ecs.lab.rest.calls.models.RestCall;
@@ -19,10 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Service for parsing REST calls from source files and describing them in relation to the
+ * Class for parsing REST calls from source files and describing them in relation to the
  * microservice that calls the endpoint.
  */
-public class CallExtractionService {
+public class CallParser {
   /**
    * Parse the REST calls from the given source file.
    *
@@ -30,7 +28,7 @@ public class CallExtractionService {
    * @return the list of parsed dependencies
    * @throws IOException if an I/O error occurs
    */
-  public List<RestCall> parseCalls(File sourceFile) throws IOException {
+  public static List<RestCall> parseCalls(File sourceFile) throws IOException {
     List<RestCall> dependencies = new ArrayList<>();
 
     CompilationUnit cu = StaticJavaParser.parse(sourceFile);
@@ -101,7 +99,7 @@ public class CallExtractionService {
    * @param arguments the arguments of the exchange() method
    * @return the HTTP method extracted
    */
-  private String getHttpMethodForExchange(String arguments) {
+  private static String getHttpMethodForExchange(String arguments) {
     if (arguments.contains("HttpMethod.POST")) {
       return "POST";
     } else if (arguments.contains("HttpMethod.PUT")) {
@@ -120,7 +118,7 @@ public class CallExtractionService {
    * @param cid the class or interface to search
    * @return the URL found
    */
-  private String findUrl(MethodCallExpr mce, ClassOrInterfaceDeclaration cid) {
+  private static String findUrl(MethodCallExpr mce, ClassOrInterfaceDeclaration cid) {
     if (mce.getArguments().isEmpty()) {
       return "";
     }
@@ -147,7 +145,7 @@ public class CallExtractionService {
    * @param cu the compilation unit to check
    * @return if a RestTemplate import exists else false
    */
-  private boolean hasRestTemplateImport(CompilationUnit cu) {
+  private static boolean hasRestTemplateImport(CompilationUnit cu) {
     for (ImportDeclaration id : cu.findAll(ImportDeclaration.class)) {
       if (id.getNameAsString().equals("org.springframework.web.client.RestTemplate")) {
         return true;
@@ -156,7 +154,7 @@ public class CallExtractionService {
     return false;
   }
 
-  private boolean isRestTemplateScope(Expression scope, ClassOrInterfaceDeclaration cid) {
+  private static boolean isRestTemplateScope(Expression scope, ClassOrInterfaceDeclaration cid) {
     if (scope == null) {
       return false;
     }
@@ -175,7 +173,7 @@ public class CallExtractionService {
     return false;
   }
 
-  private boolean isRestTemplateField(ClassOrInterfaceDeclaration cid, String fieldName) {
+  private static boolean isRestTemplateField(ClassOrInterfaceDeclaration cid, String fieldName) {
     for (FieldDeclaration fd : cid.findAll(FieldDeclaration.class)) {
       if (fd.getElementType().toString().equals("RestTemplate")
           && fd.getVariables().toString().contains(fieldName)) {
@@ -186,7 +184,7 @@ public class CallExtractionService {
     return false;
   }
 
-  private String fieldValue(ClassOrInterfaceDeclaration cid, String fieldName) {
+  private static String fieldValue(ClassOrInterfaceDeclaration cid, String fieldName) {
     for (FieldDeclaration fd : cid.findAll(FieldDeclaration.class)) {
       if (fd.getVariables().toString().contains(fieldName)) {
         Expression init = fd.getVariable(0).getInitializer().orElse(null);
@@ -200,7 +198,7 @@ public class CallExtractionService {
   }
 
   // TODO: kind of resolved, probably not every case considered
-  private String resolveUrlFromBinaryExp(BinaryExpr exp) {
+  private static String resolveUrlFromBinaryExp(BinaryExpr exp) {
     Expression left = exp.getLeft();
     Expression right = exp.getRight();
 
@@ -220,7 +218,7 @@ public class CallExtractionService {
     return ""; // URL not found in subtree
   }
 
-  private String formatURL(StringLiteralExpr stringLiteralExpr) {
+  private static String formatURL(StringLiteralExpr stringLiteralExpr) {
     String str = stringLiteralExpr.toString();
     str = str.replace("http://", "");
     str = str.replace("https://", "");
