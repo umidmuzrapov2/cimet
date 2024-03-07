@@ -5,7 +5,6 @@ import edu.university.ecs.lab.common.config.InputConfig;
 import edu.university.ecs.lab.common.config.InputRepository;
 import edu.university.ecs.lab.rest.calls.models.MsModel;
 import edu.university.ecs.lab.rest.calls.models.RestEndpoint;
-import edu.university.ecs.lab.rest.calls.models.RestService;
 import edu.university.ecs.lab.rest.calls.utils.MsFileUtils;
 import edu.university.ecs.lab.common.writers.MsJsonWriter;
 import edu.university.ecs.lab.rest.calls.services.GitCloneService;
@@ -25,7 +24,7 @@ import java.util.*;
  *
  * <p>
  */
-public class IntermediateExtraction {
+public class RestExtraction {
   /** Exit code: error writing IR to json */
   private static final int BAD_IR_WRITE = 3;
 
@@ -87,7 +86,7 @@ public class IntermediateExtraction {
     JsonObject jout =
         MsFileUtils.constructJsonMsSystem(scanner.nextLine(), "0.0.1", msEndpointsMap);
 
-    String outputName = outputPath + File.separator + "intermediate-output-[" + (new Date()).getTime() + "].json";
+    String outputName = outputPath + File.separator + "rest-extraction-output-[" + (new Date()).getTime() + "].json";
 
     MsJsonWriter.writeJsonToFile(jout, outputName);
     System.out.println("Successfully wrote intermediate to: \"" + outputName + "\"");
