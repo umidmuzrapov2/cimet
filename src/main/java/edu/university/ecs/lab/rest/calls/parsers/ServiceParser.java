@@ -56,7 +56,7 @@ public class ServiceParser {
 
       // loop through methods
       for (MethodDeclaration md : cid.findAll(MethodDeclaration.class)) {
-        restService.addMethod(EndpointParser.extractJavaMethod(md));
+        restService.addMethod(RestParser.extractJavaMethod(md));
       }
 
       restService.setDtos(dtos);
@@ -65,6 +65,4 @@ public class ServiceParser {
 
     return restServices;
   }
-
-
 }

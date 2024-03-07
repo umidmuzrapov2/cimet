@@ -17,6 +17,12 @@ public class MsModel {
   /** List of rest dtos found in microservice */
   private List<RestDTO> restDTOs;
 
+  /** List of rest repositories found in microservice */
+  private List<RestRepository> restRepositories;
+
+  /** List of rest entities found in microservice */
+  private List<RestEntity> restEntities;
+
   /** Direct API calls that this ms has to another ms */
   private List<RestCall> restCalls;
 
