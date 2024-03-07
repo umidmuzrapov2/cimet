@@ -1,4 +1,4 @@
-package edu.university.ecs.lab.rest.calls.services;
+package edu.university.ecs.lab.rest.calls.parsers;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
@@ -21,10 +21,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Service for parsing REST endpoints from source files and describing them in relation to their
+ * Class for parsing REST endpoints from source files and describing them in relation to their
  * relative microservice.
  */
-public class EndpointExtractionService {
+public class EndpointParser {
   /**
    * Parse the REST endpoints from the given source file.
    *
@@ -32,7 +32,7 @@ public class EndpointExtractionService {
    * @return the list of parsed endpoints
    * @throws IOException if an I/O error occurs
    */
-  public List<RestEndpoint> parseEndpoints(File sourceFile) throws IOException {
+  public static List<RestEndpoint> parseEndpoints(File sourceFile) throws IOException {
     List<RestEndpoint> restEndpoints = new ArrayList<>();
 
     CompilationUnit cu = StaticJavaParser.parse(sourceFile);
@@ -120,60 +120,12 @@ public class EndpointExtractionService {
   }
 
   /**
-   * Parse the REST endpoints from the given source file.
-   *
-   * @param sourceFile the source file to parse
-   * @return list of parsed services
-   * @throws IOException i/o error occurs
-   */
-  public List<RestService> parseServices(File sourceFile) throws IOException {
-    List<RestService> restServices = new ArrayList<>();
-
-    CompilationUnit cu = StaticJavaParser.parse(sourceFile);
-
-    String packageName = StringParserUtils.findPackage(cu);
-    if (packageName == null) {
-      return restServices;
-    }
-
-    // loop through class declarations
-    for (ClassOrInterfaceDeclaration cid : cu.findAll(ClassOrInterfaceDeclaration.class)) {
-      RestService restService = new RestService();
-      restService.setClassName(cid.getNameAsString());
-      restService.setSourceFile(sourceFile.getCanonicalPath());
-
-      List<String> dtos = new ArrayList<>();
-
-      // find dto variables
-      for (FieldDeclaration fd : cid.findAll(FieldDeclaration.class)) {
-        if (fd.getElementType().isClassOrInterfaceType()) {
-          ClassOrInterfaceType type = fd.getElementType().asClassOrInterfaceType();
-
-          if (type.getNameAsString().toLowerCase().contains("dto")) {
-            dtos.add(type.getNameAsString());
-          }
-        }
-      }
-
-      // loop through methods
-      for (MethodDeclaration md : cid.findAll(MethodDeclaration.class)) {
-        restService.addMethod(extractJavaMethod(md));
-      }
-
-      restService.setDtos(dtos);
-      restServices.add(restService);
-    }
-
-    return restServices;
-  }
-
-  /**
    * Get the java method from the given declaration
    *
    * @param md method declaration
    * @return method information
    */
-  private JavaMethod extractJavaMethod(MethodDeclaration md) {
+  public static JavaMethod extractJavaMethod(MethodDeclaration md) {
     String methodName = md.getNameAsString();
 
     NodeList<Parameter> parameterList = md.getParameters();
@@ -205,7 +157,7 @@ public class EndpointExtractionService {
    * @param ae the annotation expression
    * @return the path else an empty string if not found or ae was null
    */
-  private String pathFromAnnotation(AnnotationExpr ae) {
+  private static String pathFromAnnotation(AnnotationExpr ae) {
     if (ae == null) {
       return "";
     }
