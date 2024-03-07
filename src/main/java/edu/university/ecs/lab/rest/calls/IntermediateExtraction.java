@@ -149,12 +149,29 @@ public class IntermediateExtraction {
 
         RestEndpoint matchingEndpoint = null;
 
-        for (MsModel ms : msModelMap.values()) {
-          matchingEndpoint = ms.getRestEndpoints().stream()
-                  .filter(endpoint -> (endpoint.getUrl().equals(callUrl) || endpoint.getUrl().startsWith(callUrl)) && endpoint.getHttpMethod().equals(httpMethod)).findFirst().orElse(null);
+        // iterate until either endpoint is found OR entire URL has been scanned
+        while (Objects.isNull(matchingEndpoint) && callUrl.contains("/")) {
+          final String tmpCallUrl = callUrl;
 
-          if (Objects.nonNull(matchingEndpoint)) {
-            break;
+          for (MsModel ms : msModelMap.values()) {
+            matchingEndpoint = ms.getRestEndpoints().stream()
+                    .filter(endpoint -> (endpoint.getUrl().equals(tmpCallUrl) || endpoint.getUrl().contains(tmpCallUrl))
+                            && endpoint.getHttpMethod().equals(httpMethod))
+                    .findFirst().orElse(null);
+
+            if (Objects.nonNull(matchingEndpoint)) {
+              break;
+            }
+          }
+
+          // Endpoint still not found? Try chopping off beginning of url by each '/'
+          if (Objects.isNull(matchingEndpoint)) {
+            callUrl = callUrl.substring(1);
+
+            int slashNdx = callUrl.indexOf("/");
+            if (slashNdx > 0) {
+              callUrl = callUrl.substring(slashNdx);
+            }
           }
         }
 
