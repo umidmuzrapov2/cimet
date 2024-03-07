@@ -4,6 +4,8 @@ import edu.university.ecs.lab.common.config.ConfigUtil;
 import edu.university.ecs.lab.common.config.InputConfig;
 import edu.university.ecs.lab.common.config.InputRepository;
 import edu.university.ecs.lab.rest.calls.models.MsModel;
+import edu.university.ecs.lab.rest.calls.models.RestEndpoint;
+import edu.university.ecs.lab.rest.calls.models.RestService;
 import edu.university.ecs.lab.rest.calls.utils.MsFileUtils;
 import edu.university.ecs.lab.common.writers.MsJsonWriter;
 import edu.university.ecs.lab.rest.calls.services.GitCloneService;
@@ -138,12 +140,26 @@ public class IntermediateExtraction {
     return msModelMap;
   }
 
+  // todo: this might not be the best way to go about this
   private static void extractCallDestinations(Map<String, MsModel> msModelMap) {
-    // TODO: scan and find source file matching url
-
     msModelMap.forEach((name, model) -> {
       model.getRestCalls().forEach(call -> {
-        String callMethod = call.getCallMethod();
+        String callUrl = call.getUrl();
+        String httpMethod = call.getHttpMethod();
+
+        RestEndpoint matchingEndpoint = null;
+
+        for (MsModel ms : msModelMap.values()) {
+          matchingEndpoint = ms.getRestEndpoints().stream().filter(endpoint -> endpoint.getUrl().equals(callUrl) && endpoint.getHttpMethod().equals(httpMethod)).findFirst().orElse(null);
+
+          if (Objects.nonNull(matchingEndpoint)) {
+            break;
+          }
+        }
+
+        if (Objects.nonNull(matchingEndpoint)) {
+          call.setDestFile(matchingEndpoint.getSourceFile());
+        }
       });
     });
   }
