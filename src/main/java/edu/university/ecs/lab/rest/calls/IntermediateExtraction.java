@@ -1,13 +1,13 @@
-package edu.university.ecs.lab.intermediate;
+package edu.university.ecs.lab.rest.calls;
 
 import edu.university.ecs.lab.common.config.ConfigUtil;
 import edu.university.ecs.lab.common.config.InputConfig;
 import edu.university.ecs.lab.common.config.InputRepository;
-import edu.university.ecs.lab.common.models.rest.MsModel;
+import edu.university.ecs.lab.rest.calls.models.MsModel;
+import edu.university.ecs.lab.rest.calls.utils.MsFileUtils;
 import edu.university.ecs.lab.common.writers.MsJsonWriter;
-import edu.university.ecs.lab.intermediate.services.GitCloneService;
-import edu.university.ecs.lab.intermediate.services.RepositoryService;
-import edu.university.ecs.lab.intermediate.utils.MsFileUtils;
+import edu.university.ecs.lab.rest.calls.services.GitCloneService;
+import edu.university.ecs.lab.rest.calls.services.RestModelService;
 
 import javax.json.JsonObject;
 import java.io.File;
@@ -30,7 +30,7 @@ public class IntermediateExtraction {
   /** system property for user directory */
   private static final String SYS_USER_DIR = "user.dir";
 
-  private static final RepositoryService repositoryService = new RepositoryService();
+  private static final RestModelService REST_MODEL_SERVICE = new RestModelService();
 
   /**
    * Main method entry point to intermediate extraction
@@ -44,6 +44,7 @@ public class IntermediateExtraction {
 
     // Clone remote repositories and scan through each cloned repo to extract endpoints
     Map<String, MsModel> msDataMap = cloneAndScanServices(inputConfig);
+    assert msDataMap != null;
 
     // Scan through each endpoint to extract rest call destinations
     extractCallDestinations(msDataMap);
@@ -126,7 +127,7 @@ public class IntermediateExtraction {
           path = msPath.substring(clonePath.length() + 1);
         }
 
-        model = repositoryService.recursivelyScanFiles(clonePath, msPath.substring(clonePath.length()));
+        model = REST_MODEL_SERVICE.recursivelyScanFiles(clonePath, msPath.substring(clonePath.length()));
         model.setCommit(inputRepository.getBaseCommit());
         model.setId(msPath.substring(msPath.lastIndexOf('/') + 1));
 

@@ -1,8 +1,9 @@
-package edu.university.ecs.lab.intermediate.services;
+package edu.university.ecs.lab.rest.calls.services;
 
-import edu.university.ecs.lab.common.models.rest.MsModel;
-import edu.university.ecs.lab.common.models.rest.RestCall;
-import edu.university.ecs.lab.common.models.rest.RestEndpoint;
+import edu.university.ecs.lab.rest.calls.models.MsModel;
+import edu.university.ecs.lab.rest.calls.models.RestCall;
+import edu.university.ecs.lab.rest.calls.models.RestEndpoint;
+import edu.university.ecs.lab.rest.calls.models.RestService;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,11 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Service for extracting REST endpoints and dependencies for a given microservice. */
-// TODO probably rename this to something like "RestModelService" or something
-public class RepositoryService {
+public class RestModelService {
   /** Service for rest endpoints from services */
-  private final EndpointExtractionService endpointExtractionService =
-      new EndpointExtractionService();
+  private final EndpointExtractionService endpointExtractionService = new EndpointExtractionService();
 
   /** Service for extracting rest calls to other services */
   private final CallExtractionService callExtractionService = new CallExtractionService();
@@ -33,6 +32,7 @@ public class RepositoryService {
     MsModel model = new MsModel();
 
     List<RestEndpoint> restEndpoints = new ArrayList<>();
+    List<RestService> restServices = new ArrayList<>();
     List<RestCall> calls = new ArrayList<>();
 
     File localDir = new File(repoPath);
@@ -41,10 +41,10 @@ public class RepositoryService {
       return null;
     }
 
-    // todo: find services (not just controllers)
-    scanDirectory(localDir, restEndpoints, calls);
+    scanDirectory(localDir, restEndpoints, restServices, calls);
 
     model.setRestEndpoints(restEndpoints);
+    model.setRestServices(restServices);
     model.setRestCalls(calls);
 
     System.out.println("Done!");
@@ -58,15 +58,16 @@ public class RepositoryService {
    * @param restEndpoints the list of endpoints
    * @param calls the list of calls to other services
    */
-  private void scanDirectory(File directory, List<RestEndpoint> restEndpoints, List<RestCall> calls) {
+  private void scanDirectory(File directory, List<RestEndpoint> restEndpoints, List<RestService> restServices,
+                             List<RestCall> calls) {
     File[] files = directory.listFiles();
 
     if (files != null) {
       for (File file : files) {
         if (file.isDirectory()) {
-          scanDirectory(file, restEndpoints, calls);
+          scanDirectory(file, restEndpoints, restServices, calls);
         } else if (file.getName().endsWith(".java")) {
-          scanFile(file, restEndpoints, calls);
+          scanFile(file, restEndpoints, restServices, calls);
         }
       }
     }
@@ -79,10 +80,20 @@ public class RepositoryService {
    * @param restEndpoints the list of endpoints
    * @param calls the list of calls to other services
    */
-  private void scanFile(File file, List<RestEndpoint> restEndpoints, List<RestCall> calls) {
+  private void scanFile(File file, List<RestEndpoint> restEndpoints, List<RestService> restServices,
+                        List<RestCall> calls) {
     try {
-      List<RestEndpoint> fileRestEndpoints = endpointExtractionService.parseEndpoints(file);
-      restEndpoints.addAll(fileRestEndpoints);
+      if (file.getName().contains("Controller")) {
+        List<RestEndpoint> fileRestEndpoints = endpointExtractionService.parseEndpoints(file);
+        restEndpoints.addAll(fileRestEndpoints);
+      }
+
+      if (file.getName().contains("Service")) {
+        List<RestService> fileRestServices = endpointExtractionService.parseServices(file);
+        restServices.addAll(fileRestServices);
+      }
+
+      // todo: dtos
     } catch (IOException e) {
       System.err.println("Could not extract endpoints from file: " + file.getName());
     }

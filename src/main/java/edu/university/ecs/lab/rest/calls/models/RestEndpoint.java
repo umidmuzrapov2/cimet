@@ -1,6 +1,7 @@
-package edu.university.ecs.lab.common.models.rest;
+package edu.university.ecs.lab.rest.calls.models;
 
 import edu.university.ecs.lab.common.config.InputConfig;
+import edu.university.ecs.lab.common.models.JavaMethod;
 import lombok.*;
 
 import java.util.List;
@@ -33,8 +34,7 @@ public class RestEndpoint {
   private String parentMethod;
 
   private String id;
-  private String methodName;
-  private String parameter;
-  private String returnType;
+  private JavaMethod method;
   private List<String> services;
+  private String className;
 }
