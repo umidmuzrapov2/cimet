@@ -38,23 +38,7 @@ public class DTOParser {
 
     // loop through class declarations
     for (ClassOrInterfaceDeclaration cid : cu.findAll(ClassOrInterfaceDeclaration.class)) {
-      RestDTO restDTO = new RestDTO();
-      restDTO.setClassName(cid.getNameAsString());
-      restDTO.setSourceFile(sourceFile.getCanonicalPath());
-
-      // find variables
-      for (FieldDeclaration fd : cid.findAll(FieldDeclaration.class)) {
-        for (VariableDeclarator variableDeclarator : fd.getVariables()) {
-          restDTO.addVariable(new JavaVariable(variableDeclarator.getNameAsString(), variableDeclarator.getTypeAsString()));
-        }
-      }
-
-      // loop through methods
-      for (MethodDeclaration md : cid.findAll(MethodDeclaration.class)) {
-        restDTO.addMethod(EndpointParser.extractJavaMethod(md));
-      }
-
-      dtos.add(restDTO);
+      dtos.add(new RestDTO(RestParser.extractJavaClass(sourceFile, cid)));
     }
 
     return dtos;

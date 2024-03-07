@@ -2,8 +2,8 @@ package edu.university.ecs.lab.rest.calls.models;
 
 import edu.university.ecs.lab.common.models.JavaClass;
 
-public class RestDTO extends JavaClass {
-  public RestDTO(JavaClass javaClass) {
+public class RestRepository extends JavaClass {
+  public RestRepository(JavaClass javaClass) {
     this.setClassName(javaClass.getClassName());
     this.setSourceFile(javaClass.getSourceFile());
     this.setVariables(javaClass.getVariables());

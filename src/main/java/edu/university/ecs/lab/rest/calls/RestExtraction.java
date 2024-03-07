@@ -89,7 +89,7 @@ public class RestExtraction {
     String outputName = outputPath + File.separator + "rest-extraction-output-[" + (new Date()).getTime() + "].json";
 
     MsJsonWriter.writeJsonToFile(jout, outputName);
-    System.out.println("Successfully wrote intermediate to: \"" + outputName + "\"");
+    System.out.println("Successfully wrote rest extraction to: \"" + outputName + "\"");
   }
 
   /**

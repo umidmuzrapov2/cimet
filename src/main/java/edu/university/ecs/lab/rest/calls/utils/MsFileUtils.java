@@ -1,5 +1,6 @@
 package edu.university.ecs.lab.rest.calls.utils;
 
+import edu.university.ecs.lab.common.models.JavaClass;
 import edu.university.ecs.lab.common.models.JavaMethod;
 import edu.university.ecs.lab.common.models.JavaVariable;
 import edu.university.ecs.lab.rest.calls.models.*;
@@ -46,9 +47,12 @@ public class MsFileUtils {
       msObjectBuilder.add("commitId", microservice.getValue().getCommit());
 
       msObjectBuilder.add("restEndpoints", buildRestEndpoints(msName, microservice.getValue().getRestEndpoints()));
-      msObjectBuilder.add("restServices", buildRestServices(microservice.getValue().getRestServices()));
-      msObjectBuilder.add("restDtos", buildRestDTOs(microservice.getValue().getRestDTOs()));
       msObjectBuilder.add("restCalls", buildRestCalls(microservice.getValue().getRestCalls()));
+
+      msObjectBuilder.add("services", buildRestServices(microservice.getValue().getRestServices()));
+      msObjectBuilder.add("dtos", buildJavaClass(microservice.getValue().getRestDTOs()));
+      msObjectBuilder.add("repositories", buildJavaClass(microservice.getValue().getRestRepositories()));
+      msObjectBuilder.add("entities", buildJavaClass(microservice.getValue().getRestEntities()));
 
       jsonArrayBuilder.add(msObjectBuilder.build());
     }
@@ -135,19 +139,19 @@ public class MsFileUtils {
   /**
    * Write the given dto list to the given json list
    *
-   * @param restDtos list of rest dtos
-   * @return rest dto json list
+   * @param classList list of generic java classes
+   * @return class json list
    */
-  private static JsonArray buildRestDTOs(List<RestDTO> restDtos) {
+  private static JsonArray buildJavaClass(List<? extends JavaClass> classList) {
     JsonArrayBuilder dtoArrayBuilder = Json.createArrayBuilder();
 
-    for (RestDTO dto : restDtos) {
+    for (JavaClass javaClass : classList) {
       JsonObjectBuilder dtoBuilder = Json.createObjectBuilder();
-      dtoBuilder.add("className", dto.getClassName());
-      dtoBuilder.add("classPath", dto.getSourceFile().replaceAll("\\\\", "/"));
+      dtoBuilder.add("className", javaClass.getClassName());
+      dtoBuilder.add("classPath", javaClass.getSourceFile().replaceAll("\\\\", "/"));
 
-      dtoBuilder.add("variables", addVariableArray(dto.getDtoVariables()));
-      dtoBuilder.add("methods", addMethodArray(dto.getDtoMethods()));
+      dtoBuilder.add("variables", addVariableArray(javaClass.getVariables()));
+      dtoBuilder.add("methods", addMethodArray(javaClass.getMethods()));
 
       dtoArrayBuilder.add(dtoBuilder.build());
     }

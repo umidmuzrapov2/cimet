@@ -68,7 +68,7 @@ public class EndpointParser {
 
       // loop through methods
       for (MethodDeclaration md : cid.findAll(MethodDeclaration.class)) {
-        JavaMethod method = extractJavaMethod(md);
+        JavaMethod method = RestParser.extractJavaMethod(md);
 
         // loop through annotations
         for (AnnotationExpr ae : md.getAnnotations()) {
@@ -117,38 +117,6 @@ public class EndpointParser {
     }
 
     return restEndpoints;
-  }
-
-  /**
-   * Get the java method from the given declaration
-   *
-   * @param md method declaration
-   * @return method information
-   */
-  public static JavaMethod extractJavaMethod(MethodDeclaration md) {
-    String methodName = md.getNameAsString();
-
-    NodeList<Parameter> parameterList = md.getParameters();
-    StringBuilder parameter = new StringBuilder();
-    if (parameterList.size() != 0) {
-      parameter = new StringBuilder("[");
-
-      for (int i = 0; i < parameterList.size(); i++) {
-        parameter.append(parameterList.get(i).toString());
-        if (i != parameterList.size() - 1) {
-          parameter.append(", ");
-        } else {
-          parameter.append("]");
-        }
-      }
-    }
-
-    JavaMethod method = new JavaMethod();
-    method.setMethodName(methodName);
-    method.setParameter(parameter.toString());
-    method.setReturnType(md.getTypeAsString());
-
-    return method;
   }
 
   /**

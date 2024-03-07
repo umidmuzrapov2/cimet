@@ -1,10 +1,7 @@
 package edu.university.ecs.lab.rest.calls.services;
 
 import edu.university.ecs.lab.rest.calls.models.*;
-import edu.university.ecs.lab.rest.calls.parsers.CallParser;
-import edu.university.ecs.lab.rest.calls.parsers.DTOParser;
-import edu.university.ecs.lab.rest.calls.parsers.EndpointParser;
-import edu.university.ecs.lab.rest.calls.parsers.ServiceParser;
+import edu.university.ecs.lab.rest.calls.parsers.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,6 +26,8 @@ public class RestModelService {
     List<RestEndpoint> restEndpoints = new ArrayList<>();
     List<RestService> restServices = new ArrayList<>();
     List<RestDTO> restDTOs = new ArrayList<>();
+    List<RestRepository> restRepositories = new ArrayList<>();
+    List<RestEntity> restEntities = new ArrayList<>();
 
     List<RestCall> calls = new ArrayList<>();
 
@@ -38,12 +37,13 @@ public class RestModelService {
       return null;
     }
 
-    scanDirectory(localDir, restEndpoints, restServices, restDTOs, calls);
+    scanDirectory(localDir, restEndpoints, restServices, restDTOs, restRepositories, restEntities, calls);
 
     model.setRestEndpoints(restEndpoints);
     model.setRestServices(restServices);
     model.setRestDTOs(restDTOs);
-
+    model.setRestRepositories(restRepositories);
+    model.setRestEntities(restEntities);
     model.setRestCalls(calls);
 
     System.out.println("Done!");
@@ -58,15 +58,16 @@ public class RestModelService {
    * @param calls the list of calls to other services
    */
   private void scanDirectory(File directory, List<RestEndpoint> restEndpoints, List<RestService> restServices,
-                             List<RestDTO> restDTOs, List<RestCall> calls) {
+                             List<RestDTO> restDTOs, List<RestRepository> restRepos, List<RestEntity> restEntities,
+                             List<RestCall> calls) {
     File[] files = directory.listFiles();
 
     if (files != null) {
       for (File file : files) {
         if (file.isDirectory()) {
-          scanDirectory(file, restEndpoints, restServices, restDTOs, calls);
+          scanDirectory(file, restEndpoints, restServices, restDTOs, restRepos, restEntities, calls);
         } else if (file.getName().endsWith(".java")) {
-          scanFile(file, restEndpoints, restServices, restDTOs, calls);
+          scanFile(file, restEndpoints, restServices, restDTOs, restRepos, restEntities, calls);
         }
       }
     }
@@ -80,7 +81,8 @@ public class RestModelService {
    * @param calls the list of calls to other services
    */
   private void scanFile(File file, List<RestEndpoint> restEndpoints, List<RestService> restServices,
-                        List<RestDTO> restDTOs, List<RestCall> calls) {
+                        List<RestDTO> restDTOs, List<RestRepository> restRepos, List<RestEntity> restEntities,
+                        List<RestCall> calls) {
     try {
       if (file.getName().contains("Controller")) {
         List<RestEndpoint> fileRestEndpoints = EndpointParser.parseEndpoints(file);
@@ -97,8 +99,17 @@ public class RestModelService {
         restDTOs.addAll(fileRestDtos);
       }
 
-      // todo: repositories & entities
-      // todo: configs? utils? (everything? -_-)
+      if (file.getName().contains("Repository")) {
+        List<RestRepository> fileRestRepos = RepositoryParser.parseRepos(file);
+        restRepos.addAll(fileRestRepos);
+      }
+
+      if (file.getParent().toLowerCase().contains("entity") || file.getParent().toLowerCase().contains("model")) {
+        List<RestEntity> fileRestEntities = RepositoryParser.parseEntities(file);
+        restEntities.addAll(fileRestEntities);
+      }
+
+      // todo: configs? utils? (everything else? -_-)
     } catch (IOException e) {
       System.err.println("Could not extract endpoints from file: " + file.getName());
     }
