@@ -1,5 +1,6 @@
-package edu.university.ecs.lab.common.models.rest;
+package edu.university.ecs.lab.rest.calls.models;
 
+import edu.university.ecs.lab.common.models.HttpMethod;
 import lombok.*;
 
 @Getter

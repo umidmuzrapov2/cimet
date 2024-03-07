@@ -8,7 +8,7 @@ import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.stmt.Statement;
-import edu.university.ecs.lab.common.models.ChangeInformation;
+import edu.university.ecs.lab.deltas.models.ChangeInformation;
 import org.eclipse.jgit.diff.DiffEntry;
 
 import javax.json.*;

@@ -1,4 +1,4 @@
-package edu.university.ecs.lab.common.models.rest;
+package edu.university.ecs.lab.rest.calls.models;
 
 import lombok.*;
 
@@ -12,4 +12,5 @@ public class RestCall {
   private String destFile;
   private String httpMethod;
   private String callMethod;
+  private String callClass;
 }

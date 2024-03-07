@@ -1,4 +1,4 @@
-package edu.university.ecs.lab.intermediate.services;
+package edu.university.ecs.lab.rest.calls.services;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
@@ -9,9 +9,9 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.BinaryExpr;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
-import edu.university.ecs.lab.common.models.rest.RestCall;
-import edu.university.ecs.lab.common.models.rest.RestCallMethod;
-import edu.university.ecs.lab.intermediate.utils.StringParserUtils;
+import edu.university.ecs.lab.rest.calls.utils.StringParserUtils;
+import edu.university.ecs.lab.rest.calls.models.RestCall;
+import edu.university.ecs.lab.rest.calls.models.RestCallMethod;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,6 +65,7 @@ public class CallExtractionService {
               RestCall restCall = new RestCall();
               restCall.setSourceFile(sourceFile.getCanonicalPath());
               restCall.setCallMethod(packageName + "." + className + "." + methodName);
+              restCall.setCallClass(className);
               restCall.setHttpMethod(restTemplateMethod.getHttpMethod().toString());
 
               // get http methods for exchange method
