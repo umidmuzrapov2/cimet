@@ -3,13 +3,12 @@ package edu.university.ecs.lab.rest.calls.services;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
+import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.expr.BinaryExpr;
-import com.github.javaparser.ast.expr.Expression;
-import com.github.javaparser.ast.expr.FieldAccessExpr;
-import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.expr.*;
 import edu.university.ecs.lab.rest.calls.utils.StringParserUtils;
 import edu.university.ecs.lab.rest.calls.models.RestCall;
 import edu.university.ecs.lab.rest.calls.models.RestCallMethod;
@@ -202,36 +201,48 @@ public class CallExtractionService {
 
   // TODO: kind of resolved, probably not every case considered
   private String resolveUrlFromBinaryExp(BinaryExpr exp) {
-    String url = "";
+    Expression left = exp.getLeft();
+    Expression right = exp.getRight();
 
-    String right = exp.getRight().toString();
-    String left = exp.getLeft().toString();
-
-    // check left side of expression
-    if (left.contains("/")) {
-      url = left.substring(left.indexOf('/'));
-
-      // chop off any '+' in url expression
-      int plusNdx = url.indexOf("+");
-      if (plusNdx > 0) {
-        url = url.substring(0, plusNdx-1);
-      }
-
-      // chop off ending "
-      if (url.charAt(url.length()-1) == '\"') {
-        url = url.substring(0, url.length() - 1);
-      }
+    if (left instanceof BinaryExpr) {
+      return resolveUrlFromBinaryExp((BinaryExpr) left);
+    } else if (left instanceof StringLiteralExpr) {
+      return formatURL((StringLiteralExpr) left);
     }
 
-    // check right side of expression
-    if (right.contains("/")) {
-      url += right.substring(right.indexOf('/'));
-
-      if (url.endsWith("\"")) {
-        url = url.substring(0, url.length() - 1);
-      }
+    // Check if right side is a binary expression
+    if (right instanceof BinaryExpr) {
+      return resolveUrlFromBinaryExp((BinaryExpr) right);
+    } else if (right instanceof StringLiteralExpr) {
+      return formatURL((StringLiteralExpr) right);
     }
 
-    return url;
+    return ""; // URL not found in subtree
+  }
+
+  private String formatURL(StringLiteralExpr stringLiteralExpr) {
+    String str = stringLiteralExpr.toString();
+    str = str.replace("http://", "");
+    str = str.replace("https://", "");
+
+    int backslashNdx = str.indexOf("/");
+    if (backslashNdx > 0) {
+      str = str.substring(backslashNdx);
+    }
+
+    int questionNdx = str.indexOf("?");
+    if (questionNdx > 0) {
+      str = str.substring(0, questionNdx);
+    }
+
+    if (str.endsWith("\"")) {
+      str = str.substring(0, str.length()-1);
+    }
+
+    if (str.endsWith("/")) {
+      str = str.substring(0, str.length()-1);
+    }
+
+    return str;
   }
 }
