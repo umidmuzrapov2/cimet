@@ -8,7 +8,6 @@ import com.github.javaparser.ast.PackageDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import edu.university.ecs.lab.semantics.models.*;
@@ -201,11 +200,11 @@ public class VisitorService {
 
           Optional<Expression> scope = n.getScope();
 
-                    if (scope.isPresent()) {
-                        if (scope.get() instanceof NameExpr) {
-                            Id id = new Id();
-                            id.setLocation(file.getAbsolutePath());
-                            id.setProject(msName);
+          if (scope.isPresent()) {
+            if (scope.get() instanceof NameExpr) {
+              Id id = new Id();
+              id.setLocation(file.getAbsolutePath());
+              id.setProject(msName);
 
               // TODO isPresent()
               int lineNumber = n.getBegin().get().line;
@@ -221,7 +220,7 @@ public class VisitorService {
                 methodCall.setCalledServiceId(name);
                 MethodCallExpr methodCallExpr = (MethodCallExpr) fae.getParentNode().get();
                 methodCall.setCalledMethodName(methodCallExpr.getNameAsString());
-                              methodCall.setId(id);
+                methodCall.setId(id);
                 // register method call to cache
                 CachingService.getCache().getMethodCallList().add(methodCall);
               }
@@ -235,7 +234,7 @@ public class VisitorService {
                 methodCall.setCalledServiceId(name);
                 MethodCallExpr methodCallExpr = (MethodCallExpr) fae.getParentNode().get();
                 methodCall.setCalledMethodName(methodCallExpr.getNameAsString());
-                                                methodCall.setId(id);
+                methodCall.setId(id);
                 // register method call to cache
                 CachingService.getCache().getMethodCallList().add(methodCall);
               } else if (name.equals("restTemplate")) {
@@ -244,7 +243,7 @@ public class VisitorService {
                 msRestCall.setLineNumber(lineNumber);
                 MethodLocation methodLocationCall = parseMethodLocation(n);
                 msRestCall.setMethodLocation(methodLocationCall);
-                                                msRestCall.setId(id);
+                msRestCall.setId(id);
                 CachingService.getCache().getRestCallList().add(msRestCall);
               }
             }
@@ -268,12 +267,10 @@ public class VisitorService {
           id.setProject(msName);
           id.setLocation(file.getAbsolutePath());
           Optional<Field> f = ParserService.parseField(n);
-          if(f.isPresent()) {
+          if (f.isPresent()) {
             f.get().setId(id);
             CachingService.getCache().getFieldList().add(f.get());
           }
-
-
         }
       }.visit(StaticJavaParser.parse(file), null);
       // System.out.println(); // empty line

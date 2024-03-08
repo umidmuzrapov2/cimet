@@ -220,24 +220,25 @@ public class ParserService {
       }
     }
 
-        return methodLocation;
-    }
+    return methodLocation;
+  }
 
-    public static Optional<Field> parseField(FieldDeclaration n) {
-        Field field = new Field();
-        if (n.getVariables().size() > 0) {
-            VariableDeclarator vd = n.getVariables().get(0);
-            String variableName = vd.getNameAsString();
-            if (variableName.toLowerCase().contains("service") || variableName.toLowerCase().contains("repository")) {
-                field.setFieldVariable(vd.getNameAsString());
-                if (vd.getType() != null) {
-                    field.setFieldClass(vd.getTypeAsString());
-                    field.setMethodLocation(parseMethodLocation(n));
-                    field.setLine(n.getBegin().get().line);
-                }
-                return Optional.of(field);
-            }
+  public static Optional<Field> parseField(FieldDeclaration n) {
+    Field field = new Field();
+    if (n.getVariables().size() > 0) {
+      VariableDeclarator vd = n.getVariables().get(0);
+      String variableName = vd.getNameAsString();
+      if (variableName.toLowerCase().contains("service")
+          || variableName.toLowerCase().contains("repository")) {
+        field.setFieldVariable(vd.getNameAsString());
+        if (vd.getType() != null) {
+          field.setFieldClass(vd.getTypeAsString());
+          field.setMethodLocation(parseMethodLocation(n));
+          field.setLine(n.getBegin().get().line);
         }
-        return Optional.empty();
+        return Optional.of(field);
+      }
     }
+    return Optional.empty();
+  }
 }
