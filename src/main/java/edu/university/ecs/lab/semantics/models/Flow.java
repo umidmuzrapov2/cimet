@@ -6,19 +6,19 @@ import java.util.List;
 
 @Data
 public class Flow {
-  private Class controller;
+  private JClass controller;
   private Method controllerMethod;
   private MethodCall serviceMethodCall;
   private Field controllerServiceField;
-  private Class service;
+  private JClass service;
   private Method serviceMethod;
   private MethodCall repositoryMethodCall;
   private Field serviceRepositoryField;
-  private Class repository;
+  private JClass repository;
   private List<RestCall> restCalls;
   private Method repositoryMethod;
 
-  public Flow(Class controller, Method controllerMethod) {
+  public Flow(JClass controller, Method controllerMethod) {
     this.controller = controller;
     this.controllerMethod = controllerMethod;
   }
@@ -38,12 +38,4 @@ public class Flow {
     return "";
   }
 
-  //    @Override
-  //    public String toString() {
-  //        StringBuilder sb = new StringBuilder();
-  //        sb.append(controller.getClassName());
-  //        sb.append(" -> ");
-  //        sb.append(controllerMethod.getMethodName());
-  //        return sb.toString();
-  //    }
 }

@@ -7,6 +7,7 @@ import com.github.javaparser.ast.PackageDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
@@ -219,6 +220,24 @@ public class ParserService {
       }
     }
 
-    return methodLocation;
-  }
+        return methodLocation;
+    }
+
+    public static Optional<Field> parseField(FieldDeclaration n) {
+        Field field = new Field();
+        if (n.getVariables().size() > 0) {
+            VariableDeclarator vd = n.getVariables().get(0);
+            String variableName = vd.getNameAsString();
+            if (variableName.toLowerCase().contains("service") || variableName.toLowerCase().contains("repository")) {
+                field.setFieldVariable(vd.getNameAsString());
+                if (vd.getType() != null) {
+                    field.setFieldClass(vd.getTypeAsString());
+                    field.setMethodLocation(parseMethodLocation(n));
+                    field.setLine(n.getBegin().get().line);
+                }
+                return Optional.of(field);
+            }
+        }
+        return Optional.empty();
+    }
 }

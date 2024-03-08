@@ -201,8 +201,11 @@ public class VisitorService {
 
           Optional<Expression> scope = n.getScope();
 
-          if (scope.isPresent()) {
-            if (scope.get() instanceof NameExpr) {
+                    if (scope.isPresent()) {
+                        if (scope.get() instanceof NameExpr) {
+                            Id id = new Id();
+                            id.setLocation(file.getAbsolutePath());
+                            id.setProject(msName);
 
               // TODO isPresent()
               int lineNumber = n.getBegin().get().line;
@@ -218,7 +221,7 @@ public class VisitorService {
                 methodCall.setCalledServiceId(name);
                 MethodCallExpr methodCallExpr = (MethodCallExpr) fae.getParentNode().get();
                 methodCall.setCalledMethodName(methodCallExpr.getNameAsString());
-                //                                methodCall.setId(id);
+                              methodCall.setId(id);
                 // register method call to cache
                 CachingService.getCache().getMethodCallList().add(methodCall);
               }
@@ -232,7 +235,7 @@ public class VisitorService {
                 methodCall.setCalledServiceId(name);
                 MethodCallExpr methodCallExpr = (MethodCallExpr) fae.getParentNode().get();
                 methodCall.setCalledMethodName(methodCallExpr.getNameAsString());
-                //                                methodCall.setMsId(msId);
+                                                methodCall.setId(id);
                 // register method call to cache
                 CachingService.getCache().getMethodCallList().add(methodCall);
               } else if (name.equals("restTemplate")) {
@@ -241,7 +244,7 @@ public class VisitorService {
                 msRestCall.setLineNumber(lineNumber);
                 MethodLocation methodLocationCall = parseMethodLocation(n);
                 msRestCall.setMethodLocation(methodLocationCall);
-                //                                msRestCall.setMsId(msId);
+                                                msRestCall.setId(id);
                 CachingService.getCache().getRestCallList().add(msRestCall);
               }
             }
@@ -263,33 +266,19 @@ public class VisitorService {
 
           Id id = new Id();
           id.setProject(msName);
+          id.setLocation(file.getAbsolutePath());
+          Optional<Field> f = ParserService.parseField(n);
+          if(f.isPresent()) {
+            f.get().setId(id);
+            CachingService.getCache().getFieldList().add(f.get());
+          }
 
-          visitFieldDeclaration(n, id);
+
         }
       }.visit(StaticJavaParser.parse(file), null);
       // System.out.println(); // empty line
     } catch (IOException e) {
       throw new RuntimeException(e);
-    }
-  }
-
-  public void visitFieldDeclaration(FieldDeclaration n, Id id) {
-    Field msField = new Field();
-    if (n.getVariables().size() > 0) {
-      VariableDeclarator vd = n.getVariables().get(0);
-      String variableName = vd.getNameAsString();
-      if (variableName.toLowerCase().contains("service")
-          || variableName.toLowerCase().contains("repository")) {
-        msField.setFieldVariable(vd.getNameAsString());
-        if (vd.getType() != null) {
-          msField.setFieldClass(vd.getTypeAsString());
-          msField.setMethodLocation(parseMethodLocation(n));
-          msField.setLine(n.getBegin().get().line);
-          msField.setId(id);
-
-          CachingService.getCache().getFieldList().add(msField);
-        }
-      }
     }
   }
 }
