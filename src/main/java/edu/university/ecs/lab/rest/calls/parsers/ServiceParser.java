@@ -6,7 +6,7 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
-import edu.university.ecs.lab.rest.calls.models.RestService;
+import edu.university.ecs.lab.common.models.rest.RestService;
 import edu.university.ecs.lab.rest.calls.utils.StringParserUtils;
 
 import java.io.File;

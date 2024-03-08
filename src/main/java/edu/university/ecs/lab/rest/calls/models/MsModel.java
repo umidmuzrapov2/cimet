@@ -1,5 +1,6 @@
 package edu.university.ecs.lab.rest.calls.models;
 
+import edu.university.ecs.lab.common.models.rest.*;
 import lombok.Data;
 
 import java.util.ArrayList;

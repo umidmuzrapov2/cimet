@@ -1,5 +1,6 @@
 package edu.university.ecs.lab.rest.calls.services;
 
+import edu.university.ecs.lab.common.models.rest.*;
 import edu.university.ecs.lab.rest.calls.models.*;
 import edu.university.ecs.lab.rest.calls.parsers.*;
 
@@ -18,7 +19,7 @@ public class RestModelService {
    * @param pathToMs the path to the microservice TLD
    * @return model of a single service containing the extracted endpoints and dependencies
    */
-  public MsModel recursivelyScanFiles(String rootPath, String pathToMs) {
+  public static MsModel recursivelyScanFiles(String rootPath, String pathToMs) {
     String repoPath = rootPath + pathToMs;
     System.out.println("Scanning repository '" + repoPath + "'...");
     MsModel model = new MsModel();
@@ -57,7 +58,7 @@ public class RestModelService {
    * @param restEndpoints the list of endpoints
    * @param calls the list of calls to other services
    */
-  private void scanDirectory(File directory, List<RestEndpoint> restEndpoints, List<RestService> restServices,
+  public static void scanDirectory(File directory, List<RestEndpoint> restEndpoints, List<RestService> restServices,
                              List<RestDTO> restDTOs, List<RestRepository> restRepos, List<RestEntity> restEntities,
                              List<RestCall> calls) {
     File[] files = directory.listFiles();
@@ -80,7 +81,7 @@ public class RestModelService {
    * @param restEndpoints the list of endpoints
    * @param calls the list of calls to other services
    */
-  private void scanFile(File file, List<RestEndpoint> restEndpoints, List<RestService> restServices,
+  public static void scanFile(File file, List<RestEndpoint> restEndpoints, List<RestService> restServices,
                         List<RestDTO> restDTOs, List<RestRepository> restRepos, List<RestEntity> restEntities,
                         List<RestCall> calls) {
     try {

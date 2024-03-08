@@ -3,8 +3,8 @@ package edu.university.ecs.lab.rest.calls.parsers;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
-import edu.university.ecs.lab.rest.calls.models.RestEntity;
-import edu.university.ecs.lab.rest.calls.models.RestRepository;
+import edu.university.ecs.lab.common.models.rest.RestEntity;
+import edu.university.ecs.lab.common.models.rest.RestRepository;
 import edu.university.ecs.lab.rest.calls.utils.StringParserUtils;
 
 import java.io.File;

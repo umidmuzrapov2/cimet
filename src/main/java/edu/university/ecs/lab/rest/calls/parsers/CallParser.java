@@ -8,8 +8,8 @@ import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.*;
 import edu.university.ecs.lab.rest.calls.utils.StringParserUtils;
-import edu.university.ecs.lab.rest.calls.models.RestCall;
-import edu.university.ecs.lab.rest.calls.models.RestCallMethod;
+import edu.university.ecs.lab.common.models.rest.RestCall;
+import edu.university.ecs.lab.common.models.rest.RestCallMethod;
 
 import java.io.File;
 import java.io.IOException;
