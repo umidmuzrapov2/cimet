@@ -105,8 +105,8 @@ public class DeltaExtractionService {
           "Change impact of type " + entry.getChangeType() + " detected in " + entry.getNewPath());
 
       JsonObjectBuilder jout = Json.createObjectBuilder();
-      jout.add("local-previous", localPath);
-      jout.add("change-type", entry.getChangeType().name());
+      jout.add("localPath", localPath);
+      jout.add("changeType", entry.getChangeType().name());
       jout.add("changes", deltaChanges);
 
       outputBuilder.add(entry.getNewId().name(), jout);
