@@ -9,10 +9,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class Field extends ParentMethod {
+public class Field extends MethodLocation {
   private Id id;
   private String fieldClass;
   private String fieldVariable;
-  private ParentMethod parentMethod;
+  private MethodLocation methodLocation;
   private int line;
 }

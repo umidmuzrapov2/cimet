@@ -32,8 +32,11 @@ public class SetupService {
         }
     }
 
-//    public static void cloneRepositories(InputConfig inputConfig) throws Exception {
-//        GitCloneService cloneService = new GitCloneService(inputConfig.getOutputPath());
-//        cloneService.cloneRemote(inputConfig.getRepositories().toArray(new InputRepository[0]));
-//    }
+    public static void cloneRepositories(InputConfig inputConfig) throws Exception {
+        GitCloneService cloneService = new GitCloneService(inputConfig.getClonePath());
+
+        for(InputRepository inputRepository : inputConfig.getRepositories()) {
+            cloneService.cloneRemote(inputRepository);
+        }
+    }
 }
