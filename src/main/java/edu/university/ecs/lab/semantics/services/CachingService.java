@@ -6,19 +6,12 @@ import lombok.AllArgsConstructor;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
-import com.google.gson.reflect.TypeToken;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import edu.university.ecs.lab.semantics.models.*;
-
 
 @AllArgsConstructor
 public class CachingService {
     // Generally if default path is used, we will read from location we write to
-    private static final String DEFAULT_WRITE_PATH = "\\output";
+    private static final String DEFAULT_WRITE_PATH = "\\out";
     private static final String PROJECT_PATH =  System.getProperty("user.dir");
     private final String writePath, readPath;
 

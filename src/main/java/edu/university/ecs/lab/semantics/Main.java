@@ -4,11 +4,7 @@ import edu.university.ecs.lab.common.config.InputConfig;
 import edu.university.ecs.lab.semantics.services.CachingService;
 import edu.university.ecs.lab.semantics.services.SetupService;
 import edu.university.ecs.lab.semantics.services.VisitorService;
-import javassist.compiler.ast.Visitor;
-import org.checkerframework.checker.units.qual.C;
-
 import java.io.File;
-import java.io.FilenameFilter;
 
 public class Main {
 
@@ -17,11 +13,15 @@ public class Main {
         InputConfig config = SetupService.loadConfig(configPath);
 //        SetupService.cloneRepositories(config);
 
-        File file = new File("C:\\Users\\Gabriel_Goulis1\\IdeaProjects\\curr-cimet\\out\\train-ticket-microservices");
+        String s = System.getProperty("user.dir") + File.separator + config.getClonePath() + "\\train-ticket-microservices";
+        File file = new File(s);
+
+
         for(String childName : file.list()) {
             File f = new File(file.getAbsoluteFile(), childName);
             if(f.isDirectory() && f.getName().contains("ts")) {
-                VisitorService.processRoot(f);
+                VisitorService visitorService = new VisitorService(f.getName(), f);
+                visitorService.processRoot();
             }
         }
 
