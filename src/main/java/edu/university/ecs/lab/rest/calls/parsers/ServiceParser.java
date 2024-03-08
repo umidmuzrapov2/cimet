@@ -14,9 +14,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Class for parsing REST services from source files
- */
+/** Class for parsing REST services from source files */
 public class ServiceParser {
   /**
    * Parse the REST services from the given source file.

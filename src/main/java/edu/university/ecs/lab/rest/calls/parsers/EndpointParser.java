@@ -104,7 +104,8 @@ public class EndpointParser {
 
           restEndpoint.setSourceFile(sourceFile.getCanonicalPath());
           restEndpoint.setUrl(StringParserUtils.mergePaths(classLevelPath, pathFromAnnotation(ae)));
-          restEndpoint.setParentMethod(packageName + "." + className + "." + method.getMethodName());
+          restEndpoint.setParentMethod(
+              packageName + "." + className + "." + method.getMethodName());
           restEndpoint.setClassName(className);
           restEndpoint.setMethod(method);
           restEndpoint.setServices(services);

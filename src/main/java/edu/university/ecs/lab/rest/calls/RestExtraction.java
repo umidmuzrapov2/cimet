@@ -66,7 +66,8 @@ public class RestExtraction {
   private static void writeToIntermediateRepresentation(
       InputConfig inputConfig, Map<String, MsModel> msEndpointsMap) throws IOException {
 
-    String outputPath = System.getProperty(SYS_USER_DIR) + File.separator + inputConfig.getOutputPath();
+    String outputPath =
+        System.getProperty(SYS_USER_DIR) + File.separator + inputConfig.getOutputPath();
 
     File outputDir = new File(outputPath);
 
@@ -84,7 +85,12 @@ public class RestExtraction {
     JsonObject jout =
         MsFileUtils.constructJsonMsSystem(scanner.nextLine(), "0.0.1", msEndpointsMap);
 
-    String outputName = outputPath + File.separator + "rest-extraction-output-[" + (new Date()).getTime() + "].json";
+    String outputName =
+        outputPath
+            + File.separator
+            + "rest-extraction-output-["
+            + (new Date()).getTime()
+            + "].json";
 
     MsJsonWriter.writeJsonToFile(jout, outputName);
     System.out.println("Successfully wrote rest extraction to: \"" + outputName + "\"");
@@ -101,7 +107,8 @@ public class RestExtraction {
     Map<String, MsModel> msModelMap = new HashMap<>();
 
     // Clone remote repositories
-    String clonePath = System.getProperty(SYS_USER_DIR) + File.separator + inputConfig.getClonePath();
+    String clonePath =
+        System.getProperty(SYS_USER_DIR) + File.separator + inputConfig.getClonePath();
 
     File cloneDir = new File(clonePath);
     if (!cloneDir.exists()) {
@@ -126,7 +133,8 @@ public class RestExtraction {
           path = msPath.substring(clonePath.length() + 1);
         }
 
-        model = RestModelService.recursivelyScanFiles(clonePath, msPath.substring(clonePath.length()));
+        model =
+            RestModelService.recursivelyScanFiles(clonePath, msPath.substring(clonePath.length()));
         assert model != null;
 
         model.setCommit(inputRepository.getBaseCommit());
@@ -141,43 +149,52 @@ public class RestExtraction {
 
   // todo: this might not be the best way to go about this
   private static void extractCallDestinations(Map<String, MsModel> msModelMap) {
-    msModelMap.forEach((name, model) -> {
-      model.getRestCalls().forEach(call -> {
-        String callUrl = call.getUrl();
-        String httpMethod = call.getHttpMethod();
+    msModelMap.forEach(
+        (name, model) -> {
+          model
+              .getRestCalls()
+              .forEach(
+                  call -> {
+                    String callUrl = call.getUrl();
+                    String httpMethod = call.getHttpMethod();
 
-        RestEndpoint matchingEndpoint = null;
+                    RestEndpoint matchingEndpoint = null;
 
-        // iterate until either endpoint is found OR entire URL has been scanned
-        while (Objects.isNull(matchingEndpoint) && callUrl.contains("/")) {
-          final String tmpCallUrl = callUrl;
+                    // iterate until either endpoint is found OR entire URL has been scanned
+                    while (Objects.isNull(matchingEndpoint) && callUrl.contains("/")) {
+                      final String tmpCallUrl = callUrl;
 
-          for (MsModel ms : msModelMap.values()) {
-            matchingEndpoint = ms.getRestEndpoints().stream()
-                    .filter(endpoint -> (endpoint.getUrl().equals(tmpCallUrl) || endpoint.getUrl().contains(tmpCallUrl))
-                            && endpoint.getHttpMethod().equals(httpMethod))
-                    .findFirst().orElse(null);
+                      for (MsModel ms : msModelMap.values()) {
+                        matchingEndpoint =
+                            ms.getRestEndpoints().stream()
+                                .filter(
+                                    endpoint ->
+                                        (endpoint.getUrl().equals(tmpCallUrl)
+                                                || endpoint.getUrl().contains(tmpCallUrl))
+                                            && endpoint.getHttpMethod().equals(httpMethod))
+                                .findFirst()
+                                .orElse(null);
 
-            if (Objects.nonNull(matchingEndpoint)) {
-              break;
-            }
-          }
+                        if (Objects.nonNull(matchingEndpoint)) {
+                          break;
+                        }
+                      }
 
-          // Endpoint still not found? Try chopping off beginning of url by each '/'
-          if (Objects.isNull(matchingEndpoint)) {
-            callUrl = callUrl.substring(1);
+                      // Endpoint still not found? Try chopping off beginning of url by each '/'
+                      if (Objects.isNull(matchingEndpoint)) {
+                        callUrl = callUrl.substring(1);
 
-            int slashNdx = callUrl.indexOf("/");
-            if (slashNdx > 0) {
-              callUrl = callUrl.substring(slashNdx);
-            }
-          }
-        }
+                        int slashNdx = callUrl.indexOf("/");
+                        if (slashNdx > 0) {
+                          callUrl = callUrl.substring(slashNdx);
+                        }
+                      }
+                    }
 
-        if (Objects.nonNull(matchingEndpoint)) {
-          call.setDestFile(matchingEndpoint.getSourceFile());
-        }
-      });
-    });
+                    if (Objects.nonNull(matchingEndpoint)) {
+                      call.setDestFile(matchingEndpoint.getSourceFile());
+                    }
+                  });
+        });
   }
 }

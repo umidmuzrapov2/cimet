@@ -1,13 +1,13 @@
-//package edu.university.ecs.lab.semantics.services;
+// package edu.university.ecs.lab.semantics.services;
 //
-//import edu.university.ecs.lab.semantics.models.enums.ClassRole;
-//import edu.university.ecs.lab.semantics.models.*;
+// import edu.university.ecs.lab.semantics.models.enums.ClassRole;
+// import edu.university.ecs.lab.semantics.models.*;
 //
-//import java.util.List;
-//import java.util.Optional;
-//import java.util.stream.Collectors;
+// import java.util.List;
+// import java.util.Optional;
+// import java.util.stream.Collectors;
 //
-//public class FlowService {
+// public class FlowService {
 //
 //    /** Main function called to build flows and store them in Cache */
 //    public void buildFlows() {
@@ -43,7 +43,8 @@
 //                            // ServiceMethod.get().getMethodName());
 //                            // 5. get rest calls
 //                            List<RestCall> restCalls = findRestCalls(flow.getServiceMethod());
-//                            //                            System.err.println("REST CALLS = " + restCalls.size());
+//                            //                            System.err.println("REST CALLS = " +
+// restCalls.size());
 //                            flow.setRestCalls(restCalls);
 //                            // 6. find method call in the service
 //                            Optional<MethodCall> repositoryMethodCall =
@@ -54,7 +55,8 @@
 //                                // 7. find repository variable
 //                                Optional<Field> repositoryField =
 //                                        findRepositoryField(
-//                                                flow.getService(), flow.getRepositoryMethodCall());
+//                                                flow.getService(),
+// flow.getRepositoryMethodCall());
 //                                if (repositoryField.isPresent()) {
 //                                    flow.setServiceRepositoryField(repositoryField.get());
 //                                    // 8. find repository class
@@ -98,7 +100,8 @@
 //                .filter(
 //                        n ->
 //                                n.getId().getPath().equals(repository.getId().getPath())
-//                                        && n.getMethodName().equals(RepositoryMethodCall.getCalledMethodName()))
+//                                        &&
+// n.getMethodName().equals(RepositoryMethodCall.getCalledMethodName()))
 //                .findFirst();
 //    }
 //
@@ -127,7 +130,8 @@
 //                .filter(
 //                        n ->
 //                                n.getId().getPath().equals(Service.getId().getPath())
-//                                        && n.getFieldVariable().equals(repositoryMethodCall.getCalledServiceId()))
+//                                        &&
+// n.getFieldVariable().equals(repositoryMethodCall.getCalledServiceId()))
 //                .findFirst();
 //    }
 //
@@ -144,7 +148,8 @@
 //                .filter(
 //                        n ->
 //                                n.getId().getPath().equals(Service.getId().getPath())
-//                                        && n.getParentMethodName().equals(ServiceMethod.getMethodName()))
+//                                        &&
+// n.getParentMethodName().equals(ServiceMethod.getMethodName()))
 //                .findFirst();
 //    }
 //
@@ -161,7 +166,8 @@
 //                .filter(
 //                        n ->
 //                                n.getId().getPath().equals(Service.getId().getPath())
-//                                        && n.getMethodName().equals(controllerServiceMethodCall.getCalledMethodName()))
+//                                        &&
+// n.getMethodName().equals(controllerServiceMethodCall.getCalledMethodName()))
 //                .findFirst();
 //    }
 //
@@ -176,7 +182,8 @@
 //                .filter(
 //                        n ->
 //                                n.getParentClassName().equals(MethodService.getClassName())
-//                                        && n.getParentMethodName().equals(MethodService.getMethodName()))
+//                                        &&
+// n.getParentMethodName().equals(MethodService.getMethodName()))
 //                .collect(Collectors.toList());
 //    }
 //
@@ -188,7 +195,8 @@
 //     */
 //    private Optional<Class> findService(Field ControllerServiceField) {
 //        return Cache.ClassList.stream()
-//                .filter(n -> n.getClassName().equals(ControllerServiceField.getFieldClass() + "Impl"))
+//                .filter(n -> n.getClassName().equals(ControllerServiceField.getFieldClass() +
+// "Impl"))
 //                .findFirst();
 //    }
 //
@@ -203,7 +211,8 @@
 //                .filter(
 //                        n ->
 //                                n.getId().getPath().equals(MethodCall.getId().getPath())
-//                                        && n.getFieldVariable().equals(MethodCall.getCalledServiceId()))
+//                                        &&
+// n.getFieldVariable().equals(MethodCall.getCalledServiceId()))
 //                .findFirst();
 //    }
 //
@@ -252,7 +261,8 @@
 //                .filter(
 //                        n ->
 //                                n.getParentMethodName().equals(ControllerMethod.getMethodName())
-//                                        && n.getId().getPath().equals(ControllerMethod.getId().getPath()))
+//                                        &&
+// n.getId().getPath().equals(ControllerMethod.getId().getPath()))
 //                .findFirst();
 //    }
-//}
+// }

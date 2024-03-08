@@ -38,7 +38,8 @@ public class RestModelService {
       return null;
     }
 
-    scanDirectory(localDir, restEndpoints, restServices, restDTOs, restRepositories, restEntities, calls);
+    scanDirectory(
+        localDir, restEndpoints, restServices, restDTOs, restRepositories, restEntities, calls);
 
     model.setRestEndpoints(restEndpoints);
     model.setRestServices(restServices);
@@ -58,15 +59,21 @@ public class RestModelService {
    * @param restEndpoints the list of endpoints
    * @param calls the list of calls to other services
    */
-  public static void scanDirectory(File directory, List<RestEndpoint> restEndpoints, List<RestService> restServices,
-                             List<RestDTO> restDTOs, List<RestRepository> restRepos, List<RestEntity> restEntities,
-                             List<RestCall> calls) {
+  public static void scanDirectory(
+      File directory,
+      List<RestEndpoint> restEndpoints,
+      List<RestService> restServices,
+      List<RestDTO> restDTOs,
+      List<RestRepository> restRepos,
+      List<RestEntity> restEntities,
+      List<RestCall> calls) {
     File[] files = directory.listFiles();
 
     if (files != null) {
       for (File file : files) {
         if (file.isDirectory()) {
-          scanDirectory(file, restEndpoints, restServices, restDTOs, restRepos, restEntities, calls);
+          scanDirectory(
+              file, restEndpoints, restServices, restDTOs, restRepos, restEntities, calls);
         } else if (file.getName().endsWith(".java")) {
           scanFile(file, restEndpoints, restServices, restDTOs, restRepos, restEntities, calls);
         }
@@ -81,9 +88,14 @@ public class RestModelService {
    * @param restEndpoints the list of endpoints
    * @param calls the list of calls to other services
    */
-  public static void scanFile(File file, List<RestEndpoint> restEndpoints, List<RestService> restServices,
-                        List<RestDTO> restDTOs, List<RestRepository> restRepos, List<RestEntity> restEntities,
-                        List<RestCall> calls) {
+  public static void scanFile(
+      File file,
+      List<RestEndpoint> restEndpoints,
+      List<RestService> restServices,
+      List<RestDTO> restDTOs,
+      List<RestRepository> restRepos,
+      List<RestEntity> restEntities,
+      List<RestCall> calls) {
     try {
       if (file.getName().contains("Controller")) {
         List<RestEndpoint> fileRestEndpoints = EndpointParser.parseEndpoints(file);
@@ -105,7 +117,8 @@ public class RestModelService {
         restRepos.addAll(fileRestRepos);
       }
 
-      if (file.getParent().toLowerCase().contains("entity") || file.getParent().toLowerCase().contains("model")) {
+      if (file.getParent().toLowerCase().contains("entity")
+          || file.getParent().toLowerCase().contains("model")) {
         List<RestEntity> fileRestEntities = RepositoryParser.parseEntities(file);
         restEntities.addAll(fileRestEntities);
       }

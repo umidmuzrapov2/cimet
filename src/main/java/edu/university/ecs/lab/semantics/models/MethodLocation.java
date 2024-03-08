@@ -6,11 +6,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 /**
- *  Here "parent" means encapsulating,
- *  each parent is the associated method that the
- *  current method call is encapsulated by. Same for the class
- *  and package.
- *
+ * Here "parent" means encapsulating, each parent is the associated method that the current method
+ * call is encapsulated by. Same for the class and package.
  */
 @Data
 @NoArgsConstructor
@@ -22,6 +19,6 @@ public class MethodLocation {
   private String parentPackageName;
 
   public String getParentMethodFullName() {
-      return parentPackageName + "." + parentClassName + "." + parentMethodName;
+    return parentPackageName + "." + parentClassName + "." + parentMethodName;
   }
 }

@@ -12,9 +12,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Class for parsing REST repositories from source files
- */
+/** Class for parsing REST repositories from source files */
 public class RepositoryParser {
   public static List<RestRepository> parseRepos(File sourceFile) throws IOException {
     List<RestRepository> restRepositories = new ArrayList<>();

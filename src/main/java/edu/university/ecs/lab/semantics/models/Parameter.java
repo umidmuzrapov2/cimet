@@ -4,9 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * A object representing a method argument in code
- */
+/** A object representing a method argument in code */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

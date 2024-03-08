@@ -69,7 +69,7 @@ public class DeltaExtractionService {
         continue;
       }
 
-      //String changeURL = gitFetchUtils.getGithubFileUrl(repo, entry);
+      // String changeURL = gitFetchUtils.getGithubFileUrl(repo, entry);
       System.out.println("Extracting changes from: " + path);
 
       String localPath = path + "/" + entry.getOldPath();
@@ -79,7 +79,7 @@ public class DeltaExtractionService {
       switch (entry.getChangeType()) {
         case MODIFY:
           // fetch changed file
-          //String fileContents = gitFetchUtils.fetchAndDecodeFile(changeURL);
+          // String fileContents = gitFetchUtils.fetchAndDecodeFile(changeURL);
 
           // compare differences with local path
           deltaChanges = comparisonUtils.extractDeltaChanges(localPath);
@@ -98,8 +98,6 @@ public class DeltaExtractionService {
           deltaChanges = Json.createObjectBuilder().build();
           break;
       }
-
-
 
       System.out.println(
           "Change impact of type " + entry.getChangeType() + " detected in " + entry.getNewPath());

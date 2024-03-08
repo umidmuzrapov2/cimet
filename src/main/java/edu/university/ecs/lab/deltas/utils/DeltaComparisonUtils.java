@@ -69,7 +69,14 @@ public class DeltaComparisonUtils {
 
     File localFile = new File(pathToLocal);
 
-    RestModelService.scanFile(localFile, restEndpoints, restServices, restDTOs, restRepositories, restEntities, restCalls);
+    RestModelService.scanFile(
+        localFile,
+        restEndpoints,
+        restServices,
+        restDTOs,
+        restRepositories,
+        restEntities,
+        restCalls);
 
     jsonObjectBuilder.add("restEndpoints", MsFileUtils.buildRestEndpoints("", restEndpoints));
     jsonObjectBuilder.add("restCalls", MsFileUtils.buildRestCalls(restCalls));

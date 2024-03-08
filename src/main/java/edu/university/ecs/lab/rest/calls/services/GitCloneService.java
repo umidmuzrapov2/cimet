@@ -52,14 +52,14 @@ public class GitCloneService {
         System.out.println("Git reset of " + repo.getRepoUrl() + " successful ");
       } else {
         throw new Exception(
-                "Git reset of " + repo.getRepoUrl() + " failed with status code: " + exitCode);
+            "Git reset of " + repo.getRepoUrl() + " failed with status code: " + exitCode);
       }
     } else {
       throw new Exception(
-              "Git clone of " + repo.getRepoUrl() + " failed with status code: " + exitCode);
+          "Git clone of " + repo.getRepoUrl() + " failed with status code: " + exitCode);
     }
 
-    //output = output.replaceAll("\\\\", "/");
+    // output = output.replaceAll("\\\\", "/");
 
     // add microservices to path
     if (Objects.nonNull(repo.getPaths()) && repo.getPaths().length > 0) {

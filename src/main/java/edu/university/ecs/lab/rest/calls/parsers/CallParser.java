@@ -68,8 +68,7 @@ public class CallParser {
 
               // get http methods for exchange method
               if (restTemplateMethod.getMethodName().equals("exchange")) {
-                restCall.setHttpMethod(
-                    getHttpMethodForExchange(mce.getArguments().toString()));
+                restCall.setHttpMethod(getHttpMethodForExchange(mce.getArguments().toString()));
               }
 
               // find url
@@ -234,11 +233,11 @@ public class CallParser {
     }
 
     if (str.endsWith("\"")) {
-      str = str.substring(0, str.length()-1);
+      str = str.substring(0, str.length() - 1);
     }
 
     if (str.endsWith("/")) {
-      str = str.substring(0, str.length()-1);
+      str = str.substring(0, str.length() - 1);
     }
 
     return str;

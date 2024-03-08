@@ -42,7 +42,8 @@ public class RestParser {
     return method;
   }
 
-  public static JavaClass extractJavaClass(File sourceFile, ClassOrInterfaceDeclaration cid) throws IOException {
+  public static JavaClass extractJavaClass(File sourceFile, ClassOrInterfaceDeclaration cid)
+      throws IOException {
     JavaClass javaClass = new JavaClass();
     javaClass.setClassName(cid.getNameAsString());
     javaClass.setSourceFile(sourceFile.getCanonicalPath());
@@ -50,7 +51,9 @@ public class RestParser {
     // find variables
     for (FieldDeclaration fd : cid.findAll(FieldDeclaration.class)) {
       for (VariableDeclarator variableDeclarator : fd.getVariables()) {
-        javaClass.addVariable(new JavaVariable(variableDeclarator.getNameAsString(), variableDeclarator.getTypeAsString()));
+        javaClass.addVariable(
+            new JavaVariable(
+                variableDeclarator.getNameAsString(), variableDeclarator.getTypeAsString()));
       }
     }
 

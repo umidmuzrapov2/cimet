@@ -4,8 +4,8 @@ import edu.university.ecs.lab.semantics.utils.UniqueIdGenerator;
 import lombok.Data;
 
 /**
- * This class identifies any particular model in the program, its location
- * and its associated project and gives an exact identifier to the model
+ * This class identifies any particular model in the program, its location and its associated
+ * project and gives an exact identifier to the model
  */
 @Data
 public class Id {
@@ -22,5 +22,4 @@ public class Id {
     this.project = project;
     this.location = location;
   }
-
 }

@@ -11,9 +11,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Class for parsing REST dtos from source files
- */
+/** Class for parsing REST dtos from source files */
 public class DTOParser {
   /**
    * Parse the REST dtos from the given source file
