@@ -1,14 +1,11 @@
 package edu.university.ecs.lab.deltas.utils;
 
-import com.github.javaparser.ParseProblemException;
-import com.github.javaparser.StaticJavaParser;
-import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
-import com.github.javaparser.ast.NodeList;
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
-import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.stmt.Statement;
+import edu.university.ecs.lab.common.models.rest.*;
+import edu.university.ecs.lab.common.utils.MsFileUtils;
 import edu.university.ecs.lab.deltas.models.ChangeInformation;
+import edu.university.ecs.lab.rest.calls.services.RestModelService;
 import org.eclipse.jgit.diff.DiffEntry;
 
 import javax.json.*;
@@ -18,7 +15,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /** Utility class for comparing differences between two files. */
 public class DeltaComparisonUtils {
@@ -57,64 +53,32 @@ public class DeltaComparisonUtils {
    * GitFetchUtils#fetchAndDecodeFile(String)} and the local file (serviceTLD/{@link
    * DiffEntry#getOldPath()}).
    *
-   * @param decodedFile the decoded file JSON
    * @param pathToLocal the path to the local file (serviceTLD/{@link DiffEntry#getOldPath()})
    * @return the differences between the two files as a JSON array
    * @throws IOException if an I/O error occurs
    */
-  public JsonArray extractDeltaChanges(String decodedFile, String pathToLocal) throws IOException {
-    JsonArrayBuilder jsonArrayBuilder = Json.createArrayBuilder();
+  public JsonObject extractDeltaChanges(String pathToLocal) {
+    JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
+
+    List<RestEndpoint> restEndpoints = new ArrayList<>();
+    List<RestService> restServices = new ArrayList<>();
+    List<RestDTO> restDTOs = new ArrayList<>();
+    List<RestRepository> restRepositories = new ArrayList<>();
+    List<RestEntity> restEntities = new ArrayList<>();
+    List<RestCall> restCalls = new ArrayList<>();
 
     File localFile = new File(pathToLocal);
 
-    CompilationUnit localCu = StaticJavaParser.parse(localFile);
+    RestModelService.scanFile(localFile, restEndpoints, restServices, restDTOs, restRepositories, restEntities, restCalls);
 
-    List<ChangeInformation> changedLines = findChangedLines(decodedFile.split("\n"), localFile);
+    jsonObjectBuilder.add("restEndpoints", MsFileUtils.buildRestEndpoints("", restEndpoints));
+    jsonObjectBuilder.add("restCalls", MsFileUtils.buildRestCalls(restCalls));
+    jsonObjectBuilder.add("services", MsFileUtils.buildRestServices(restServices));
+    jsonObjectBuilder.add("dtos", MsFileUtils.buildJavaClass(restDTOs));
+    jsonObjectBuilder.add("repositories", MsFileUtils.buildJavaClass(restRepositories));
+    jsonObjectBuilder.add("entities", MsFileUtils.buildJavaClass(restEntities));
 
-    // iterate through local file class and methods
-    for (ClassOrInterfaceDeclaration localCid :
-        localCu.findAll(ClassOrInterfaceDeclaration.class)) {
-      String className = localCid.getNameAsString();
-
-      // iterate through method declarations
-      for (MethodDeclaration localMd : localCid.findAll(MethodDeclaration.class)) {
-        String methodName = localMd.getNameAsString();
-
-        // get method body statements
-        NodeList<Statement> localStatements =
-            Objects.requireNonNull(localMd.getBody().orElse(null)).getStatements();
-
-        // iterate through all method statements
-        for (Statement localStatement : localStatements) {
-
-          // iterate through changes
-          for (ChangeInformation ci : changedLines) {
-            Statement changeStatement;
-
-            try {
-              changeStatement = StaticJavaParser.parseStatement(ci.getLocalLine());
-            } catch (ParseProblemException e) {
-              continue;
-            }
-
-            // change is contained within method statement?
-            if (containsStatement(localStatement, changeStatement)) {
-              JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
-
-              jsonObjectBuilder.add("className", className);
-              jsonObjectBuilder.add("methodName", methodName);
-              jsonObjectBuilder.add("remote-line", ci.getRemoteLine());
-              jsonObjectBuilder.add("local-line", ci.getLocalLine());
-              jsonObjectBuilder.add("line-number", ci.getLineNumber());
-
-              jsonArrayBuilder.add(jsonObjectBuilder.build());
-            }
-          }
-        }
-      }
-    }
-
-    return jsonArrayBuilder.build();
+    return jsonObjectBuilder.build();
   }
 
   /**

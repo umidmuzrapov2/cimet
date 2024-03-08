@@ -3,11 +3,7 @@ package edu.university.ecs.lab.rest.calls.parsers;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
-import com.github.javaparser.ast.body.FieldDeclaration;
-import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.body.VariableDeclarator;
-import edu.university.ecs.lab.common.models.JavaVariable;
-import edu.university.ecs.lab.rest.calls.models.RestDTO;
+import edu.university.ecs.lab.common.models.rest.RestDTO;
 import edu.university.ecs.lab.rest.calls.utils.StringParserUtils;
 
 import java.io.File;

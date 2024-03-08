@@ -4,8 +4,8 @@ import edu.university.ecs.lab.common.config.ConfigUtil;
 import edu.university.ecs.lab.common.config.InputConfig;
 import edu.university.ecs.lab.common.config.InputRepository;
 import edu.university.ecs.lab.rest.calls.models.MsModel;
-import edu.university.ecs.lab.rest.calls.models.RestEndpoint;
-import edu.university.ecs.lab.rest.calls.utils.MsFileUtils;
+import edu.university.ecs.lab.common.models.rest.RestEndpoint;
+import edu.university.ecs.lab.common.utils.MsFileUtils;
 import edu.university.ecs.lab.common.writers.MsJsonWriter;
 import edu.university.ecs.lab.rest.calls.services.GitCloneService;
 import edu.university.ecs.lab.rest.calls.services.RestModelService;
@@ -30,8 +30,6 @@ public class RestExtraction {
 
   /** system property for user directory */
   private static final String SYS_USER_DIR = "user.dir";
-
-  private static final RestModelService REST_MODEL_SERVICE = new RestModelService();
 
   /**
    * Main method entry point to intermediate extraction
@@ -128,7 +126,9 @@ public class RestExtraction {
           path = msPath.substring(clonePath.length() + 1);
         }
 
-        model = REST_MODEL_SERVICE.recursivelyScanFiles(clonePath, msPath.substring(clonePath.length()));
+        model = RestModelService.recursivelyScanFiles(clonePath, msPath.substring(clonePath.length()));
+        assert model != null;
+
         model.setCommit(inputRepository.getBaseCommit());
         model.setId(msPath.substring(msPath.lastIndexOf('/') + 1));
 

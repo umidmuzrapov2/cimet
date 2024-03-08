@@ -1,8 +1,11 @@
-package edu.university.ecs.lab.rest.calls.utils;
+package edu.university.ecs.lab.common.utils;
 
 import edu.university.ecs.lab.common.models.JavaClass;
 import edu.university.ecs.lab.common.models.JavaMethod;
 import edu.university.ecs.lab.common.models.JavaVariable;
+import edu.university.ecs.lab.common.models.rest.RestCall;
+import edu.university.ecs.lab.common.models.rest.RestEndpoint;
+import edu.university.ecs.lab.common.models.rest.RestService;
 import edu.university.ecs.lab.rest.calls.models.*;
 
 import javax.json.*;
@@ -68,7 +71,7 @@ public class MsFileUtils {
    * @param restEndpoints list of rest endpoints
    * @return rest endpoint json list
    */
-  private static JsonArray buildRestEndpoints(String msName, List<RestEndpoint> restEndpoints) {
+  public static JsonArray buildRestEndpoints(String msName, List<RestEndpoint> restEndpoints) {
     JsonArrayBuilder endpointsArrayBuilder = Json.createArrayBuilder();
 
     for (RestEndpoint restEndpoint : restEndpoints) {
@@ -111,7 +114,7 @@ public class MsFileUtils {
    * @param restServices list of rest services
    * @return rest service json list
    */
-  private static JsonArray buildRestServices(List<RestService> restServices) {
+  public static JsonArray buildRestServices(List<RestService> restServices) {
     JsonArrayBuilder serviceArrayBuilder = Json.createArrayBuilder();
 
     for (RestService restService : restServices) {
@@ -142,7 +145,7 @@ public class MsFileUtils {
    * @param classList list of generic java classes
    * @return class json list
    */
-  private static JsonArray buildJavaClass(List<? extends JavaClass> classList) {
+  public static JsonArray buildJavaClass(List<? extends JavaClass> classList) {
     JsonArrayBuilder dtoArrayBuilder = Json.createArrayBuilder();
 
     for (JavaClass javaClass : classList) {
@@ -165,7 +168,7 @@ public class MsFileUtils {
      * @param restCalls the list of calls
      * @return array of call objects
      */
-  private static JsonArray buildRestCalls(List<RestCall> restCalls) {
+  public static JsonArray buildRestCalls(List<RestCall> restCalls) {
     JsonArrayBuilder endpointsArrayBuilder = Json.createArrayBuilder();
 
     for (RestCall restCall : restCalls) {
@@ -184,7 +187,7 @@ public class MsFileUtils {
     return endpointsArrayBuilder.build();
   }
 
-  private static JsonArray addMethodArray(List<JavaMethod> methodList) {
+  public static JsonArray addMethodArray(List<JavaMethod> methodList) {
     JsonArrayBuilder methodArrayBuilder = Json.createArrayBuilder();
 
     for (JavaMethod method : methodList) {
@@ -200,7 +203,7 @@ public class MsFileUtils {
     return methodArrayBuilder.build();
   }
 
-  private static JsonArray addVariableArray(List<JavaVariable> variableList) {
+  public static JsonArray addVariableArray(List<JavaVariable> variableList) {
     JsonArrayBuilder variableArrayBuilder = Json.createArrayBuilder();
 
     for (JavaVariable javaVariable : variableList) {
