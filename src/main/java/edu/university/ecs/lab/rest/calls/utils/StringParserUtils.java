@@ -1,4 +1,4 @@
-package edu.university.ecs.lab.intermediate.utils;
+package edu.university.ecs.lab.rest.calls.utils;
 
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.PackageDeclaration;

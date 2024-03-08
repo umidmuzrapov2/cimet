@@ -1,13 +1,14 @@
-package edu.university.ecs.lab.intermediate;
+package edu.university.ecs.lab.rest.calls;
 
 import edu.university.ecs.lab.common.config.ConfigUtil;
 import edu.university.ecs.lab.common.config.InputConfig;
 import edu.university.ecs.lab.common.config.InputRepository;
-import edu.university.ecs.lab.common.models.rest.MsModel;
+import edu.university.ecs.lab.rest.calls.models.MsModel;
+import edu.university.ecs.lab.common.models.rest.RestEndpoint;
+import edu.university.ecs.lab.common.utils.MsFileUtils;
 import edu.university.ecs.lab.common.writers.MsJsonWriter;
-import edu.university.ecs.lab.intermediate.services.GitCloneService;
-import edu.university.ecs.lab.intermediate.services.RepositoryService;
-import edu.university.ecs.lab.intermediate.utils.MsFileUtils;
+import edu.university.ecs.lab.rest.calls.services.GitCloneService;
+import edu.university.ecs.lab.rest.calls.services.RestModelService;
 
 import javax.json.JsonObject;
 import java.io.File;
@@ -23,14 +24,12 @@ import java.util.*;
  *
  * <p>
  */
-public class IntermediateExtraction {
+public class RestExtraction {
   /** Exit code: error writing IR to json */
   private static final int BAD_IR_WRITE = 3;
 
   /** system property for user directory */
   private static final String SYS_USER_DIR = "user.dir";
-
-  private static final RepositoryService repositoryService = new RepositoryService();
 
   /**
    * Main method entry point to intermediate extraction
@@ -44,6 +43,7 @@ public class IntermediateExtraction {
 
     // Clone remote repositories and scan through each cloned repo to extract endpoints
     Map<String, MsModel> msDataMap = cloneAndScanServices(inputConfig);
+    assert msDataMap != null;
 
     // Scan through each endpoint to extract rest call destinations
     extractCallDestinations(msDataMap);
@@ -84,10 +84,10 @@ public class IntermediateExtraction {
     JsonObject jout =
         MsFileUtils.constructJsonMsSystem(scanner.nextLine(), "0.0.1", msEndpointsMap);
 
-    String outputName = outputPath + File.separator + "intermediate-output-[" + (new Date()).getTime() + "].json";
+    String outputName = outputPath + File.separator + "rest-extraction-output-[" + (new Date()).getTime() + "].json";
 
     MsJsonWriter.writeJsonToFile(jout, outputName);
-    System.out.println("Successfully wrote intermediate to: \"" + outputName + "\"");
+    System.out.println("Successfully wrote rest extraction to: \"" + outputName + "\"");
   }
 
   /**
@@ -126,7 +126,9 @@ public class IntermediateExtraction {
           path = msPath.substring(clonePath.length() + 1);
         }
 
-        model = repositoryService.recursivelyScanFiles(clonePath, msPath.substring(clonePath.length()));
+        model = RestModelService.recursivelyScanFiles(clonePath, msPath.substring(clonePath.length()));
+        assert model != null;
+
         model.setCommit(inputRepository.getBaseCommit());
         model.setId(msPath.substring(msPath.lastIndexOf('/') + 1));
 
@@ -137,12 +139,44 @@ public class IntermediateExtraction {
     return msModelMap;
   }
 
+  // todo: this might not be the best way to go about this
   private static void extractCallDestinations(Map<String, MsModel> msModelMap) {
-    // TODO: scan and find source file matching url
-
     msModelMap.forEach((name, model) -> {
       model.getRestCalls().forEach(call -> {
-        String callMethod = call.getCallMethod();
+        String callUrl = call.getUrl();
+        String httpMethod = call.getHttpMethod();
+
+        RestEndpoint matchingEndpoint = null;
+
+        // iterate until either endpoint is found OR entire URL has been scanned
+        while (Objects.isNull(matchingEndpoint) && callUrl.contains("/")) {
+          final String tmpCallUrl = callUrl;
+
+          for (MsModel ms : msModelMap.values()) {
+            matchingEndpoint = ms.getRestEndpoints().stream()
+                    .filter(endpoint -> (endpoint.getUrl().equals(tmpCallUrl) || endpoint.getUrl().contains(tmpCallUrl))
+                            && endpoint.getHttpMethod().equals(httpMethod))
+                    .findFirst().orElse(null);
+
+            if (Objects.nonNull(matchingEndpoint)) {
+              break;
+            }
+          }
+
+          // Endpoint still not found? Try chopping off beginning of url by each '/'
+          if (Objects.isNull(matchingEndpoint)) {
+            callUrl = callUrl.substring(1);
+
+            int slashNdx = callUrl.indexOf("/");
+            if (slashNdx > 0) {
+              callUrl = callUrl.substring(slashNdx);
+            }
+          }
+        }
+
+        if (Objects.nonNull(matchingEndpoint)) {
+          call.setDestFile(matchingEndpoint.getSourceFile());
+        }
       });
     });
   }

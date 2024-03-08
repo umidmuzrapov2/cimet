@@ -1,17 +1,16 @@
-package edu.university.ecs.lab.intermediate.services;
+package edu.university.ecs.lab.rest.calls.parsers;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.expr.MemberValuePair;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import edu.university.ecs.lab.common.models.JavaMethod;
 import edu.university.ecs.lab.common.models.rest.RestEndpoint;
-import edu.university.ecs.lab.intermediate.utils.StringParserUtils;
+import edu.university.ecs.lab.rest.calls.utils.StringParserUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,10 +18,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Service for parsing REST endpoints from source files and describing them in relation to their
+ * Class for parsing REST endpoints from source files and describing them in relation to their
  * relative microservice.
  */
-public class EndpointExtractionService {
+public class EndpointParser {
   /**
    * Parse the REST endpoints from the given source file.
    *
@@ -30,7 +29,7 @@ public class EndpointExtractionService {
    * @return the list of parsed endpoints
    * @throws IOException if an I/O error occurs
    */
-  public List<RestEndpoint> parseEndpoints(File sourceFile) throws IOException {
+  public static List<RestEndpoint> parseEndpoints(File sourceFile) throws IOException {
     List<RestEndpoint> restEndpoints = new ArrayList<>();
 
     CompilationUnit cu = StaticJavaParser.parse(sourceFile);
@@ -52,7 +51,7 @@ public class EndpointExtractionService {
           ClassOrInterfaceType type = fd.getElementType().asClassOrInterfaceType();
 
           if (type.getNameAsString().contains("Service")) {
-            services.add(fd.getVariables().get(0).getNameAsString());
+            services.add(type.getNameAsString());
           }
         }
       }
@@ -66,23 +65,7 @@ public class EndpointExtractionService {
 
       // loop through methods
       for (MethodDeclaration md : cid.findAll(MethodDeclaration.class)) {
-
-        String methodName = md.getNameAsString();
-
-        NodeList<Parameter> parameterList = md.getParameters();
-        String parameter = "";
-        if (parameterList.size() != 0) {
-          parameter = "[";
-
-          for (int i = 0; i < parameterList.size(); i++) {
-            parameter = parameter + parameterList.get(i).toString();
-            if (i != parameterList.size() - 1) {
-              parameter = parameter + ", ";
-            } else {
-              parameter = parameter + "]";
-            }
-          }
-        }
+        JavaMethod method = RestParser.extractJavaMethod(md);
 
         // loop through annotations
         for (AnnotationExpr ae : md.getAnnotations()) {
@@ -121,10 +104,9 @@ public class EndpointExtractionService {
 
           restEndpoint.setSourceFile(sourceFile.getCanonicalPath());
           restEndpoint.setUrl(StringParserUtils.mergePaths(classLevelPath, pathFromAnnotation(ae)));
-          restEndpoint.setParentMethod(packageName + "." + className + "." + methodName);
-          restEndpoint.setMethodName(methodName);
-          restEndpoint.setParameter(parameter);
-          restEndpoint.setReturnType(md.getTypeAsString());
+          restEndpoint.setParentMethod(packageName + "." + className + "." + method.getMethodName());
+          restEndpoint.setClassName(className);
+          restEndpoint.setMethod(method);
           restEndpoint.setServices(services);
           restEndpoints.add(restEndpoint);
         }
@@ -140,7 +122,7 @@ public class EndpointExtractionService {
    * @param ae the annotation expression
    * @return the path else an empty string if not found or ae was null
    */
-  private String pathFromAnnotation(AnnotationExpr ae) {
+  private static String pathFromAnnotation(AnnotationExpr ae) {
     if (ae == null) {
       return "";
     }

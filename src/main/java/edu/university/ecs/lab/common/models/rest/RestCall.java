@@ -12,4 +12,5 @@ public class RestCall {
   private String destFile;
   private String httpMethod;
   private String callMethod;
+  private String callClass;
 }
