@@ -12,7 +12,6 @@ import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
 import edu.university.ecs.lab.semantics.models.*;
-import edu.university.ecs.lab.semantics.models.enums.ClassRole;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -33,14 +32,14 @@ public class ParserService {
     List<Annotation> annotations = parseAnnotations(n.getAnnotations());
 
     // If our method is a m
-    for(Annotation a : annotations) {
-      if(a.getAnnotationName().contains("Mapping") && a.getValue() != null) {
+    for (Annotation a : annotations) {
+      if (a.getAnnotationName().contains("Mapping") && a.getValue() != null) {
         a.setValue(a.getValue().replace("\"", ""));
-          if (restMapping != null) {
-              method.setApiEndpoint(restMapping + a.getValue());
-          } else {
-              method.setApiEndpoint(a.getValue());
-          }
+        if (restMapping != null) {
+          method.setApiEndpoint(restMapping + a.getValue());
+        } else {
+          method.setApiEndpoint(a.getValue());
+        }
       }
     }
 
@@ -142,7 +141,9 @@ public class ParserService {
       }
       if (e instanceof BinaryExpr) {
         BinaryExpr be = (BinaryExpr) e;
-        msRestCall.setApiEndpoint(be.toString().substring(be.toString().indexOf("\"") + 1, be.toString().lastIndexOf("\"")));
+        msRestCall.setApiEndpoint(
+            be.toString()
+                .substring(be.toString().indexOf("\"") + 1, be.toString().lastIndexOf("\"")));
       }
       if (e instanceof FieldAccessExpr) {
         FieldAccessExpr f = (FieldAccessExpr) e;

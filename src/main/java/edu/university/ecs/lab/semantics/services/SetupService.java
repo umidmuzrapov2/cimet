@@ -3,7 +3,6 @@ package edu.university.ecs.lab.semantics.services;
 import edu.university.ecs.lab.common.config.ConfigUtil;
 import edu.university.ecs.lab.common.config.InputConfig;
 import edu.university.ecs.lab.common.config.InputRepository;
-import edu.university.ecs.lab.deltas.services.DeltaExtractionService;
 import edu.university.ecs.lab.rest.calls.services.GitCloneService;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -12,7 +11,6 @@ import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
@@ -20,7 +18,6 @@ import org.eclipse.jgit.util.io.DisabledOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class SetupService {
 
@@ -59,7 +56,8 @@ public class SetupService {
 
   // The local repo is what we will use for the base commit for now. It's current state is the base
   // and we will just commit it to the current state of the remote counterpart
-  public static Map<String, List<String>> detectChangedFiles(Repository localRepo) throws Exception {
+  public static Map<String, List<String>> detectChangedFiles(Repository localRepo)
+      throws Exception {
     Map<String, List<String>> commitAndChangedFiles = null;
 
     try (Git git = new Git(localRepo)) {
@@ -98,25 +96,30 @@ public class SetupService {
         Collections.reverse(commitsToCheck);
 
         for (RevCommit commit : commitsToCheck) {
-          System.out.println("Commit: " + commit.getId().getName() + " - " + commit.getShortMessage());
+          System.out.println(
+              "Commit: " + commit.getId().getName() + " - " + commit.getShortMessage());
           if (commit.getParentCount() > 0) {
-            // Compare with the first parent, as we are interested in the changes introduced by this commit
+            // Compare with the first parent, as we are interested in the changes introduced by this
+            // commit
             RevCommit parent = revWalk.parseCommit(commit.getParent(0).getId());
 
-            AbstractTreeIterator oldTreeParser = new CanonicalTreeParser(null, localRepo.newObjectReader(), parent.getTree().getId());
-            AbstractTreeIterator newTreeParser = new CanonicalTreeParser(null, localRepo.newObjectReader(), commit.getTree().getId());
+            AbstractTreeIterator oldTreeParser =
+                new CanonicalTreeParser(
+                    null, localRepo.newObjectReader(), parent.getTree().getId());
+            AbstractTreeIterator newTreeParser =
+                new CanonicalTreeParser(
+                    null, localRepo.newObjectReader(), commit.getTree().getId());
 
             // List changed files between this commit and its parent
-            List<DiffEntry> diffs = git.diff()
-                    .setOldTree(oldTreeParser)
-                    .setNewTree(newTreeParser)
-                    .call();
+            List<DiffEntry> diffs =
+                git.diff().setOldTree(oldTreeParser).setNewTree(newTreeParser).call();
 
             commitAndChangedFiles = new HashMap<>();
 
             try (DiffFormatter formatter = new DiffFormatter(DisabledOutputStream.INSTANCE)) {
               commitAndChangedFiles.put(commit.getName(), new ArrayList<>());
-              System.out.println("Diffs for Commit " + commit.getName() + " from " + parent.getName());
+              System.out.println(
+                  "Diffs for Commit " + commit.getName() + " from " + parent.getName());
               formatter.setRepository(localRepo);
               for (DiffEntry entry : diffs) {
                 commitAndChangedFiles.get(commit.getName()).add(entry.getNewPath());
@@ -135,17 +138,16 @@ public class SetupService {
     }
 
     return commitAndChangedFiles;
-
   }
 
-    private static AbstractTreeIterator prepareTreeParser(Repository repository, ObjectId objectId) throws IOException {
-      try (RevWalk walk = new RevWalk(repository)) {
-        RevCommit commit = walk.parseCommit(objectId);
-        ObjectId treeId = commit.getTree().getId();
-        try (ObjectReader reader = repository.newObjectReader()) {
-          return new CanonicalTreeParser(null, reader, treeId);
-        }
+  private static AbstractTreeIterator prepareTreeParser(Repository repository, ObjectId objectId)
+      throws IOException {
+    try (RevWalk walk = new RevWalk(repository)) {
+      RevCommit commit = walk.parseCommit(objectId);
+      ObjectId treeId = commit.getTree().getId();
+      try (ObjectReader reader = repository.newObjectReader()) {
+        return new CanonicalTreeParser(null, reader, treeId);
       }
     }
-
+  }
 }

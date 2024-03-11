@@ -8,8 +8,8 @@ import lombok.NoArgsConstructor;
 /**
  * The method context represents where the method is relative to its surroundings
  *
- * Here "parent" means encapsulating, each parent is the associated method that the current method
- * call is encapsulated by. Same for the class and package.
+ * <p>Here "parent" means encapsulating, each parent is the associated method that the current
+ * method call is encapsulated by. Same for the class and package.
  */
 @Data
 @NoArgsConstructor

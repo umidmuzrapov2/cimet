@@ -28,5 +28,4 @@ public class Method {
   public void addArgument(Parameter parameter) {
     parameterList.add(parameter);
   }
-
 }

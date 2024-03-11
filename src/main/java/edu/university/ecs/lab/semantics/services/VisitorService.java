@@ -12,7 +12,6 @@ import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import edu.university.ecs.lab.semantics.models.*;
 import edu.university.ecs.lab.semantics.models.enums.ClassRole;
-import lombok.AllArgsConstructor;
 
 import java.io.File;
 import java.io.IOException;
@@ -162,8 +161,9 @@ public class VisitorService {
               // get annotation request mapping and value
             } else if (annotationExpr.getNameAsString().equals("Repository")) {
               jclass.setRole(ClassRole.REPOSITORY);
-            } else if(annotationExpr.getNameAsString().equals("RequestMapping")) {
-              requestMapping = annotationExpr.getChildNodes().get(1).toString().replaceAll("\"","");
+            } else if (annotationExpr.getNameAsString().equals("RequestMapping")) {
+              requestMapping =
+                  annotationExpr.getChildNodes().get(1).toString().replaceAll("\"", "");
             }
           }
           if (nl.size() == 0 && n.getNameAsString().contains("Service")) {
