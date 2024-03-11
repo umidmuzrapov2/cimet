@@ -2,11 +2,19 @@ package edu.university.ecs.lab.semantics.services;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+import edu.university.ecs.lab.semantics.models.*;
 import lombok.AllArgsConstructor;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Type;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 public class CachingService {
@@ -36,49 +44,43 @@ public class CachingService {
   /**
    * Parse saved cache files and loads them back into Cache
    *
-   * @param cachePath the path to where cache files are held
    */
-  //    public void loadCache(String cachePath) {
-  //
-  //        this.path = cachePath;
-  //
-  //        Gson gson = new Gson();
-  //
-  //        String data = readDataIntoString("msModulesList");
-  //        Type listOfMyClassObject = new TypeToken<ArrayList<String>>() {}.getType();
-  //        List<String> msModulesList = gson.fromJson(data, listOfMyClassObject);
-  //        Cache.modules = msModulesList;
-  //
-  //        data = readDataIntoString("msClassList");
-  //        listOfMyClassObject = new TypeToken<ArrayList<Class>>() {}.getType();
-  //        List<JClass> msClassList = gson.fromJson(data, listOfMyClassObject);
-  //        Cache.classList = msClassList;
-  //
-  //        data = readDataIntoString("msMethodList");
-  //        listOfMyClassObject = new TypeToken<ArrayList<Method>>() {}.getType();
-  //        List<Method> msMethodList = gson.fromJson(data, listOfMyClassObject);
-  //        Cache.msMethodList = msMethodList;
-  //
-  //        data = readDataIntoString("msMethodCallList");
-  //        listOfMyClassObject = new TypeToken<ArrayList<MsMethodCall>>() {}.getType();
-  //        List<MsMethodCall> msMethodCallList = gson.fromJson(data, listOfMyClassObject);
-  //        Cache.msMethodCallList = msMethodCallList;
-  //
-  //        data = readDataIntoString("msRestCallList");
-  //        listOfMyClassObject = new TypeToken<ArrayList<RestCall>>() {}.getType();
-  //        List<RestCall> msRestCallList = gson.fromJson(data, listOfMyClassObject);
-  //        Cache.msRestCallList = msRestCallList;
-  //
-  //        data = readDataIntoString("msFieldList");
-  //        listOfMyClassObject = new TypeToken<ArrayList<MsField>>() {}.getType();
-  //        List<MsField> msFieldList = gson.fromJson(data, listOfMyClassObject);
-  //        MsCache.msFieldList = msFieldList;
-  //
-  //        data = readDataIntoString("msFlowList");
-  //        listOfMyClassObject = new TypeToken<ArrayList<MsFlowEntity>>() {}.getType();
-  //        List<MsFlowEntity> msFlowEntities = gson.fromJson(data, listOfMyClassObject);
-  //        MsCache.msFlows = msFlowEntities;
-  //    }
+      public void loadCache() {
+          Gson gson = new Gson();
+          String data;
+
+          data = readDataIntoString("ClassList");
+
+          Type listOfMyClassObject;
+          listOfMyClassObject = new TypeToken<ArrayList<JClass>>() {}.getType();
+          List<JClass> classList = gson.fromJson(data, listOfMyClassObject);
+          CachingService.getCache().setClassList(classList);
+
+          data = readDataIntoString("MethodList");
+          listOfMyClassObject = new TypeToken<ArrayList<Method>>() {}.getType();
+          List<Method> methodList = gson.fromJson(data, listOfMyClassObject);
+          CachingService.getCache().setMethodList(methodList);
+
+          data = readDataIntoString("MethodCallList");
+          listOfMyClassObject = new TypeToken<ArrayList<MethodCall>>() {}.getType();
+          List<MethodCall> methodCallList = gson.fromJson(data, listOfMyClassObject);
+          CachingService.getCache().setMethodCallList(methodCallList);
+
+          data = readDataIntoString("RestCallList");
+          listOfMyClassObject = new TypeToken<ArrayList<RestCall>>() {}.getType();
+          List<RestCall> restCallList = gson.fromJson(data, listOfMyClassObject);
+          CachingService.getCache().setRestCallList(restCallList);
+
+          data = readDataIntoString("FieldList");
+          listOfMyClassObject = new TypeToken<ArrayList<Field>>() {}.getType();
+          List<Field> fieldList = gson.fromJson(data, listOfMyClassObject);
+          CachingService.getCache().setFieldList(fieldList);
+
+          data = readDataIntoString("FlowList");
+          listOfMyClassObject = new TypeToken<ArrayList<Flow>>() {}.getType();
+          List<Flow> flowList = gson.fromJson(data, listOfMyClassObject);
+          CachingService.getCache().setFlowList(flowList);
+      }
 
   /**
    * Utility function for reading json file into string format
@@ -86,15 +88,15 @@ public class CachingService {
    * @param name the name of the file
    * @return string representation of file data
    */
-  //    public String readDataIntoString(String name) {
-  //        String s = null;
-  //        try {
-  //            s = Files.readString(Paths.get(path + name + ".json"));
-  //        } catch (IOException e) {
-  //            e.printStackTrace();
-  //        }
-  //        return s;
-  //    }
+      public String readDataIntoString(String name) {
+          String s = null;
+          try {
+              s = Files.readString(Paths.get(readPath + "\\" + name + ".json"));
+          } catch (IOException e) {
+              e.printStackTrace();
+          }
+          return s;
+      }
 
   /**
    * Get's the cache instance managed by CachingService
@@ -115,5 +117,20 @@ public class CachingService {
     writeArrayList("FlowList", getCache().getFlowList());
     //        writeMap("msDependentsList", MsCache.msDependents);
     //        writeArrayList("msExtendedDependentsList", MsCache.msExtendedDependents);
+  }
+
+  public void clearCacheOfFile(String s) {
+      // Clear all instances of cache entries that are a changed file...
+      // TODO Check if it doesnt exist...
+      // TODO this can all be optimized, we are searching all for each file in a loop right now
+      getCache().setClassList(getCache().getClassList().stream().filter(x -> !Objects.equals(x.getId().getLocation(), s)).collect(Collectors.toList()));
+      getCache().setMethodList(getCache().getMethodList().stream().filter(x -> !Objects.equals(x.getId().getLocation(), s)).collect(Collectors.toList()));
+      getCache().setMethodCallList(getCache().getMethodCallList().stream().filter(x -> !Objects.equals(x.getId().getLocation(), s)).collect(Collectors.toList()));
+      getCache().setRestCallList(getCache().getRestCallList().stream().filter(x -> !Objects.equals(x.getId().getLocation(), s)).collect(Collectors.toList()));
+      getCache().setFieldList(getCache().getFieldList().stream().filter(x -> !Objects.equals(x.getId().getLocation(), s)).collect(Collectors.toList()));
+
+      // Clear flows they will be rebuilt
+      getCache().setFlowList(new ArrayList<>());
+
   }
 }

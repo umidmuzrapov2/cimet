@@ -24,12 +24,18 @@ import static edu.university.ecs.lab.semantics.services.ParserService.parseMetho
  * Service for processing files and storing information relevant to one microservice system.
  * Therefore, a new visitor service should be invoked for each system.
  */
-@AllArgsConstructor
 public class VisitorService {
+  public VisitorService(String msName, File root) {
+    this.msName = msName;
+    this.root = root;
+  }
+
   /** Represents the name of the scanned microservice system */
   private final String msName;
 
   private final File root;
+
+  private String requestMapping;
 
   /**
    * Function for visiting a particular file and updating Cache for that one file
@@ -40,7 +46,7 @@ public class VisitorService {
    * @param currFile the file to visit
    * @throws IllegalAccessException if the file is a directory
    */
-  public void processFile(File currFile) throws IllegalArgumentException {
+  public void processUpdate(File currFile) throws IllegalArgumentException {
     if (currFile.isDirectory()) {
       throw new IllegalArgumentException("Provided file cannot be a directory");
     }
@@ -102,13 +108,14 @@ public class VisitorService {
     if (role != null) {
       if (role.equals(ClassRole.CONTROLLER) || role.equals(ClassRole.SERVICE)) {
         visitClasses(file, role);
-        visitMethods(file, role);
+
+        visitMethods(file);
         visitMethodCalls(file);
-        visitFields(file, path);
+        visitFields(file);
 
       } else if (role.equals(ClassRole.REPOSITORY)) {
         visitClasses(file, role);
-        visitMethods(file, role);
+        visitMethods(file);
       }
     }
   }
@@ -143,6 +150,7 @@ public class VisitorService {
                       jclass.setPackageName(packageDeclaration.getNameAsString()));
             }
           }
+
           NodeList<AnnotationExpr> nl = n.getAnnotations();
           jclass.setAnnotations(ParserService.parseAnnotations(nl));
           jclass.setRole(role);
@@ -154,6 +162,8 @@ public class VisitorService {
               // get annotation request mapping and value
             } else if (annotationExpr.getNameAsString().equals("Repository")) {
               jclass.setRole(ClassRole.REPOSITORY);
+            } else if(annotationExpr.getNameAsString().equals("RequestMapping")) {
+              requestMapping = annotationExpr.getChildNodes().get(1).toString().replaceAll("\"","");
             }
           }
           if (nl.size() == 0 && n.getNameAsString().contains("Service")) {
@@ -170,13 +180,13 @@ public class VisitorService {
     }
   }
 
-  public void visitMethods(File file, ClassRole role) {
+  public void visitMethods(File file) {
     try {
       new VoidVisitorAdapter<Object>() {
         @Override
         public void visit(MethodDeclaration n, Object arg) {
           super.visit(n, arg);
-          Method m = ParserService.parseMethod(n, role);
+          Method m = ParserService.parseMethod(n, requestMapping);
           m.setId(new Id(msName, file.getAbsolutePath()));
           CachingService.getCache().getMethodList().add(m);
         }
@@ -216,7 +226,7 @@ public class VisitorService {
 
                 methodCall.setLineNumber(lineNumber);
                 //                                methodCall.setStatementDeclaration(n.toString());
-                methodCall.setMethodLocation(parseMethodLocation(n));
+                methodCall.setMethodContext(parseMethodLocation(n));
                 methodCall.setCalledServiceId(name);
                 MethodCallExpr methodCallExpr = (MethodCallExpr) fae.getParentNode().get();
                 methodCall.setCalledMethodName(methodCallExpr.getNameAsString());
@@ -230,7 +240,7 @@ public class VisitorService {
 
                 methodCall.setLineNumber(lineNumber);
                 //                                methodCall.setStatementDeclaration(n.toString());
-                methodCall.setMethodLocation(parseMethodLocation(n));
+                methodCall.setMethodContext(parseMethodLocation(n));
                 methodCall.setCalledServiceId(name);
                 MethodCallExpr methodCallExpr = (MethodCallExpr) fae.getParentNode().get();
                 methodCall.setCalledMethodName(methodCallExpr.getNameAsString());
@@ -241,8 +251,8 @@ public class VisitorService {
                 // restTemplate.<insertMethodName>() being called
                 RestCall msRestCall = ParserService.parseRestCall(n);
                 msRestCall.setLineNumber(lineNumber);
-                MethodLocation methodLocationCall = parseMethodLocation(n);
-                msRestCall.setMethodLocation(methodLocationCall);
+                MethodContext methodContextCall = parseMethodLocation(n);
+                msRestCall.setMethodContext(methodContextCall);
                 msRestCall.setId(id);
                 CachingService.getCache().getRestCallList().add(msRestCall);
               }
@@ -256,7 +266,7 @@ public class VisitorService {
     }
   }
 
-  public void visitFields(File file, String msName) {
+  public void visitFields(File file) {
     try {
       new VoidVisitorAdapter<Object>() {
         @Override

@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 public class MethodCall {
   private Id id;
-  private MethodLocation methodLocation;
+  private MethodContext methodContext;
   private int lineNumber;
   private String calledMethodName;
   private String calledServiceId;
