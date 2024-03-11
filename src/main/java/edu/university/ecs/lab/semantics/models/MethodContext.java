@@ -6,6 +6,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 /**
+ * The method context represents where the method is relative to its surroundings
+ *
  * Here "parent" means encapsulating, each parent is the associated method that the current method
  * call is encapsulated by. Same for the class and package.
  */
@@ -13,7 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class MethodLocation {
+public class MethodContext {
   private String parentMethodName;
   private String parentClassName;
   private String parentPackageName;

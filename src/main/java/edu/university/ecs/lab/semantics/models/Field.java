@@ -9,10 +9,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class Field extends MethodLocation {
+public class Field extends MethodContext {
   private Id id;
   private String fieldClass;
   private String fieldVariable;
-  private MethodLocation methodLocation;
+  private MethodContext methodContext;
   private int line;
 }

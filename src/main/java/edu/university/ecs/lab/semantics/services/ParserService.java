@@ -23,14 +23,28 @@ public class ParserService {
    * Parses method information and creates a Method object representing the method
    *
    * @param n the MethodDeclaration that will be parsed
-   * @param role the role of the current class file
    */
-  public static Method parseMethod(MethodDeclaration n, ClassRole role) {
+  public static Method parseMethod(MethodDeclaration n, String restMapping) {
     Method method = new Method();
     method.setReturnType(n.getTypeAsString());
     method.setMethodName(n.getNameAsString());
     method.setLine(n.getBegin().get().line);
-    method.setAnnotations(parseAnnotations(n.getAnnotations()));
+
+    List<Annotation> annotations = parseAnnotations(n.getAnnotations());
+
+    // If our method is a m
+    for(Annotation a : annotations) {
+      if(a.getAnnotationName().contains("Mapping") && a.getValue() != null) {
+        a.setValue(a.getValue().replace("\"", ""));
+          if (restMapping != null) {
+              method.setApiEndpoint(restMapping + a.getValue());
+          } else {
+              method.setApiEndpoint(a.getValue());
+          }
+      }
+    }
+
+    method.setAnnotations(annotations);
 
     // Method parameters
     NodeList<com.github.javaparser.ast.body.Parameter> parameters = n.getParameters();
@@ -67,7 +81,6 @@ public class ParserService {
         }
       }
     }
-    //        method.setIds();
 
     return method;
   }
@@ -129,7 +142,7 @@ public class ParserService {
       }
       if (e instanceof BinaryExpr) {
         BinaryExpr be = (BinaryExpr) e;
-        msRestCall.setApiEndpoint(be.toString());
+        msRestCall.setApiEndpoint(be.toString().substring(be.toString().indexOf("\"") + 1, be.toString().lastIndexOf("\"")));
       }
       if (e instanceof FieldAccessExpr) {
         FieldAccessExpr f = (FieldAccessExpr) e;
@@ -172,12 +185,12 @@ public class ParserService {
    * @return A method location encapsulating location info
    * @throws IllegalArgumentException if the node isn't a MethodCallExpr or FieldDeclaration
    */
-  public static MethodLocation parseMethodLocation(Node node) throws IllegalArgumentException {
+  public static MethodContext parseMethodLocation(Node node) throws IllegalArgumentException {
     if (!(node instanceof MethodCallExpr || node instanceof FieldDeclaration)) {
       throw new IllegalArgumentException("Node must be a MethodCallExpr or FieldDeclaration");
     }
 
-    MethodLocation methodLocation = new MethodLocation();
+    MethodContext methodContext = new MethodContext();
     Optional<Node> parentNode = node.getParentNode();
 
     // Common logic for climbing up the AST to find ClassOrInterfaceDeclaration
@@ -185,7 +198,7 @@ public class ParserService {
     while (parentNode.isPresent()) {
       if (parentNode.get() instanceof ClassOrInterfaceDeclaration) {
         classOrInterfaceDeclaration = (ClassOrInterfaceDeclaration) parentNode.get();
-        methodLocation.setParentClassName(classOrInterfaceDeclaration.getName().getIdentifier());
+        methodContext.setParentClassName(classOrInterfaceDeclaration.getName().getIdentifier());
         break; // Exit loop once the class/interface is found
       }
       parentNode = parentNode.get().getParentNode();
@@ -198,7 +211,7 @@ public class ParserService {
         if (parentNode.get() instanceof CompilationUnit) {
           CompilationUnit cu = (CompilationUnit) parentNode.get();
           cu.getPackageDeclaration()
-              .ifPresent(pd -> methodLocation.setParentPackageName(pd.getNameAsString()));
+              .ifPresent(pd -> methodContext.setParentPackageName(pd.getNameAsString()));
           break; // Exit loop once the compilation unit is found
         }
         parentNode = parentNode.get().getParentNode();
@@ -213,14 +226,14 @@ public class ParserService {
       while (parentNode.isPresent()) {
         if (parentNode.get() instanceof MethodDeclaration) {
           MethodDeclaration methodDeclaration = (MethodDeclaration) parentNode.get();
-          methodLocation.setParentMethodName(methodDeclaration.getName().getIdentifier());
+          methodContext.setParentMethodName(methodDeclaration.getName().getIdentifier());
           break; // Exit loop once the method declaration is found
         }
         parentNode = parentNode.get().getParentNode();
       }
     }
 
-    return methodLocation;
+    return methodContext;
   }
 
   public static Optional<Field> parseField(FieldDeclaration n) {
@@ -233,7 +246,7 @@ public class ParserService {
         field.setFieldVariable(vd.getNameAsString());
         if (vd.getType() != null) {
           field.setFieldClass(vd.getTypeAsString());
-          field.setMethodLocation(parseMethodLocation(n));
+          field.setMethodContext(parseMethodLocation(n));
           field.setLine(n.getBegin().get().line);
         }
         return Optional.of(field);
