@@ -3,9 +3,6 @@ package edu.university.ecs.lab.rest.calls.parsers;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
-import com.github.javaparser.ast.body.FieldDeclaration;
-import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import edu.university.ecs.lab.common.models.rest.RestService;
 import edu.university.ecs.lab.rest.calls.utils.StringParserUtils;
 
@@ -33,32 +30,9 @@ public class ServiceParser {
       return restServices;
     }
 
-    // loop through class declarations
+    // loop through class declarations (and extract variables + methods)
     for (ClassOrInterfaceDeclaration cid : cu.findAll(ClassOrInterfaceDeclaration.class)) {
-      RestService restService = new RestService();
-      restService.setClassName(cid.getNameAsString());
-      restService.setSourceFile(sourceFile.getCanonicalPath());
-
-      List<String> dtos = new ArrayList<>();
-
-      // find dto variables
-      for (FieldDeclaration fd : cid.findAll(FieldDeclaration.class)) {
-        if (fd.getElementType().isClassOrInterfaceType()) {
-          ClassOrInterfaceType type = fd.getElementType().asClassOrInterfaceType();
-
-          if (type.getNameAsString().toLowerCase().contains("dto")) {
-            dtos.add(type.getNameAsString());
-          }
-        }
-      }
-
-      // loop through methods
-      for (MethodDeclaration md : cid.findAll(MethodDeclaration.class)) {
-        restService.addMethod(RestParser.extractJavaMethod(md));
-      }
-
-      restService.setDtos(dtos);
-      restServices.add(restService);
+      restServices.add(new RestService(RestParser.extractJavaClass(sourceFile, cid)));
     }
 
     return restServices;

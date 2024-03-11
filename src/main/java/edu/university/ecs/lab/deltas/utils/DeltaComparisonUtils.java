@@ -60,7 +60,7 @@ public class DeltaComparisonUtils {
   public JsonObject extractDeltaChanges(String pathToLocal) {
     JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
 
-    List<RestEndpoint> restEndpoints = new ArrayList<>();
+    List<RestController> restControllers = new ArrayList<>();
     List<RestService> restServices = new ArrayList<>();
     List<RestDTO> restDTOs = new ArrayList<>();
     List<RestRepository> restRepositories = new ArrayList<>();
@@ -71,14 +71,14 @@ public class DeltaComparisonUtils {
 
     RestModelService.scanFile(
         localFile,
-        restEndpoints,
+            restControllers,
         restServices,
         restDTOs,
         restRepositories,
         restEntities,
         restCalls);
 
-    jsonObjectBuilder.add("restEndpoints", MsFileUtils.buildRestEndpoints("", restEndpoints));
+    jsonObjectBuilder.add("restControllers", MsFileUtils.buildRestControllers("", restControllers));
     jsonObjectBuilder.add("restCalls", MsFileUtils.buildRestCalls(restCalls));
     jsonObjectBuilder.add("services", MsFileUtils.buildRestServices(restServices));
     jsonObjectBuilder.add("dtos", MsFileUtils.buildJavaClass(restDTOs));

@@ -9,6 +9,7 @@ import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.expr.MemberValuePair;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import edu.university.ecs.lab.common.models.JavaMethod;
+import edu.university.ecs.lab.common.models.rest.RestController;
 import edu.university.ecs.lab.common.models.rest.RestEndpoint;
 import edu.university.ecs.lab.rest.calls.utils.StringParserUtils;
 
@@ -29,47 +30,37 @@ public class EndpointParser {
    * @return the list of parsed endpoints
    * @throws IOException if an I/O error occurs
    */
-  public static List<RestEndpoint> parseEndpoints(File sourceFile) throws IOException {
-    List<RestEndpoint> restEndpoints = new ArrayList<>();
+  public static List<RestController> parseEndpoints(File sourceFile) throws IOException {
+    List<RestController> restControllers = new ArrayList<>();
 
     CompilationUnit cu = StaticJavaParser.parse(sourceFile);
 
     String packageName = StringParserUtils.findPackage(cu);
     if (packageName == null) {
-      return restEndpoints;
+      return restControllers;
     }
 
     // loop through class declarations
     for (ClassOrInterfaceDeclaration cid : cu.findAll(ClassOrInterfaceDeclaration.class)) {
       String className = cid.getNameAsString();
 
-      List<String> services = new ArrayList<>();
-
-      // find service variables
-      for (FieldDeclaration fd : cid.findAll(FieldDeclaration.class)) {
-        if (fd.getElementType().isClassOrInterfaceType()) {
-          ClassOrInterfaceType type = fd.getElementType().asClassOrInterfaceType();
-
-          if (type.getNameAsString().contains("Service")) {
-            services.add(type.getNameAsString());
-          }
-        }
-      }
-
       AnnotationExpr aExpr = cid.getAnnotationByName("RequestMapping").orElse(null);
       if (aExpr == null) {
-        return restEndpoints;
+        return restControllers;
       }
 
       String classLevelPath = pathFromAnnotation(aExpr);
 
+      RestController restController = new RestController();
+
       // loop through methods
       for (MethodDeclaration md : cid.findAll(MethodDeclaration.class)) {
         JavaMethod method = RestParser.extractJavaMethod(md);
+        RestEndpoint restEndpoint = new RestEndpoint();
 
         // loop through annotations
         for (AnnotationExpr ae : md.getAnnotations()) {
-          RestEndpoint restEndpoint = new RestEndpoint();
+          restEndpoint.setUrl(StringParserUtils.mergePaths(classLevelPath, pathFromAnnotation(ae)));
           restEndpoint.setDecorator(ae.getNameAsString());
 
           switch (ae.getNameAsString()) {
@@ -102,19 +93,23 @@ public class EndpointParser {
             continue;
           }
 
-          restEndpoint.setSourceFile(sourceFile.getCanonicalPath());
-          restEndpoint.setUrl(StringParserUtils.mergePaths(classLevelPath, pathFromAnnotation(ae)));
           restEndpoint.setParentMethod(
               packageName + "." + className + "." + method.getMethodName());
-          restEndpoint.setClassName(className);
           restEndpoint.setMethod(method);
-          restEndpoint.setServices(services);
-          restEndpoints.add(restEndpoint);
+          restEndpoint.setMethodVariables(RestParser.extractVariables(md));
+
+          restController.addEndpoint(restEndpoint);
         }
+
+        restController.setClassName(className);
+        restController.setSourceFile(sourceFile.getCanonicalPath());
+        restController.setVariables(RestParser.extractVariables(cid));
+
+        restControllers.add(restController);
       }
     }
 
-    return restEndpoints;
+    return restControllers;
   }
 
   /**
