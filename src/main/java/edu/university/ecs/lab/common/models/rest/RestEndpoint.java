@@ -7,12 +7,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Model to represent a Java api endpoint extracted from a service controller
- */
+/** Model to represent a Java api endpoint extracted from a service controller */
 @Data
 @ToString
 @AllArgsConstructor

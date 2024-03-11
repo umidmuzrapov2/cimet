@@ -1,16 +1,13 @@
 package edu.university.ecs.lab.common.models.rest;
 
 import edu.university.ecs.lab.common.config.InputConfig;
-import edu.university.ecs.lab.common.models.JavaMethod;
 import edu.university.ecs.lab.common.models.JavaVariable;
 import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Model to represent a Java controller class containing endpoints
- */
+/** Model to represent a Java controller class containing endpoints */
 @Data
 @ToString
 @AllArgsConstructor

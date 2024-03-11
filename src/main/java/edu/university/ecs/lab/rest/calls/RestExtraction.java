@@ -167,11 +167,18 @@ public class RestExtraction {
                       for (MsModel ms : msModelMap.values()) {
                         matchingController =
                             ms.getRestControllers().stream()
-                                .filter(controller -> controller.getRestEndpoints().stream()
-                                        .anyMatch(endpoint ->
-                                                (endpoint.getUrl().equals(tmpCallUrl)
-                                                        || endpoint.getUrl().contains(tmpCallUrl))
-                                                        && endpoint.getHttpMethod().equals(httpMethod)))
+                                .filter(
+                                    controller ->
+                                        controller.getRestEndpoints().stream()
+                                            .anyMatch(
+                                                endpoint ->
+                                                    (endpoint.getUrl().equals(tmpCallUrl)
+                                                            || endpoint
+                                                                .getUrl()
+                                                                .contains(tmpCallUrl))
+                                                        && endpoint
+                                                            .getHttpMethod()
+                                                            .equals(httpMethod)))
                                 .findFirst()
                                 .orElse(null);
 

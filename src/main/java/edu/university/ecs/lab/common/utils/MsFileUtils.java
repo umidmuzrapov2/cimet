@@ -52,7 +52,8 @@ public class MsFileUtils {
       msObjectBuilder.add("commitId", microservice.getValue().getCommit());
 
       msObjectBuilder.add(
-          "controllers", buildRestControllers(msName, microservice.getValue().getRestControllers()));
+          "controllers",
+          buildRestControllers(msName, microservice.getValue().getRestControllers()));
       msObjectBuilder.add("restCalls", buildRestCalls(microservice.getValue().getRestCalls()));
 
       msObjectBuilder.add("services", buildRestServices(microservice.getValue().getRestServices()));
@@ -75,7 +76,8 @@ public class MsFileUtils {
    * @param restControllers list of rest endpoints
    * @return rest endpoint json list
    */
-  public static JsonArray buildRestControllers(String msName, List<RestController> restControllers) {
+  public static JsonArray buildRestControllers(
+      String msName, List<RestController> restControllers) {
     JsonArrayBuilder controllerArrayBuilder = Json.createArrayBuilder();
 
     for (RestController restController : restControllers) {
@@ -88,13 +90,13 @@ public class MsFileUtils {
 
       for (RestEndpoint restEndpoint : restController.getRestEndpoints()) {
         restEndpoint.setId(
-                restEndpoint.getHttpMethod()
-                        + ":"
-                        + msName
-                        + "."
-                        + restEndpoint.getMethod().getMethodName()
-                        + "#"
-                        + Math.abs(restEndpoint.getMethod().getParameter().hashCode()));
+            restEndpoint.getHttpMethod()
+                + ":"
+                + msName
+                + "."
+                + restEndpoint.getMethod().getMethodName()
+                + "#"
+                + Math.abs(restEndpoint.getMethod().getParameter().hashCode()));
 
         JsonObjectBuilder endpointBuilder = Json.createObjectBuilder();
 
@@ -106,7 +108,8 @@ public class MsFileUtils {
         endpointBuilder.add("methodName", restEndpoint.getMethod().getMethodName());
         endpointBuilder.add("arguments", restEndpoint.getMethod().getParameter());
         endpointBuilder.add("return", restEndpoint.getMethod().getReturnType());
-        endpointBuilder.add("method-variables", addVariableArray(restEndpoint.getMethodVariables()));
+        endpointBuilder.add(
+            "method-variables", addVariableArray(restEndpoint.getMethodVariables()));
 
         endpointArrayBuilder.add(endpointBuilder.build());
       }

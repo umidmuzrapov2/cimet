@@ -71,7 +71,7 @@ public class DeltaComparisonUtils {
 
     RestModelService.scanFile(
         localFile,
-            restControllers,
+        restControllers,
         restServices,
         restDTOs,
         restRepositories,
