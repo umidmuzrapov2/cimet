@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 public class MsModel {
   /** List of rest endpoints found in the microservice */
-  private List<RestEndpoint> restEndpoints;
+  private List<RestController> restControllers;
 
   /** List of rest services found in microservice */
   private List<RestService> restServices;
@@ -36,14 +36,14 @@ public class MsModel {
 
   /** Default constructor, init lists as empty */
   public MsModel() {
-    restEndpoints = new ArrayList<>();
+    restControllers = new ArrayList<>();
     restCalls = new ArrayList<>();
     externalCalls = new ArrayList<>();
   }
 
   /** Add an endpoint to the list of endpoints */
-  public void addEndpoint(RestEndpoint restEndpoint) {
-    restEndpoints.add(restEndpoint);
+  public void addEndpoint(RestController restController) {
+    restControllers.add(restController);
   }
 
   /** Add a direct call dependency to the list of dependencies */

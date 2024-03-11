@@ -4,6 +4,7 @@ import edu.university.ecs.lab.common.models.JavaClass;
 import edu.university.ecs.lab.common.models.JavaMethod;
 import edu.university.ecs.lab.common.models.JavaVariable;
 import edu.university.ecs.lab.common.models.rest.RestCall;
+import edu.university.ecs.lab.common.models.rest.RestController;
 import edu.university.ecs.lab.common.models.rest.RestEndpoint;
 import edu.university.ecs.lab.common.models.rest.RestService;
 import edu.university.ecs.lab.rest.calls.models.*;
@@ -51,7 +52,7 @@ public class MsFileUtils {
       msObjectBuilder.add("commitId", microservice.getValue().getCommit());
 
       msObjectBuilder.add(
-          "restEndpoints", buildRestEndpoints(msName, microservice.getValue().getRestEndpoints()));
+          "controllers", buildRestControllers(msName, microservice.getValue().getRestControllers()));
       msObjectBuilder.add("restCalls", buildRestCalls(microservice.getValue().getRestCalls()));
 
       msObjectBuilder.add("services", buildRestServices(microservice.getValue().getRestServices()));
@@ -71,44 +72,50 @@ public class MsFileUtils {
    * Write the given endpoint list to the given json list
    *
    * @param msName microservice system name
-   * @param restEndpoints list of rest endpoints
+   * @param restControllers list of rest endpoints
    * @return rest endpoint json list
    */
-  public static JsonArray buildRestEndpoints(String msName, List<RestEndpoint> restEndpoints) {
-    JsonArrayBuilder endpointsArrayBuilder = Json.createArrayBuilder();
+  public static JsonArray buildRestControllers(String msName, List<RestController> restControllers) {
+    JsonArrayBuilder controllerArrayBuilder = Json.createArrayBuilder();
 
-    for (RestEndpoint restEndpoint : restEndpoints) {
-      restEndpoint.setId(
-          restEndpoint.getHttpMethod()
-              + ":"
-              + msName
-              + "."
-              + restEndpoint.getMethod().getMethodName()
-              + "#"
-              + Math.abs(restEndpoint.getMethod().getParameter().hashCode()));
+    for (RestController restController : restControllers) {
+      JsonObjectBuilder controllerBuilder = Json.createObjectBuilder();
+      controllerBuilder.add("className", restController.getClassName());
+      controllerBuilder.add("classPath", restController.getSourceFile().replaceAll("\\\\", "/"));
+      controllerBuilder.add("variables", addVariableArray(restController.getVariables()));
 
-      JsonObjectBuilder endpointBuilder = Json.createObjectBuilder();
+      JsonArrayBuilder endpointArrayBuilder = Json.createArrayBuilder();
 
-      endpointBuilder.add("id", restEndpoint.getId());
-      endpointBuilder.add("api", restEndpoint.getUrl());
-      endpointBuilder.add("source-file", restEndpoint.getSourceFile().replaceAll("\\\\", "/"));
-      endpointBuilder.add("type", restEndpoint.getDecorator());
-      endpointBuilder.add("httpMethod", restEndpoint.getHttpMethod());
-      endpointBuilder.add("className", restEndpoint.getClassName());
-      endpointBuilder.add("parent-method", restEndpoint.getParentMethod());
-      endpointBuilder.add("methodName", restEndpoint.getMethod().getMethodName());
-      endpointBuilder.add("arguments", restEndpoint.getMethod().getParameter());
-      endpointBuilder.add("return", restEndpoint.getMethod().getReturnType());
+      for (RestEndpoint restEndpoint : restController.getRestEndpoints()) {
+        restEndpoint.setId(
+                restEndpoint.getHttpMethod()
+                        + ":"
+                        + msName
+                        + "."
+                        + restEndpoint.getMethod().getMethodName()
+                        + "#"
+                        + Math.abs(restEndpoint.getMethod().getParameter().hashCode()));
 
-      JsonArrayBuilder serviceArrayBuilder = Json.createArrayBuilder();
-      restEndpoint.getServices().forEach(serviceArrayBuilder::add);
+        JsonObjectBuilder endpointBuilder = Json.createObjectBuilder();
 
-      endpointBuilder.add("service-dependencies", serviceArrayBuilder.build());
+        endpointBuilder.add("id", restEndpoint.getId());
+        endpointBuilder.add("api", restEndpoint.getUrl());
+        endpointBuilder.add("type", restEndpoint.getDecorator());
+        endpointBuilder.add("httpMethod", restEndpoint.getHttpMethod());
+        endpointBuilder.add("parent-method", restEndpoint.getParentMethod());
+        endpointBuilder.add("methodName", restEndpoint.getMethod().getMethodName());
+        endpointBuilder.add("arguments", restEndpoint.getMethod().getParameter());
+        endpointBuilder.add("return", restEndpoint.getMethod().getReturnType());
+        endpointBuilder.add("method-variables", addVariableArray(restEndpoint.getMethodVariables()));
 
-      endpointsArrayBuilder.add(endpointBuilder.build());
+        endpointArrayBuilder.add(endpointBuilder.build());
+      }
+
+      controllerBuilder.add("restEndpoints", endpointArrayBuilder.build());
+      controllerArrayBuilder.add(controllerBuilder.build());
     }
 
-    return endpointsArrayBuilder.build();
+    return controllerArrayBuilder.build();
   }
 
   /**
@@ -128,13 +135,8 @@ public class MsFileUtils {
       // write service methods
       serviceBuilder.add("methods", addMethodArray(restService.getMethods()));
 
-      JsonArrayBuilder dtoArrayBuilder = Json.createArrayBuilder();
-
-      // write dto class names
-      for (String dtoName : restService.getDtos()) {
-        dtoArrayBuilder.add(dtoName);
-      }
-      serviceBuilder.add("dto-dependencies", dtoArrayBuilder.build());
+      // write service variables
+      serviceBuilder.add("variables", addVariableArray(restService.getVariables()));
 
       serviceArrayBuilder.add(serviceBuilder.build());
     }

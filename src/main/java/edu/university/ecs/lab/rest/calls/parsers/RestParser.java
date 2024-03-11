@@ -2,12 +2,16 @@ package edu.university.ecs.lab.rest.calls.parsers;
 
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.*;
+import com.github.javaparser.ast.expr.VariableDeclarationExpr;
+import com.github.javaparser.ast.stmt.BlockStmt;
 import edu.university.ecs.lab.common.models.JavaClass;
 import edu.university.ecs.lab.common.models.JavaMethod;
 import edu.university.ecs.lab.common.models.JavaVariable;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RestParser {
   /**
@@ -45,23 +49,56 @@ public class RestParser {
   public static JavaClass extractJavaClass(File sourceFile, ClassOrInterfaceDeclaration cid)
       throws IOException {
     JavaClass javaClass = new JavaClass();
+
     javaClass.setClassName(cid.getNameAsString());
     javaClass.setSourceFile(sourceFile.getCanonicalPath());
+    javaClass.setVariables(extractVariables(cid));
+    javaClass.setMethods(extractMethods(cid));
 
-    // find variables
+    return javaClass;
+  }
+
+  public static List<JavaVariable> extractVariables(ClassOrInterfaceDeclaration cid) {
+    List<JavaVariable> javaVariables = new ArrayList<>();
+
+    // loop through/find variables
     for (FieldDeclaration fd : cid.findAll(FieldDeclaration.class)) {
-      for (VariableDeclarator variableDeclarator : fd.getVariables()) {
-        javaClass.addVariable(
-            new JavaVariable(
-                variableDeclarator.getNameAsString(), variableDeclarator.getTypeAsString()));
+      for (VariableDeclarator variable : fd.getVariables()) {
+        javaVariables.add(new JavaVariable(variable.getNameAsString(), variable.getTypeAsString()));
       }
     }
 
-    // loop through methods
-    for (MethodDeclaration md : cid.findAll(MethodDeclaration.class)) {
-      javaClass.addMethod(RestParser.extractJavaMethod(md));
+    return javaVariables;
+  }
+
+  public static List<JavaVariable> extractVariables(MethodDeclaration md) {
+    List<JavaVariable> javaVariables = new ArrayList<>();
+
+    BlockStmt methodBody = md.getBody().orElse(null);
+    if (methodBody == null) {
+      return javaVariables;
     }
 
-    return javaClass;
+    // loop through/find variables
+    for (VariableDeclarationExpr vExpr : methodBody.findAll(VariableDeclarationExpr.class)) {
+      if (vExpr.getElementType().isClassOrInterfaceType()) {
+        for (VariableDeclarator vd : vExpr.getVariables()) {
+          javaVariables.add(new JavaVariable(vd.getNameAsString(), vd.getTypeAsString()));
+        }
+      }
+    }
+
+    return javaVariables;
+  }
+
+  public static List<JavaMethod> extractMethods(ClassOrInterfaceDeclaration cid) {
+    List<JavaMethod> javaMethods = new ArrayList<>();
+
+    // loop through methods
+    for (MethodDeclaration md : cid.findAll(MethodDeclaration.class)) {
+      javaMethods.add(RestParser.extractJavaMethod(md));
+    }
+
+    return javaMethods;
   }
 }

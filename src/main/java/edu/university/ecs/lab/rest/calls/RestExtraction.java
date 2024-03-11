@@ -4,7 +4,7 @@ import edu.university.ecs.lab.common.config.ConfigUtil;
 import edu.university.ecs.lab.common.config.InputConfig;
 import edu.university.ecs.lab.common.config.InputRepository;
 import edu.university.ecs.lab.rest.calls.models.MsModel;
-import edu.university.ecs.lab.common.models.rest.RestEndpoint;
+import edu.university.ecs.lab.common.models.rest.RestController;
 import edu.university.ecs.lab.common.utils.MsFileUtils;
 import edu.university.ecs.lab.common.writers.MsJsonWriter;
 import edu.university.ecs.lab.rest.calls.services.GitCloneService;
@@ -158,30 +158,30 @@ public class RestExtraction {
                     String callUrl = call.getUrl();
                     String httpMethod = call.getHttpMethod();
 
-                    RestEndpoint matchingEndpoint = null;
+                    RestController matchingController = null;
 
                     // iterate until either endpoint is found OR entire URL has been scanned
-                    while (Objects.isNull(matchingEndpoint) && callUrl.contains("/")) {
+                    while (Objects.isNull(matchingController) && callUrl.contains("/")) {
                       final String tmpCallUrl = callUrl;
 
                       for (MsModel ms : msModelMap.values()) {
-                        matchingEndpoint =
-                            ms.getRestEndpoints().stream()
-                                .filter(
-                                    endpoint ->
-                                        (endpoint.getUrl().equals(tmpCallUrl)
-                                                || endpoint.getUrl().contains(tmpCallUrl))
-                                            && endpoint.getHttpMethod().equals(httpMethod))
+                        matchingController =
+                            ms.getRestControllers().stream()
+                                .filter(controller -> controller.getRestEndpoints().stream()
+                                        .anyMatch(endpoint ->
+                                                (endpoint.getUrl().equals(tmpCallUrl)
+                                                        || endpoint.getUrl().contains(tmpCallUrl))
+                                                        && endpoint.getHttpMethod().equals(httpMethod)))
                                 .findFirst()
                                 .orElse(null);
 
-                        if (Objects.nonNull(matchingEndpoint)) {
+                        if (Objects.nonNull(matchingController)) {
                           break;
                         }
                       }
 
                       // Endpoint still not found? Try chopping off beginning of url by each '/'
-                      if (Objects.isNull(matchingEndpoint)) {
+                      if (Objects.isNull(matchingController)) {
                         callUrl = callUrl.substring(1);
 
                         int slashNdx = callUrl.indexOf("/");
@@ -191,8 +191,8 @@ public class RestExtraction {
                       }
                     }
 
-                    if (Objects.nonNull(matchingEndpoint)) {
-                      call.setDestFile(matchingEndpoint.getSourceFile());
+                    if (Objects.nonNull(matchingController)) {
+                      call.setDestFile(matchingController.getSourceFile());
                     }
                   });
         });

@@ -46,7 +46,7 @@ Sample output produced:
       "msName": "ts-price-service",
       "msPath": "C:/Users/.../train-ticket-microservices\\ts-price-service",
       "commitId": "f34c476",
-      "restEndpoints": [
+      "restControllers": [
         {
           "id": "GET:ts-price-service.home#0",
           "api": "/api/v1/priceservice/prices/welcome",
