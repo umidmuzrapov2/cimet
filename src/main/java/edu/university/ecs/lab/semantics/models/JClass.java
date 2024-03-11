@@ -17,4 +17,5 @@ public class JClass implements Serializable {
 //  private String requestMapping;
   private List<Annotation> annotations;
 
+
 }

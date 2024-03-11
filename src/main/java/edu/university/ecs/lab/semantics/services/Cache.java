@@ -19,6 +19,7 @@ public class Cache {
     private final List<RestCall> restCallList;
     private final List<Field> fieldList;
     private final List<Flow> flowList;
+    private final List<CodeClone> codeCloneList;
 
     public Cache() {
         this.classList = new ArrayList<>();
@@ -27,6 +28,7 @@ public class Cache {
         this.restCallList = new ArrayList<>();
         this.fieldList = new ArrayList<>();
         this.flowList = new ArrayList<>();
+        this.codeCloneList = new ArrayList<>();
     }
 
     //    public final static List<FlowEntity> msFlows;

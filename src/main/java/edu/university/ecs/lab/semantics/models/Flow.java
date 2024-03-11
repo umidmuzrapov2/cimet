@@ -4,6 +4,7 @@ import lombok.Data;
 
 import java.util.List;
 import edu.university.ecs.lab.semantics.models.*;
+import lombok.EqualsAndHashCode;
 
 @Data
 public class Flow {

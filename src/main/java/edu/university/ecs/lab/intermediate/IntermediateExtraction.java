@@ -2,7 +2,8 @@ package edu.university.ecs.lab.intermediate;
 
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
-import edu.university.ecs.lab.semantics.services.Cache;
+import edu.university.ecs.lab.semantics.models.CodeClone;
+import edu.university.ecs.lab.semantics.services.*;
 import edu.university.ecs.lab.common.config.ConfigUtil;
 import edu.university.ecs.lab.common.config.InputConfig;
 import edu.university.ecs.lab.common.config.InputRepository;
@@ -11,9 +12,6 @@ import edu.university.ecs.lab.common.writers.MsJsonWriter;
 import edu.university.ecs.lab.intermediate.services.GitCloneService;
 import edu.university.ecs.lab.intermediate.services.RepositoryService;
 import edu.university.ecs.lab.intermediate.utils.MsFileUtils;
-import edu.university.ecs.lab.semantics.services.CachingService;
-import edu.university.ecs.lab.semantics.services.FlowService;
-import edu.university.ecs.lab.semantics.services.VisitorService;
 
 import javax.json.JsonObject;
 import javax.naming.spi.DirectoryManager;
@@ -23,6 +21,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.sql.SQLOutput;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * IntermediateExtraction is the main entry point for the intermediate extraction process.
@@ -42,6 +41,9 @@ public class IntermediateExtraction {
 
   private static final RepositoryService repositoryService = new RepositoryService();
 
+  private static String systemName = "";
+  private static String timeStamp = "";
+
   /**
    * Main method entry point to intermediate extraction
    *
@@ -55,14 +57,22 @@ public class IntermediateExtraction {
     // Clone remote repositories and scan through each cloned repo to extract endpoints/dependencies
     Map<String, MsModel> msDataMap = cloneAndScanServices(inputConfig);
 
-    scanCodeClones(inputConfig.getClonePath(), msDataMap.keySet());
-
+    Map<String, List<CodeClone>> msClones = scanCodeClones(inputConfig.getClonePath(), msDataMap);
 
     //  Write each service and endpoints to IR
     try {
       writeToIntermediateRepresentation(inputConfig, msDataMap);
     } catch (IOException e) {
       System.err.println("Error writing to IR json: " + e.getMessage());
+      System.exit(BAD_IR_WRITE);
+    }
+
+
+    //  Write each service and endpoints to IR
+    try {
+      writeToClonesRepresentation(inputConfig, msClones);
+    } catch (IOException e) {
+      System.err.println("Error writing to clone json: " + e.getMessage());
       System.exit(BAD_IR_WRITE);
     }
   }
@@ -91,11 +101,42 @@ public class IntermediateExtraction {
 
     Scanner scanner = new Scanner(System.in); // read system name from command line
     System.out.println("Enter system name: ");
+    systemName = scanner.nextLine();
     JsonObject jout =
-        MsFileUtils.constructJsonMsSystem(scanner.nextLine(), "0.0.1", msEndpointsMap);
+        MsFileUtils.constructJsonMsSystem(systemName, "0.0.1", msEndpointsMap);
+
+    timeStamp = String.valueOf((new Date()).getTime());
+    MsJsonWriter.writeJsonToFile(
+        jout, outputPath + "/intermediate-output-[" + timeStamp + "].json");
+  }
+
+
+  /**
+   * Write each service and clones to json
+   *
+   * @param inputConfig the config file object
+   * @param clonesMap a map of service to their code clones
+   */
+  private static void writeToClonesRepresentation(InputConfig inputConfig, Map<String, List<CodeClone>> clonesMap) throws IOException {
+
+    String outputPath = System.getProperty(SYS_USER_DIR) + inputConfig.getOutputPath();
+
+    File outputDir = new File(outputPath);
+
+    if (!outputDir.exists()) {
+      if (outputDir.mkdirs()) {
+        System.out.println("Successfully created output directory.");
+      } else {
+        System.err.println("Failed to create output directory.");
+        return;
+      }
+    }
+
+    JsonObject jout =
+            MsFileUtils.constructJsonClonesSystem(systemName, "0.0.1", clonesMap);
 
     MsJsonWriter.writeJsonToFile(
-        jout, outputPath + "/intermediate-output-[" + (new Date()).getTime() + "].json");
+            jout, outputPath + "/code-clones-output-[" + timeStamp + "].json");
   }
 
   /**
@@ -151,15 +192,16 @@ public class IntermediateExtraction {
     return msEndpointsMap;
   }
 
-  public static  void scanCodeClones(String clonePath, Set<String> services) {
+  public static Map<String, List<CodeClone>> scanCodeClones(String clonePath, Map<String, MsModel> services) {
 
     if (services == null) {
-      return;
+      return null;
     }
 
     CachingService cachingService = new CachingService();
+    CodeCloneService codeCloneService = new CodeCloneService();
 
-    for (String path: services) {
+    for (String path: services.keySet()) {
 
       try {
         String discoverPath = System.getProperty(SYS_USER_DIR) + clonePath + File.separator +  path;
@@ -172,15 +214,35 @@ public class IntermediateExtraction {
 
     }
 
-    Cache cache = CachingService.getCache();
-    System.out.println(cache);
-
     FlowService fs = new FlowService();
     fs.buildFlows();
 
-    cache = CachingService.getCache();
-    System.out.println(cache);
+    codeCloneService.findCodeClones();
 
+    Cache cache = CachingService.getCache();
+    List<CodeClone> l = cache.getCodeCloneList().stream().filter(a -> a.getGlobalSimilarity() > .9).collect(Collectors.toList());
+
+
+    Map<String, List<CodeClone>> clonesMap = new HashMap<>();
+
+      for (String service : services.keySet()) {
+        List<CodeClone> clones = new ArrayList<>();
+        for(CodeClone clone : l) {
+
+          String a = clone.getFlowA().getController().getId().getLocation();
+          String b = clone.getFlowB().getController().getId().getLocation();
+
+          if (a.contains(service) || b.contains(service)) {
+            clones.add(clone);
+          }
+
+        }
+        clonesMap.put(service, clones);
+
+
+      }
+
+      return clonesMap;
 
   }
 }
