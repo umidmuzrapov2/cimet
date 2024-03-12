@@ -1,14 +1,14 @@
-//package edu.university.ecs.lab.common.models;
+// package edu.university.ecs.lab.common.models;
 //
-//import edu.university.ecs.lab.common.models.rest.RestEndpoint;
-//import lombok.Data;
+// import edu.university.ecs.lab.common.models.rest.RestEndpoint;
+// import lombok.Data;
 //
-//import java.util.ArrayList;
-//import java.util.List;
+// import java.util.ArrayList;
+// import java.util.List;
 //
-///** Model to represent the microservice object as seen in IR output */
-//@Data
-//public class MsModel {
+/// ** Model to represent the microservice object as seen in IR output */
+// @Data
+// public class MsModel {
 //  /** List of rest endpoints found in the service */
 //  private List<RestEndpoint> endpoints;
 //
@@ -45,4 +45,4 @@
 //  public void addExternalDependency(RestDependency restDependency) {
 //    externalDependencies.add(restDependency);
 //  }
-//}
+// }

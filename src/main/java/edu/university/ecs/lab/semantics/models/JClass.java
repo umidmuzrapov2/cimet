@@ -12,10 +12,8 @@ public class JClass implements Serializable {
   private Id id;
   private String packageName;
   private String className;
-//  private List<String> fieldNames;
+  //  private List<String> fieldNames;
   private ClassRole role;
-//  private String requestMapping;
+  //  private String requestMapping;
   private List<Annotation> annotations;
-
-
 }

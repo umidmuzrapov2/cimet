@@ -1,20 +1,20 @@
-//package edu.university.ecs.lab.intermediate.utils;
+// package edu.university.ecs.lab.intermediate.utils;
 //
-//import edu.university.ecs.lab.common.models.RestDependency;
-//import edu.university.ecs.lab.common.models.Endpoint;
-//import edu.university.ecs.lab.common.models.MsModel;
-//import edu.university.ecs.lab.semantics.models.CodeClone;
-//import edu.university.ecs.lab.semantics.models.Flow;
-//import edu.university.ecs.lab.semantics.models.RestCall;
+// import edu.university.ecs.lab.common.models.RestDependency;
+// import edu.university.ecs.lab.common.models.Endpoint;
+// import edu.university.ecs.lab.common.models.MsModel;
+// import edu.university.ecs.lab.semantics.models.CodeClone;
+// import edu.university.ecs.lab.semantics.models.Flow;
+// import edu.university.ecs.lab.semantics.models.RestCall;
 //
-//import javax.json.*;
-//import java.io.File;
-//import java.util.List;
-//import java.util.Map;
-//import java.util.Objects;
+// import javax.json.*;
+// import java.io.File;
+// import java.util.List;
+// import java.util.Map;
+// import java.util.Objects;
 //
-///** Utility class for handling microservice files. */
-//public class MsFileUtils {
+/// ** Utility class for handling microservice files. */
+// public class MsFileUtils {
 //  /** Private constructor to prevent instantiation. */
 //  private MsFileUtils() {}
 //
@@ -41,7 +41,8 @@
 //      String msName = microservice.getKey();
 //      if (microservice.getKey().contains(File.separator)) {
 //        msName =
-//            microservice.getKey().substring(microservice.getKey().lastIndexOf(File.separator) + 1);
+//            microservice.getKey().substring(microservice.getKey().lastIndexOf(File.separator) +
+// 1);
 //      }
 //      jsonObjectBuilder.add("id", microservice.getValue().getId().replaceAll("\\\\", "/"));
 //      jsonObjectBuilder.add("msName", msName);
@@ -95,7 +96,8 @@
 //   * @param clonesMap the map of microservices to their clones
 //   * @return the constructed JSON object
 //   */
-//  public static JsonObject constructJsonClonesSystem(String systemName, String version, Map<String, List<CodeClone>> clonesMap) {
+//  public static JsonObject constructJsonClonesSystem(String systemName, String version,
+// Map<String, List<CodeClone>> clonesMap) {
 //    JsonObjectBuilder parentBuilder = Json.createObjectBuilder();
 //
 //    parentBuilder.add("systemName", systemName);
@@ -108,7 +110,8 @@
 //      JsonObjectBuilder microserviceBuilder = Json.createObjectBuilder();
 //      String msName = microservice.getKey();
 //      if (microservice.getKey().contains(File.separator)) {
-//        msName = microservice.getKey().substring(microservice.getKey().lastIndexOf(File.separator) + 1);
+//        msName = microservice.getKey().substring(microservice.getKey().lastIndexOf(File.separator)
+// + 1);
 //      }
 //      microserviceBuilder.add("msName", msName);
 //
@@ -206,4 +209,4 @@
 //      endpointsArrayBuilder.add(endpointBuilder.build());
 //    }
 //  }
-//}
+// }

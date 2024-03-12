@@ -10,7 +10,6 @@ import lombok.Setter;
  * This class serves as a cache that is regularly referenced throughout the program to increase
  * efficiency.
  */
-
 @Getter
 @Setter
 public class Cache {
@@ -23,15 +22,15 @@ public class Cache {
   private List<Flow> flowList;
   private List<CodeClone> codeCloneList;
 
-    public Cache() {
-        this.classList = new ArrayList<>();
-        this.methodList = new ArrayList<>();
-        this.methodCallList = new ArrayList<>();
-        this.restCallList = new ArrayList<>();
-        this.fieldList = new ArrayList<>();
-        this.flowList = new ArrayList<>();
-        this.codeCloneList = new ArrayList<>();
-    }
+  public Cache() {
+    this.classList = new ArrayList<>();
+    this.methodList = new ArrayList<>();
+    this.methodCallList = new ArrayList<>();
+    this.restCallList = new ArrayList<>();
+    this.fieldList = new ArrayList<>();
+    this.flowList = new ArrayList<>();
+    this.codeCloneList = new ArrayList<>();
+  }
 
   //    public final static List<FlowEntity> msFlows;
 
