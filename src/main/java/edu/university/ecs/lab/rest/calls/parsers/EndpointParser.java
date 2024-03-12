@@ -1,15 +1,15 @@
-package edu.university.ecs.lab.intermediate.services;
+package edu.university.ecs.lab.rest.calls.parsers;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.expr.MemberValuePair;
-import edu.university.ecs.lab.common.models.Endpoint;
-import edu.university.ecs.lab.intermediate.utils.StringParserUtils;
+import edu.university.ecs.lab.common.models.JavaMethod;
+import edu.university.ecs.lab.common.models.rest.RestController;
+import edu.university.ecs.lab.common.models.rest.RestEndpoint;
+import edu.university.ecs.lab.rest.calls.utils.StringParserUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,10 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Service for parsing REST endpoints from source files and describing them in relation to their
+ * Class for parsing REST endpoints from source files and describing them in relation to their
  * relative microservice.
  */
-public class EndpointExtractionService {
+public class EndpointParser {
   /**
    * Parse the REST endpoints from the given source file.
    *
@@ -28,14 +28,14 @@ public class EndpointExtractionService {
    * @return the list of parsed endpoints
    * @throws IOException if an I/O error occurs
    */
-  public List<Endpoint> parseEndpoints(File sourceFile) throws IOException {
-    List<Endpoint> endpoints = new ArrayList<>();
+  public static List<RestController> parseEndpoints(File sourceFile) throws IOException {
+    List<RestController> restControllers = new ArrayList<>();
 
     CompilationUnit cu = StaticJavaParser.parse(sourceFile);
 
     String packageName = StringParserUtils.findPackage(cu);
     if (packageName == null) {
-      return endpoints;
+      return restControllers;
     }
 
     // loop through class declarations
@@ -44,78 +44,70 @@ public class EndpointExtractionService {
 
       AnnotationExpr aExpr = cid.getAnnotationByName("RequestMapping").orElse(null);
       if (aExpr == null) {
-        return endpoints;
+        return restControllers;
       }
 
       String classLevelPath = pathFromAnnotation(aExpr);
 
+      RestController restController = new RestController();
+
       // loop through methods
       for (MethodDeclaration md : cid.findAll(MethodDeclaration.class)) {
-
-        String methodName = md.getNameAsString();
-
-        NodeList<Parameter> parameterList = md.getParameters();
-        String parameter = "";
-        if (parameterList.size() != 0) {
-          parameter = "[";
-
-          for (int i = 0; i < parameterList.size(); i++) {
-            parameter = parameter + parameterList.get(i).toString();
-            if (i != parameterList.size() - 1) {
-              parameter = parameter + ", ";
-            } else {
-              parameter = parameter + "]";
-            }
-          }
-        }
+        JavaMethod method = RestParser.extractJavaMethod(md);
+        RestEndpoint restEndpoint = new RestEndpoint();
 
         // loop through annotations
         for (AnnotationExpr ae : md.getAnnotations()) {
-          Endpoint endpoint = new Endpoint();
-          endpoint.setDecorator(ae.getNameAsString());
+          restEndpoint.setUrl(StringParserUtils.mergePaths(classLevelPath, pathFromAnnotation(ae)));
+          restEndpoint.setDecorator(ae.getNameAsString());
 
           switch (ae.getNameAsString()) {
             case "GetMapping":
-              endpoint.setHttpMethod("GET");
+              restEndpoint.setHttpMethod("GET");
               break;
             case "PostMapping":
-              endpoint.setHttpMethod("POST");
+              restEndpoint.setHttpMethod("POST");
               break;
             case "DeleteMapping":
-              endpoint.setHttpMethod("DELETE");
+              restEndpoint.setHttpMethod("DELETE");
               break;
             case "PutMapping":
-              endpoint.setHttpMethod("PUT");
+              restEndpoint.setHttpMethod("PUT");
               break;
             case "RequestMapping":
               if (ae.toString().contains("RequestMethod.POST")) {
-                endpoint.setHttpMethod("POST");
+                restEndpoint.setHttpMethod("POST");
               } else if (ae.toString().contains("RequestMethod.DELETE")) {
-                endpoint.setHttpMethod("DELETE");
+                restEndpoint.setHttpMethod("DELETE");
               } else if (ae.toString().contains("RequestMethod.PUT")) {
-                endpoint.setHttpMethod("PUT");
+                restEndpoint.setHttpMethod("PUT");
               } else {
-                endpoint.setHttpMethod("GET");
+                restEndpoint.setHttpMethod("GET");
               }
               break;
           }
 
-          if (endpoint.getHttpMethod() == null) {
+          if (restEndpoint.getHttpMethod() == null) {
             continue;
           }
 
-          endpoint.setSourceFile(sourceFile.getCanonicalPath());
-          endpoint.setUrl(StringParserUtils.mergePaths(classLevelPath, pathFromAnnotation(ae)));
-          endpoint.setParentMethod(packageName + "." + className + "." + methodName);
-          endpoint.setMethodName(methodName);
-          endpoint.setParameter(parameter);
-          endpoint.setReturnType(md.getTypeAsString());
-          endpoints.add(endpoint);
+          restEndpoint.setParentMethod(
+              packageName + "." + className + "." + method.getMethodName());
+          restEndpoint.setMethod(method);
+          restEndpoint.setMethodVariables(RestParser.extractVariables(md));
+
+          restController.addEndpoint(restEndpoint);
         }
+
+        restController.setClassName(className);
+        restController.setSourceFile(sourceFile.getCanonicalPath());
+        restController.setVariables(RestParser.extractVariables(cid));
+
+        restControllers.add(restController);
       }
     }
 
-    return endpoints;
+    return restControllers;
   }
 
   /**
@@ -124,7 +116,7 @@ public class EndpointExtractionService {
    * @param ae the annotation expression
    * @return the path else an empty string if not found or ae was null
    */
-  private String pathFromAnnotation(AnnotationExpr ae) {
+  private static String pathFromAnnotation(AnnotationExpr ae) {
     if (ae == null) {
       return "";
     }

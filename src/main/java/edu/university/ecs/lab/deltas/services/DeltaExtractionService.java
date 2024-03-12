@@ -69,20 +69,20 @@ public class DeltaExtractionService {
         continue;
       }
 
-      String changeURL = gitFetchUtils.getGithubFileUrl(repo, entry);
-      System.out.println("Extracting changes from: " + changeURL);
+      // String changeURL = gitFetchUtils.getGithubFileUrl(repo, entry);
+      System.out.println("Extracting changes from: " + path);
 
       String localPath = path + "/" + entry.getOldPath();
 
-      javax.json.JsonArray deltaChanges;
+      javax.json.JsonObject deltaChanges;
 
       switch (entry.getChangeType()) {
         case MODIFY:
           // fetch changed file
-          String fileContents = gitFetchUtils.fetchAndDecodeFile(changeURL);
+          // String fileContents = gitFetchUtils.fetchAndDecodeFile(changeURL);
 
           // compare differences with local path
-          deltaChanges = comparisonUtils.extractDeltaChanges(fileContents, localPath);
+          deltaChanges = comparisonUtils.extractDeltaChanges(localPath);
 
           // no changes found (likely an extra tail line not shown remotely)
           if (deltaChanges.isEmpty()) {
@@ -95,7 +95,7 @@ public class DeltaExtractionService {
         case RENAME:
         case ADD:
         default:
-          deltaChanges = Json.createArrayBuilder().build();
+          deltaChanges = Json.createObjectBuilder().build();
           break;
       }
 
@@ -103,9 +103,8 @@ public class DeltaExtractionService {
           "Change impact of type " + entry.getChangeType() + " detected in " + entry.getNewPath());
 
       JsonObjectBuilder jout = Json.createObjectBuilder();
-      jout.add("local-previous", localPath);
-      jout.add("remote-api", changeURL);
-      jout.add("change-type", entry.getChangeType().name());
+      jout.add("localPath", localPath);
+      jout.add("changeType", entry.getChangeType().name());
       jout.add("changes", deltaChanges);
 
       outputBuilder.add(entry.getNewId().name(), jout);

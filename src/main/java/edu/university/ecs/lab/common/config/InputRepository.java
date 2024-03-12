@@ -1,9 +1,11 @@
 package edu.university.ecs.lab.common.config;
 
 import lombok.Getter;
+import lombok.Setter;
 
 /** Model to represent the microservice object in the configuration JSON file input */
 @Getter
+@Setter
 public class InputRepository {
   /** The url of the git repository */
   private String repoUrl;

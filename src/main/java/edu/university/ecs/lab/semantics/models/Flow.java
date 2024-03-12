@@ -30,24 +30,15 @@ public class Flow {
         this.controllerMethod = n;
     }
 
-    public String getPackageName() {
-        if (controller != null) {
-            return controller.getPackageName().split("\\.")[0];
-        } else if (controller != null) {
-            return service.getPackageName().split("\\.")[0];
-        } else if (repository != null) {
-            return repository.getPackageName().split("\\.")[0];
-        }
-        return "";
+  public String getPackageName() {
+    if (controller != null) {
+      return controller.getPackageName().split("\\.")[0];
+    } else if (controller != null) {
+      return service.getPackageName().split("\\.")[0];
+    } else if (repository != null) {
+      return repository.getPackageName().split("\\.")[0];
     }
-
-//    @Override
-//    public String toString() {
-//        StringBuilder sb = new StringBuilder();
-//        sb.append(controller.getClassName());
-//        sb.append(" -> ");
-//        sb.append(controllerMethod.getMethodName());
-//        return sb.toString();
-//    }
+    return "";
+  }
 }
 

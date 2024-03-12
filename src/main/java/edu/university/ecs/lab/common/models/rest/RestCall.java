@@ -1,4 +1,4 @@
-package edu.university.ecs.lab.common.models;
+package edu.university.ecs.lab.common.models.rest;
 
 import lombok.*;
 
@@ -6,10 +6,11 @@ import lombok.*;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class RestDependency {
+public class RestCall {
   private String url;
   private String sourceFile;
   private String destFile;
   private String httpMethod;
-  private String parentMethod;
+  private String callMethod;
+  private String callClass;
 }

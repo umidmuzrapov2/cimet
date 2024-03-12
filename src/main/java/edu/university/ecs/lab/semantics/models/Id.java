@@ -2,17 +2,12 @@ package edu.university.ecs.lab.semantics.models;
 
 import edu.university.ecs.lab.semantics.utils.UniqueIdGenerator;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-
-import java.util.Arrays;
 
 /**
- * This class identifies any particular model in the program, its location
- * and its associated project and gives an exact identifier to the model
+ * This class identifies any particular model in the program, its location and its associated
+ * project and gives an exact identifier to the model
  */
-@Setter
-@Getter
+@Data
 public class Id {
   private final long id;
   private String project;
@@ -22,7 +17,9 @@ public class Id {
     id = UniqueIdGenerator.getUniqueID();
   }
 
-
-
-
+  public Id(String project, String location) {
+    id = UniqueIdGenerator.getUniqueID();
+    this.project = project;
+    this.location = location;
+  }
 }
