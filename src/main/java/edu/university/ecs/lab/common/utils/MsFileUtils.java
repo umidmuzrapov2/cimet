@@ -229,7 +229,6 @@ public class MsFileUtils {
     return variableArrayBuilder.build();
   }
 
-
   /**
    * Construct a JSON object representing the given ms system name, version, and microservice data
    * map.
@@ -239,7 +238,8 @@ public class MsFileUtils {
    * @param clonesMap the map of microservices to their clones
    * @return the constructed JSON object
    */
-  public static JsonObject constructJsonClonesSystem(String systemName, String version, Map<String, List<CodeClone>> clonesMap) {
+  public static JsonObject constructJsonClonesSystem(
+      String systemName, String version, Map<String, List<CodeClone>> clonesMap) {
     JsonObjectBuilder parentBuilder = Json.createObjectBuilder();
 
     parentBuilder.add("systemName", systemName);
@@ -247,19 +247,20 @@ public class MsFileUtils {
 
     JsonArrayBuilder microserviceArrayBuilder = Json.createArrayBuilder();
 
-    for (Map.Entry<String, List<CodeClone>> microservice: clonesMap.entrySet()) {
+    for (Map.Entry<String, List<CodeClone>> microservice : clonesMap.entrySet()) {
 
       JsonObjectBuilder microserviceBuilder = Json.createObjectBuilder();
       String msName = microservice.getKey();
       if (microservice.getKey().contains(File.separator)) {
-        msName = microservice.getKey().substring(microservice.getKey().lastIndexOf(File.separator) + 1);
+        msName =
+            microservice.getKey().substring(microservice.getKey().lastIndexOf(File.separator) + 1);
       }
       microserviceBuilder.add("msName", msName);
 
       JsonArrayBuilder cloneArrayBuilder = Json.createArrayBuilder();
       boolean hasClones = false;
 
-      for (CodeClone clone: microservice.getValue()) {
+      for (CodeClone clone : microservice.getValue()) {
         JsonObjectBuilder cloneBuilder = Json.createObjectBuilder();
 
         cloneBuilder.add("global-similarity", clone.getGlobalSimilarity());
@@ -278,7 +279,6 @@ public class MsFileUtils {
       if (hasClones) {
         microserviceArrayBuilder.add(microserviceBuilder.build());
       }
-
     }
 
     parentBuilder.add("services", microserviceArrayBuilder.build());
@@ -296,13 +296,11 @@ public class MsFileUtils {
       flowBuilder.add("controller-method", flow.getControllerMethod().getMethodName());
     }
 
-
     // Add service to Json
     if (Objects.nonNull(flow.getService())) {
       flowBuilder.add("service", flow.getService().getClassName());
       flowBuilder.add("service-method", flow.getServiceMethod().getMethodName());
     }
-
 
     // Add repository to Json
     if (Objects.nonNull(flow.getRepository())) {
@@ -310,12 +308,11 @@ public class MsFileUtils {
       flowBuilder.add("repository-method", flow.getRepositoryMethod().getMethodName());
     }
 
-
     // Add Rest calls to Json
     if (Objects.nonNull(flow.getRestCalls())) {
       JsonArrayBuilder restCallArrayBuilder = Json.createArrayBuilder();
 
-      for (edu.university.ecs.lab.semantics.models.RestCall restCall: flow.getRestCalls()) {
+      for (edu.university.ecs.lab.semantics.models.RestCall restCall : flow.getRestCalls()) {
         JsonObjectBuilder restCallBuilder = Json.createObjectBuilder();
         restCallBuilder.add("api-enpoint", restCall.getApiEndpoint());
         restCallBuilder.add("http-method", restCall.getHttpMethod());
