@@ -142,7 +142,7 @@ public class FlowService {
                 .filter(
                         n ->
                                 n.getId().getLocation().equals(Service.getId().getLocation())
-                                        && n.getParentMethodName().equals(ServiceMethod.getMethodName()))
+                                        && n.getCalledMethodName().equals(ServiceMethod.getMethodName()))
                 .findFirst();
     }
 
@@ -173,8 +173,8 @@ public class FlowService {
         return CachingService.getCache().getRestCallList().stream()
                 .filter(
                         n ->
-                                n.getParentClassName().equals(MethodService.getClassName())
-                                        && n.getParentMethodName().equals(MethodService.getMethodName()))
+                                n.getMethodContext().getParentClassName().equals(MethodService.getClassName())
+                                        && n.getMethodContext().getParentMethodName().equals(MethodService.getMethodName()))
                 .collect(Collectors.toList());
     }
 
@@ -249,7 +249,7 @@ public class FlowService {
         return CachingService.getCache().getMethodCallList().stream()
                 .filter(
                         n ->
-                                n.getParentMethodName().equals(ControllerMethod.getMethodName())
+                                n.getMethodContext().getParentMethodName().equals(ControllerMethod.getMethodName())
                                         && n.getId().getLocation().equals(ControllerMethod.getId().getLocation()))
                 .findFirst();
     }

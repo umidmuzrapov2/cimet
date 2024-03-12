@@ -17,8 +17,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-import static edu.university.ecs.lab.semantics.services.ParserService.parseMethodLocation;
-
 /**
  * Service for processing files and storing information relevant to one microservice system.
  * Therefore, a new visitor service should be invoked for each system.
@@ -226,7 +224,7 @@ public class VisitorService {
 
                 methodCall.setLineNumber(lineNumber);
                 //                                methodCall.setStatementDeclaration(n.toString());
-                methodCall.setMethodContext(parseMethodLocation(n));
+                methodCall.setMethodContext(ParserService.parseMethodLocation(n));
                 methodCall.setCalledServiceId(name);
                 MethodCallExpr methodCallExpr = (MethodCallExpr) fae.getParentNode().get();
                 methodCall.setCalledMethodName(methodCallExpr.getNameAsString());
@@ -240,7 +238,7 @@ public class VisitorService {
 
                 methodCall.setLineNumber(lineNumber);
                 //                                methodCall.setStatementDeclaration(n.toString());
-                methodCall.setMethodContext(parseMethodLocation(n));
+                methodCall.setMethodContext(ParserService.parseMethodLocation(n));
                 methodCall.setCalledServiceId(name);
                 MethodCallExpr methodCallExpr = (MethodCallExpr) fae.getParentNode().get();
                 methodCall.setCalledMethodName(methodCallExpr.getNameAsString());
@@ -251,7 +249,7 @@ public class VisitorService {
                 // restTemplate.<insertMethodName>() being called
                 RestCall msRestCall = ParserService.parseRestCall(n);
                 msRestCall.setLineNumber(lineNumber);
-                MethodContext methodContextCall = parseMethodLocation(n);
+                MethodContext methodContextCall = ParserService.parseMethodLocation(n);
                 msRestCall.setMethodContext(methodContextCall);
                 msRestCall.setId(id);
                 CachingService.getCache().getRestCallList().add(msRestCall);

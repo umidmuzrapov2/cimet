@@ -1,10 +1,7 @@
 package edu.university.ecs.lab.semantics;
 
 import edu.university.ecs.lab.common.config.InputConfig;
-import edu.university.ecs.lab.semantics.services.CachingService;
-import edu.university.ecs.lab.semantics.services.FlowService;
-import edu.university.ecs.lab.semantics.services.SetupService;
-import edu.university.ecs.lab.semantics.services.VisitorService;
+import edu.university.ecs.lab.semantics.services.*;
 import java.io.File;
 
 public class Main {

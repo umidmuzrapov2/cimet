@@ -211,9 +211,9 @@ public class CodeCloneService {
             for (int i = 0; i < aArguments.size() - 1; i++) {
                 for (int j = i + 1; j < bArguments.size(); j++) {
 
-                    if (aArguments.get(i).getReturnType() != null
-                            && aArguments.get(i).getReturnType() != null
-                            && aArguments.get(i).getReturnType().equals(bArguments.get(j).getReturnType())) {
+                    if (aArguments.get(i).getType() != null
+                            && aArguments.get(i).getType() != null
+                            && aArguments.get(i).getType().equals(bArguments.get(j).getType())) {
                         sameArguments += 1.0;
                     }
                 }
@@ -294,9 +294,9 @@ public class CodeCloneService {
             for (int i = 0; i < aArguments.size() - 1; i++) {
                 for (int j = i + 1; j < bArguments.size(); j++) {
 
-                    if (aArguments.get(i).getReturnType() != null
-                            && aArguments.get(i).getReturnType() != null
-                            && aArguments.get(i).getReturnType().equalsIgnoreCase(bArguments.get(j).getReturnType())) {
+                    if (aArguments.get(i).getType() != null
+                            && aArguments.get(i).getType() != null
+                            && aArguments.get(i).getType().equalsIgnoreCase(bArguments.get(j).getType())) {
                         sameArguments += 1.0;
                     }
                 }
