@@ -2,6 +2,7 @@ package edu.university.ecs.lab.semantics.models;
 
 import edu.university.ecs.lab.semantics.models.enums.ClassRole;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 import java.util.List;

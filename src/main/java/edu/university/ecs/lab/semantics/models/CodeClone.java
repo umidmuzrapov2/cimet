@@ -2,6 +2,8 @@ package edu.university.ecs.lab.semantics.models;
 
 import lombok.Data;
 
+import java.util.Objects;
+
 @Data
 public class CodeClone {
 
@@ -43,6 +45,32 @@ public class CodeClone {
   private double calReturnTypeLiteralSimilarity = 0;
 
   //    private double calReturnTypeSemanticSimilarity = 0;
+
+
+
+
+  @Override
+  public boolean equals(Object o) {
+
+    // If the object is compared with itself then return true
+    if (o == this) {
+      return true;
+    }
+
+        /* Check if o is an instance of Complex or not
+          "null instanceof [type]" also returns false */
+    if (!(o instanceof CodeClone)) {
+      return false;
+    }
+
+    // typecast o to Complex so that we can compare data members
+    CodeClone c = (CodeClone) o;
+
+    // Compare the data members and return accordingly
+    return Objects.equals(c, this);
+
+  }
+
 
   @Override
   public String toString() {

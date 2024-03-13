@@ -3,6 +3,7 @@ package edu.university.ecs.lab.semantics.models;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Objects;
 
 @Data
 public class Flow {
@@ -37,4 +38,5 @@ public class Flow {
     }
     return "";
   }
+
 }

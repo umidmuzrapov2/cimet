@@ -19,8 +19,13 @@ public class CodeCloneService {
     Cache cache = CachingService.getCache();
 
     // compare each flow with each flow
-    for (Flow flowA : cache.getFlowList()) {
-      for (Flow flowB : cache.getFlowList()) {
+
+
+    for (int i = 0; i < cache.getFlowList().size(); i++) {
+      for (int j = 0; j < i; j++) {
+
+        Flow flowA = cache.getFlowList().get(i);
+        Flow flowB = cache.getFlowList().get(j);
 
         // skip if flows are the same
         if (flowA.equals(flowB)) {
@@ -49,6 +54,8 @@ public class CodeCloneService {
 
         // Add code clone to cache
         CachingService.getCache().getCodeCloneList().add(codeClone);
+
+
       }
     }
   }
