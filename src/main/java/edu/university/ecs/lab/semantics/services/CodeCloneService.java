@@ -20,7 +20,6 @@ public class CodeCloneService {
 
     // compare each flow with each flow
 
-
     for (int i = 0; i < cache.getFlowList().size(); i++) {
       for (int j = 0; j < i; j++) {
 
@@ -54,8 +53,6 @@ public class CodeCloneService {
 
         // Add code clone to cache
         CachingService.getCache().getCodeCloneList().add(codeClone);
-
-
       }
     }
   }

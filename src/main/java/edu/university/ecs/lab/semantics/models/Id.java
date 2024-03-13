@@ -2,7 +2,6 @@ package edu.university.ecs.lab.semantics.models;
 
 import edu.university.ecs.lab.semantics.utils.UniqueIdGenerator;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
  * This class identifies any particular model in the program, its location and its associated

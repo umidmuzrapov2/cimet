@@ -46,9 +46,6 @@ public class CodeClone {
 
   //    private double calReturnTypeSemanticSimilarity = 0;
 
-
-
-
   @Override
   public boolean equals(Object o) {
 
@@ -57,8 +54,8 @@ public class CodeClone {
       return true;
     }
 
-        /* Check if o is an instance of Complex or not
-          "null instanceof [type]" also returns false */
+    /* Check if o is an instance of Complex or not
+    "null instanceof [type]" also returns false */
     if (!(o instanceof CodeClone)) {
       return false;
     }
@@ -68,9 +65,7 @@ public class CodeClone {
 
     // Compare the data members and return accordingly
     return Objects.equals(c, this);
-
   }
-
 
   @Override
   public String toString() {

@@ -231,10 +231,8 @@ public class CloneExtraction {
             .filter(a -> a.getGlobalSimilarity() > .9)
             .collect(Collectors.toList());
 
-
-//      l.removeIf(c -> cache.getCodeCloneList().stream().anyMatch(flow1 -> c.getFlowA().equals(flow1.getFlowB()) && c.getFlowB().equals(flow1.getFlowA())));
-
-
+    //      l.removeIf(c -> cache.getCodeCloneList().stream().anyMatch(flow1 ->
+    // c.getFlowA().equals(flow1.getFlowB()) && c.getFlowB().equals(flow1.getFlowA())));
 
     Map<String, List<CodeClone>> clonesMap = new HashMap<>();
 
