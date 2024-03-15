@@ -8,7 +8,8 @@ import lombok.Setter;
 
 import java.util.List;
 
-@Getter @Setter
+@Getter
+@Setter
 @AllArgsConstructor
 public class MsSystem {
   private String systemName;

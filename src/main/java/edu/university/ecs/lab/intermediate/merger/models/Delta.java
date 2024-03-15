@@ -8,7 +8,8 @@ import lombok.Setter;
 
 import java.util.List;
 
-@Getter @Setter
+@Getter
+@Setter
 @AllArgsConstructor
 public class Delta {
   private String localPath;
@@ -18,19 +19,25 @@ public class Delta {
   private Change change;
 }
 
-@Getter @Setter
+@Getter
+@Setter
 @AllArgsConstructor
 class Change {
   @SerializedName("restControllers")
   private List<RestController> restControllers;
+
   @SerializedName("restCalls")
   private List<RestCall> restCalls;
+
   @SerializedName("services")
   private List<RestService> restServices;
+
   @SerializedName("dtos")
   private List<RestDTO> restDTOs;
+
   @SerializedName("repositories")
   private List<RestRepository> restRepositories;
+
   @SerializedName("entities")
   private List<RestEntity> restEntities;
 }
