@@ -1,9 +1,6 @@
 package edu.university.ecs.lab.common.writers;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonWriter;
-import javax.json.JsonWriterFactory;
+import javax.json.*;
 import javax.json.stream.JsonGenerator;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -23,6 +20,18 @@ public class MsJsonWriter {
    * @throws IOException if an I/O error occurs
    */
   public static void writeJsonToFile(JsonObject jout, String fileName) throws IOException {
+    try (FileWriter writer = new FileWriter(fileName)) {
+      Map<String, Object> properties = new HashMap<>();
+      properties.put(JsonGenerator.PRETTY_PRINTING, true);
+      JsonWriterFactory writerFactory = Json.createWriterFactory(properties);
+
+      JsonWriter jsonWriter = writerFactory.createWriter(writer);
+      jsonWriter.write(jout);
+      jsonWriter.close();
+    }
+  }
+
+  public static void writeJsonToFile(JsonArray jout, String fileName) throws IOException {
     try (FileWriter writer = new FileWriter(fileName)) {
       Map<String, Object> properties = new HashMap<>();
       properties.put(JsonGenerator.PRETTY_PRINTING, true);
