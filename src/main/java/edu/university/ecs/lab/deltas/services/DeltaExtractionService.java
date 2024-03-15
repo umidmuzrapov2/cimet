@@ -60,7 +60,7 @@ public class DeltaExtractionService {
    */
   public void processDifferences(String path, Repository repo, List<DiffEntry> diffEntries)
       throws IOException {
-    JsonObjectBuilder outputBuilder = Json.createObjectBuilder();
+    JsonArrayBuilder outputBuilder = Json.createArrayBuilder();
 
     // process each difference
     for (DiffEntry entry : diffEntries) {
@@ -107,11 +107,11 @@ public class DeltaExtractionService {
       jout.add("changeType", entry.getChangeType().name());
       jout.add("changes", deltaChanges);
 
-      outputBuilder.add(entry.getNewId().name(), jout);
+      outputBuilder.add(jout.build());
     }
 
     // write differences to output file
-    String outputName = "delta-changes-[" + (new Date()).getTime() + "].json";
+    String outputName = "./out/delta-changes-[" + (new Date()).getTime() + "].json";
     MsJsonWriter.writeJsonToFile(outputBuilder.build(), outputName);
 
     System.out.println("Delta extracted: " + outputName);
