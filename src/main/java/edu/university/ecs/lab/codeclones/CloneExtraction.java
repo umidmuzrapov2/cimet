@@ -147,7 +147,7 @@ public class CloneExtraction {
               .getRestCalls()
               .forEach(
                   call -> {
-                    String callUrl = call.getUrl();
+                    String callUrl = call.getApi();
                     String httpMethod = call.getHttpMethod();
 
                     RestController matchingController = null;
@@ -191,7 +191,7 @@ public class CloneExtraction {
                     }
 
                     if (Objects.nonNull(matchingController)) {
-                      call.setDestFile(matchingController.getSourceFile());
+                      call.setCallDest(matchingController.getSourceFile());
                     }
                   });
         });

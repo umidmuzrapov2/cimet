@@ -40,7 +40,7 @@ public class RestParser {
 
     JavaMethod method = new JavaMethod();
     method.setMethodName(methodName);
-    method.setParameter(parameter.toString());
+    method.setArguments(parameter.toString());
     method.setReturnType(md.getTypeAsString());
 
     return method;
@@ -51,7 +51,7 @@ public class RestParser {
     JavaClass javaClass = new JavaClass();
 
     javaClass.setClassName(cid.getNameAsString());
-    javaClass.setSourceFile(sourceFile.getCanonicalPath());
+    javaClass.setClassPath(sourceFile.getCanonicalPath());
     javaClass.setVariables(extractVariables(cid));
     javaClass.setMethods(extractMethods(cid));
 

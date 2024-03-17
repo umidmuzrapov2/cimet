@@ -44,14 +44,17 @@ public class MsFileUtils {
       JsonObjectBuilder msObjectBuilder = Json.createObjectBuilder();
       String msName = microservice.getKey();
 
-      if (microservice.getKey().contains(File.separator)) {
+      if (microservice.getKey().contains("\\")) {
         msName =
-            microservice.getKey().substring(microservice.getKey().lastIndexOf(File.separator) + 1);
+            microservice.getKey().substring(microservice.getKey().lastIndexOf("\\") + 1);
+      } else if (microservice.getKey().contains("/")) {
+        msName =
+                microservice.getKey().substring(microservice.getKey().lastIndexOf("/") + 1);
       }
 
       msObjectBuilder.add("id", microservice.getValue().getId().replaceAll("\\\\", "/"));
       msObjectBuilder.add("msName", msName);
-      msObjectBuilder.add("msPath", microservice.getKey().replaceAll("\\\\", "/"));
+      //msObjectBuilder.add("msPath", microservice.getKey().replaceAll("\\\\", "/"));
       msObjectBuilder.add("commitId", microservice.getValue().getCommit());
 
       msObjectBuilder.add(
@@ -99,7 +102,7 @@ public class MsFileUtils {
                 + "."
                 + restEndpoint.getMethod().getMethodName()
                 + "#"
-                + Math.abs(restEndpoint.getMethod().getParameter().hashCode()));
+                + Math.abs(restEndpoint.getMethod().getArguments().hashCode()));
 
         JsonObjectBuilder endpointBuilder = Json.createObjectBuilder();
 
@@ -108,11 +111,15 @@ public class MsFileUtils {
         endpointBuilder.add("type", restEndpoint.getDecorator());
         endpointBuilder.add("httpMethod", restEndpoint.getHttpMethod());
         endpointBuilder.add("parent-method", restEndpoint.getParentMethod());
-        endpointBuilder.add("methodName", restEndpoint.getMethod().getMethodName());
-        endpointBuilder.add("arguments", restEndpoint.getMethod().getParameter());
-        endpointBuilder.add("return", restEndpoint.getMethod().getReturnType());
         endpointBuilder.add(
             "method-variables", addVariableArray(restEndpoint.getMethodVariables()));
+
+        JsonObjectBuilder methodBuilder = Json.createObjectBuilder();
+        methodBuilder.add("methodName", restEndpoint.getMethod().getMethodName());
+        methodBuilder.add("arguments", restEndpoint.getMethod().getArguments());
+        methodBuilder.add("returnType", restEndpoint.getMethod().getReturnType());
+
+        endpointBuilder.add("method", methodBuilder.build());
 
         endpointArrayBuilder.add(endpointBuilder.build());
       }
@@ -136,7 +143,7 @@ public class MsFileUtils {
     for (RestService restService : restServices) {
       JsonObjectBuilder serviceBuilder = Json.createObjectBuilder();
       serviceBuilder.add("className", restService.getClassName());
-      serviceBuilder.add("classPath", restService.getSourceFile().replaceAll("\\\\", "/"));
+      serviceBuilder.add("classPath", restService.getClassPath().replaceAll("\\\\", "/"));
 
       // write service methods
       serviceBuilder.add("methods", addMethodArray(restService.getMethods()));
@@ -162,7 +169,7 @@ public class MsFileUtils {
     for (JavaClass javaClass : classList) {
       JsonObjectBuilder dtoBuilder = Json.createObjectBuilder();
       dtoBuilder.add("className", javaClass.getClassName());
-      dtoBuilder.add("classPath", javaClass.getSourceFile().replaceAll("\\\\", "/"));
+      dtoBuilder.add("classPath", javaClass.getClassPath().replaceAll("\\\\", "/"));
 
       dtoBuilder.add("variables", addVariableArray(javaClass.getVariables()));
       dtoBuilder.add("methods", addMethodArray(javaClass.getMethods()));
@@ -185,11 +192,11 @@ public class MsFileUtils {
     for (RestCall restCall : restCalls) {
       JsonObjectBuilder restCallBuilder = Json.createObjectBuilder();
 
-      restCallBuilder.add("api", restCall.getUrl());
-      restCallBuilder.add("source-file", restCall.getSourceFile().replaceAll("\\\\", "/"));
-      restCallBuilder.add("call-dest", restCall.getDestFile().replaceAll("\\\\", "/"));
-      restCallBuilder.add("call-method", restCall.getCallMethod() + "()");
-      restCallBuilder.add("call-class", restCall.getCallClass());
+      restCallBuilder.add("api", restCall.getApi());
+      restCallBuilder.add("sourceFile", restCall.getSourceFile().replaceAll("\\\\", "/"));
+      restCallBuilder.add("callDest", restCall.getCallDest().replaceAll("\\\\", "/"));
+      restCallBuilder.add("callMethod", restCall.getCallMethod() + "()");
+      restCallBuilder.add("callClass", restCall.getCallClass());
       restCallBuilder.add("httpMethod", restCall.getHttpMethod());
 
       endpointsArrayBuilder.add(restCallBuilder.build());
@@ -205,7 +212,7 @@ public class MsFileUtils {
       JsonObjectBuilder methodObjectBuilder = Json.createObjectBuilder();
 
       methodObjectBuilder.add("methodName", method.getMethodName());
-      methodObjectBuilder.add("parameter", method.getParameter());
+      methodObjectBuilder.add("arguments", method.getArguments());
       methodObjectBuilder.add("returnType", method.getReturnType());
 
       methodArrayBuilder.add(methodObjectBuilder.build());

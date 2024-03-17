@@ -72,14 +72,14 @@ public class CallParser {
               }
 
               // find url
-              restCall.setUrl(findUrl(mce, cid));
+              restCall.setApi(findUrl(mce, cid));
 
               // skip empty urls
-              if (restCall.getUrl().equals("")) {
+              if (restCall.getApi().equals("")) {
                 continue;
               }
 
-              restCall.setDestFile("");
+              restCall.setCallDest("");
 
               // add to list of restCall
               dependencies.add(restCall);

@@ -7,9 +7,9 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RestCall {
-  private String url;
+  private String api;
   private String sourceFile;
-  private String destFile;
+  private String callDest;
   private String httpMethod;
   private String callMethod;
   private String callClass;
