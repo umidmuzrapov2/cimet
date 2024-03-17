@@ -79,20 +79,14 @@ public class IRMergeRunner {
     writeNewIntermediate(systemName, version, msModelMap);
   }
 
-  private static void writeNewIntermediate(String systemname, String version,
-                                           Map<String, MsModel> msModelMap) throws IOException {
-    JsonObject jout =
-            MsFileUtils.constructJsonMsSystem(systemname, version, msModelMap);
+  private static void writeNewIntermediate(
+      String systemname, String version, Map<String, MsModel> msModelMap) throws IOException {
+    JsonObject jout = MsFileUtils.constructJsonMsSystem(systemname, version, msModelMap);
 
-    String outputPath =
-            System.getProperty("user.dir") + File.separator + "out";
+    String outputPath = System.getProperty("user.dir") + File.separator + "out";
 
     String outputName =
-            outputPath
-                    + File.separator
-                    + "rest-extraction-new-["
-                    + (new Date()).getTime()
-                    + "].json";
+        outputPath + File.separator + "rest-extraction-new-[" + (new Date()).getTime() + "].json";
 
     MsJsonWriter.writeJsonToFile(jout, outputName);
     System.out.println("Successfully wrote updated extraction to: \"" + outputName + "\"");

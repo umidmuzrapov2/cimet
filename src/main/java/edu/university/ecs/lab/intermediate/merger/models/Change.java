@@ -14,14 +14,19 @@ import java.util.List;
 public class Change {
   @SerializedName("restControllers")
   private List<RestController> restControllers;
+
   @SerializedName("restCalls")
   private List<RestCall> restCalls;
+
   @SerializedName("services")
   private List<RestService> restServices;
+
   @SerializedName("dtos")
   private List<RestDTO> restDTOs;
+
   @SerializedName("repositories")
   private List<RestRepository> restRepositories;
+
   @SerializedName("entities")
   private List<RestEntity> restEntities;
 }
