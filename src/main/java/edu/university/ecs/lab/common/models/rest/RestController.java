@@ -1,5 +1,6 @@
 package edu.university.ecs.lab.common.models.rest;
 
+import com.google.gson.annotations.SerializedName;
 import edu.university.ecs.lab.common.config.InputConfig;
 import edu.university.ecs.lab.common.models.JavaVariable;
 import lombok.*;
@@ -19,6 +20,7 @@ public class RestController {
    * The java source code file the endpoint was found in, path after {@link
    * InputConfig#getClonePath()}
    */
+  @SerializedName("classPath")
   private String sourceFile;
 
   private List<RestEndpoint> restEndpoints = new ArrayList<>(); /* composes endpoints */

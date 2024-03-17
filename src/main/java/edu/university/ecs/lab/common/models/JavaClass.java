@@ -12,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 public class JavaClass {
   private String className;
-  private String sourceFile;
+  private String classPath;
 
   private List<JavaVariable> variables = new ArrayList<>();
   private List<JavaMethod> methods = new ArrayList<>();

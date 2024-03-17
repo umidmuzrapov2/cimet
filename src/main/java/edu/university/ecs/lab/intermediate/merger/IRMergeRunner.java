@@ -37,9 +37,13 @@ public class IRMergeRunner {
       switch (delta.getChangeType()) {
         case "ADD":
           MsModel addModel = mergeService.extractNewModel(localPath);
+
           if (addModel == null) {
             continue;
           }
+
+          addModel.setId(localPath.substring(localPath.lastIndexOf('/') + 1));
+          addModel.setCommit(""); // TODO
 
           msModelMap.put(localPath, addModel);
           break;
@@ -49,11 +53,15 @@ public class IRMergeRunner {
           break;
         case "MODIFY":
           MsModel changeModel = mergeService.extractNewModel(localPath);
+
           if (changeModel == null) {
-            // TODO: same remove logic?
+            // TODO: remove logic?
             msModelMap.remove(localPath);
             continue;
           }
+
+          changeModel.setId(localPath.substring(localPath.lastIndexOf('/') + 1));
+          changeModel.setCommit(""); // TODO
 
           msModelMap.put(localPath, changeModel);
           break;
