@@ -1,4 +1,4 @@
-package edu.university.ecs.lab.common.models;
+package edu.university.ecs.lab.common.models.enums;
 
 /** Enum to represent the HTTP methods of an endpoint */
 public enum HttpMethod {

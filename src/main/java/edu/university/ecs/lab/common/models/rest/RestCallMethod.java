@@ -1,6 +1,6 @@
 package edu.university.ecs.lab.common.models.rest;
 
-import edu.university.ecs.lab.common.models.HttpMethod;
+import edu.university.ecs.lab.common.models.enums.HttpMethod;
 import lombok.*;
 
 @Getter

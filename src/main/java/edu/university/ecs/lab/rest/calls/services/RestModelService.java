@@ -98,28 +98,28 @@ public class RestModelService {
       List<RestCall> calls) {
     try {
       if (file.getName().contains("Controller")) {
-        List<RestController> fileRestControllers = EndpointParser.parseEndpoints(file);
+        List<RestController> fileRestControllers = ParserService.parseEndpoints(file);
         restControllers.addAll(fileRestControllers);
       }
 
       if (file.getName().contains("Service")) {
-        List<RestService> fileRestServices = ServiceParser.parseServices(file);
+        List<RestService> fileRestServices = ParserService.parseServices(file);
         restServices.addAll(fileRestServices);
       }
 
       if (file.getName().toLowerCase().contains("dto")) {
-        List<RestDTO> fileRestDtos = DTOParser.parseDTOs(file);
+        List<RestDTO> fileRestDtos = ParserService.parseDTOs(file);
         restDTOs.addAll(fileRestDtos);
       }
 
       if (file.getName().contains("Repository")) {
-        List<RestRepository> fileRestRepos = RepositoryParser.parseRepos(file);
+        List<RestRepository> fileRestRepos = ParserService.parseRepos(file);
         restRepos.addAll(fileRestRepos);
       }
 
       if (file.getParent().toLowerCase().contains("entity")
           || file.getParent().toLowerCase().contains("model")) {
-        List<RestEntity> fileRestEntities = RepositoryParser.parseEntities(file);
+        List<RestEntity> fileRestEntities = ParserService.parseEntities(file);
         restEntities.addAll(fileRestEntities);
       }
 
@@ -129,7 +129,7 @@ public class RestModelService {
     }
 
     try {
-      List<RestCall> restCalls = CallParser.parseCalls(file);
+      List<RestCall> restCalls = ParserService.parseCalls(file);
       calls.addAll(restCalls);
     } catch (IOException e) {
       System.err.println("Could not extract calls from file: " + file.getName());
