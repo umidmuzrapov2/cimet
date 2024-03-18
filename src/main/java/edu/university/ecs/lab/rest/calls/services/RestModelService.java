@@ -1,13 +1,15 @@
 package edu.university.ecs.lab.rest.calls.services;
 
-import edu.university.ecs.lab.common.models.rest.*;
+import edu.university.ecs.lab.common.ParserService;
+import edu.university.ecs.lab.common.models.JClass;
+import edu.university.ecs.lab.common.models.enums.ClassRole;
 import edu.university.ecs.lab.rest.calls.models.*;
-import edu.university.ecs.lab.rest.calls.parsers.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /** Service for extracting REST endpoints and dependencies for a given microservice. */
 public class RestModelService {
@@ -24,13 +26,7 @@ public class RestModelService {
     System.out.println("Scanning repository '" + repoPath + "'...");
     MsModel model = new MsModel();
 
-    List<RestController> restControllers = new ArrayList<>();
-    List<RestService> restServices = new ArrayList<>();
-    List<RestDTO> restDTOs = new ArrayList<>();
-    List<RestRepository> restRepositories = new ArrayList<>();
-    List<RestEntity> restEntities = new ArrayList<>();
-
-    List<RestCall> calls = new ArrayList<>();
+    List<JClass> jClasses = new ArrayList<>();
 
     File localDir = new File(repoPath);
     if (!localDir.exists() || !localDir.isDirectory()) {
@@ -38,15 +34,8 @@ public class RestModelService {
       return null;
     }
 
-    scanDirectory(
-        localDir, restControllers, restServices, restDTOs, restRepositories, restEntities, calls);
-
-    model.setRestControllers(restControllers);
-    model.setRestServices(restServices);
-    model.setRestDTOs(restDTOs);
-    model.setRestRepositories(restRepositories);
-    model.setRestEntities(restEntities);
-    model.setRestCalls(calls);
+    scanDirectory(localDir, jClasses);
+    model.setClassList(jClasses);
 
     System.out.println("Done!");
     return model;
@@ -61,21 +50,19 @@ public class RestModelService {
    */
   public static void scanDirectory(
       File directory,
-      List<RestController> restControllers,
-      List<RestService> restServices,
-      List<RestDTO> restDTOs,
-      List<RestRepository> restRepos,
-      List<RestEntity> restEntities,
-      List<RestCall> calls) {
+      List<JClass> jClasses) {
     File[] files = directory.listFiles();
 
     if (files != null) {
       for (File file : files) {
         if (file.isDirectory()) {
           scanDirectory(
-              file, restControllers, restServices, restDTOs, restRepos, restEntities, calls);
+              file, jClasses);
         } else if (file.getName().endsWith(".java")) {
-          scanFile(file, restControllers, restServices, restDTOs, restRepos, restEntities, calls);
+          JClass jClass = scanFile(file);
+          if(Objects.nonNull(jClass)) {
+            jClasses.add(jClass);
+          }
         }
       }
     }
@@ -88,51 +75,34 @@ public class RestModelService {
    * @param restControllers the list of endpoints
    * @param calls the list of calls to other services
    */
-  public static void scanFile(
-      File file,
-      List<RestController> restControllers,
-      List<RestService> restServices,
-      List<RestDTO> restDTOs,
-      List<RestRepository> restRepos,
-      List<RestEntity> restEntities,
-      List<RestCall> calls) {
+  public static JClass scanFile(
+      File file) {
+    ClassRole role = null;
     try {
       if (file.getName().contains("Controller")) {
-        List<RestController> fileRestControllers = ParserService.parseEndpoints(file);
-        restControllers.addAll(fileRestControllers);
-      }
-
-      if (file.getName().contains("Service")) {
-        List<RestService> fileRestServices = ParserService.parseServices(file);
-        restServices.addAll(fileRestServices);
-      }
-
-      if (file.getName().toLowerCase().contains("dto")) {
-        List<RestDTO> fileRestDtos = ParserService.parseDTOs(file);
-        restDTOs.addAll(fileRestDtos);
-      }
-
-      if (file.getName().contains("Repository")) {
-        List<RestRepository> fileRestRepos = ParserService.parseRepos(file);
-        restRepos.addAll(fileRestRepos);
-      }
-
-      if (file.getParent().toLowerCase().contains("entity")
+        role = ClassRole.CONTROLLER;
+      } else if (file.getName().contains("ServiceImpl")) {
+        role = ClassRole.SERVICE;
+      } else if (file.getName().toLowerCase().contains("dto")) {
+        role = ClassRole.REPOSITORY;
+      } else if (file.getName().contains("Repository")) {
+        role = ClassRole.REPOSITORY;
+      } else if (file.getParent().toLowerCase().contains("entity")
           || file.getParent().toLowerCase().contains("model")) {
-        List<RestEntity> fileRestEntities = ParserService.parseEntities(file);
-        restEntities.addAll(fileRestEntities);
+        role = ClassRole.ENTITY;
       }
+      if(role != null) {
+        JClass jClass = ParserService.parseClass(file, role);
+        if (Objects.nonNull(jClass)) {
+          return jClass;
+        }
+      }
+
 
       // todo: configs? utils? (everything else? -_-)
     } catch (IOException e) {
       System.err.println("Could not extract endpoints from file: " + file.getName());
     }
-
-    try {
-      List<RestCall> restCalls = ParserService.parseCalls(file);
-      calls.addAll(restCalls);
-    } catch (IOException e) {
-      System.err.println("Could not extract calls from file: " + file.getName());
-    }
+    return null;
   }
 }

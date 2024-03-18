@@ -3,8 +3,11 @@ package edu.university.ecs.lab.rest.calls;
 import edu.university.ecs.lab.common.config.ConfigUtil;
 import edu.university.ecs.lab.common.config.InputConfig;
 import edu.university.ecs.lab.common.config.InputRepository;
+import edu.university.ecs.lab.common.models.Endpoint;
+import edu.university.ecs.lab.common.models.JClass;
+import edu.university.ecs.lab.common.models.RestCall;
+import edu.university.ecs.lab.common.models.enums.ClassRole;
 import edu.university.ecs.lab.rest.calls.models.MsModel;
-import edu.university.ecs.lab.common.models.rest.RestController;
 import edu.university.ecs.lab.common.utils.MsFileUtils;
 import edu.university.ecs.lab.common.writers.MsJsonWriter;
 import edu.university.ecs.lab.rest.calls.services.GitCloneService;
@@ -14,6 +17,7 @@ import javax.json.JsonObject;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * IntermediateExtraction is the main entry point for the intermediate extraction process.
@@ -45,8 +49,8 @@ public class RestExtraction {
     Map<String, MsModel> msDataMap = cloneAndScanServices(inputConfig);
     assert msDataMap != null;
 
-    // Scan through each endpoint to extract rest call destinations
-    extractCallDestinations(msDataMap);
+    // Scan through each endpoint to update rest call destinations
+    updateCallSourceAndDestinations(msDataMap);
 
     //  Write each service and endpoints to IR
     try {
@@ -147,61 +151,32 @@ public class RestExtraction {
     return msModelMap;
   }
 
-  // todo: this might not be the best way to go about this
-  private static void extractCallDestinations(Map<String, MsModel> msModelMap) {
-    msModelMap.forEach(
-        (name, model) -> {
-          model
-              .getRestCalls()
-              .forEach(
-                  call -> {
-                    String callUrl = call.getUrl();
-                    String httpMethod = call.getHttpMethod();
+  private static void updateCallSourceAndDestinations(Map<String, MsModel> msModelMap) {
+    Map<JClass, List<Endpoint>> endPointMap = new HashMap<>();
+    ArrayList<RestCall> restCalls = new ArrayList<>();
+    for(MsModel model : msModelMap.values()) {
+      for(JClass jClass : model.getClassList().stream().filter(jClass -> jClass.getRole() == ClassRole.CONTROLLER || jClass.getRole() == ClassRole.SERVICE).collect(Collectors.toList())) {
+        if(jClass.getRole() == ClassRole.CONTROLLER) {
+          endPointMap.put(jClass, jClass.getMethods().stream().filter(m -> m instanceof Endpoint).map(m -> (Endpoint) m).collect(Collectors.toList()));
 
-                    RestController matchingController = null;
+        } else if (jClass.getRole() == ClassRole.SERVICE) {
+          restCalls.addAll(jClass.getMethodCalls().stream().filter(mc -> mc instanceof RestCall).map(mc -> {
+            RestCall rc = (RestCall) mc;
+            rc.setSourceFile(jClass.getFileName());
+            return rc;
+          }).collect(Collectors.toList()));
 
-                    // iterate until either endpoint is found OR entire URL has been scanned
-                    while (Objects.isNull(matchingController) && callUrl.contains("/")) {
-                      final String tmpCallUrl = callUrl;
+        }
+      }
+    }
 
-                      for (MsModel ms : msModelMap.values()) {
-                        matchingController =
-                            ms.getRestControllers().stream()
-                                .filter(
-                                    controller ->
-                                        controller.getRestEndpoints().stream()
-                                            .anyMatch(
-                                                endpoint ->
-                                                    (endpoint.getUrl().equals(tmpCallUrl)
-                                                            || endpoint
-                                                                .getUrl()
-                                                                .contains(tmpCallUrl))
-                                                        && endpoint
-                                                            .getHttpMethod()
-                                                            .equals(httpMethod)))
-                                .findFirst()
-                                .orElse(null);
-
-                        if (Objects.nonNull(matchingController)) {
-                          break;
-                        }
-                      }
-
-                      // Endpoint still not found? Try chopping off beginning of url by each '/'
-                      if (Objects.isNull(matchingController)) {
-                        callUrl = callUrl.substring(1);
-
-                        int slashNdx = callUrl.indexOf("/");
-                        if (slashNdx > 0) {
-                          callUrl = callUrl.substring(slashNdx);
-                        }
-                      }
-                    }
-
-                    if (Objects.nonNull(matchingController)) {
-                      call.setDestFile(matchingController.getSourceFile());
-                    }
-                  });
-        });
+    for(RestCall restCall : restCalls) {
+      for(Map.Entry<JClass, List<Endpoint>> entry : endPointMap.entrySet()) {
+        Endpoint endpoint = entry.getValue().stream().filter(e -> e.getUrl().equals(restCall.getUrl())).findFirst().orElse(null);
+        if(Objects.nonNull(endpoint)) {
+          restCall.setDestFile(entry.getKey().getFileName());
+        }
+      }
+    }
   }
 }

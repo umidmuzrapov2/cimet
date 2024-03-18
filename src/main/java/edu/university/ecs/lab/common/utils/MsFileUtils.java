@@ -1,21 +1,16 @@
 package edu.university.ecs.lab.common.utils;
 
-import edu.university.ecs.lab.common.models.JavaClass;
-import edu.university.ecs.lab.common.models.JavaMethod;
-import edu.university.ecs.lab.common.models.JavaVariable;
-import edu.university.ecs.lab.common.models.rest.RestCall;
-import edu.university.ecs.lab.common.models.rest.RestController;
-import edu.university.ecs.lab.common.models.rest.RestEndpoint;
-import edu.university.ecs.lab.common.models.rest.RestService;
+import edu.university.ecs.lab.common.models.*;
+import edu.university.ecs.lab.common.models.enums.ClassRole;
 import edu.university.ecs.lab.rest.calls.models.*;
 import edu.university.ecs.lab.semantics.models.CodeClone;
 import edu.university.ecs.lab.semantics.models.Flow;
-
 import javax.json.*;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /** Utility class for handling microservice files. */
 public class MsFileUtils {
@@ -56,14 +51,20 @@ public class MsFileUtils {
 
       msObjectBuilder.add(
           "controllers",
-          buildRestControllers(msName, microservice.getValue().getRestControllers()));
-      msObjectBuilder.add("restCalls", buildRestCalls(microservice.getValue().getRestCalls()));
+          buildRestControllers(msName, microservice.getValue().getClassList().stream()
+                  .filter(jClass -> jClass.getRole() == ClassRole.CONTROLLER).collect(Collectors.toList())));
 
-      msObjectBuilder.add("services", buildRestServices(microservice.getValue().getRestServices()));
-      msObjectBuilder.add("dtos", buildJavaClass(microservice.getValue().getRestDTOs()));
+      msObjectBuilder.add("restCalls", buildRestCalls(getRestCalls(microservice.getValue().getClassList().stream().filter(jClass -> jClass.getRole() == ClassRole.SERVICE).collect(Collectors.toList()))));
+
+      msObjectBuilder.add("services", buildJavaClass(microservice.getValue().getClassList().stream()
+              .filter(jClass -> jClass.getRole() == ClassRole.SERVICE).collect(Collectors.toList())));
+      msObjectBuilder.add("dtos", buildJavaClass(microservice.getValue().getClassList().stream()
+              .filter(jClass -> jClass.getRole() == ClassRole.REPOSITORY).collect(Collectors.toList())));
       msObjectBuilder.add(
-          "repositories", buildJavaClass(microservice.getValue().getRestRepositories()));
-      msObjectBuilder.add("entities", buildJavaClass(microservice.getValue().getRestEntities()));
+          "repositories", buildJavaClass(microservice.getValue().getClassList().stream()
+                      .filter(jClass -> jClass.getRole() == ClassRole.REPOSITORY).collect(Collectors.toList())));
+      msObjectBuilder.add("entities", buildJavaClass(microservice.getValue().getClassList().stream()
+              .filter(jClass -> jClass.getRole() == ClassRole.ENTITY).collect(Collectors.toList())));
 
       jsonArrayBuilder.add(msObjectBuilder.build());
     }
@@ -76,43 +77,42 @@ public class MsFileUtils {
    * Write the given endpoint list to the given json list
    *
    * @param msName microservice system name
-   * @param restControllers list of rest endpoints
    * @return rest endpoint json list
    */
   public static JsonArray buildRestControllers(
-      String msName, List<RestController> restControllers) {
+      String msName, List<JClass> controllers) {
     JsonArrayBuilder controllerArrayBuilder = Json.createArrayBuilder();
 
-    for (RestController restController : restControllers) {
+    for (JClass controller : controllers) {
       JsonObjectBuilder controllerBuilder = Json.createObjectBuilder();
-      controllerBuilder.add("className", restController.getClassName());
-      controllerBuilder.add("classPath", restController.getSourceFile().replaceAll("\\\\", "/"));
-      controllerBuilder.add("variables", addVariableArray(restController.getVariables()));
+      controllerBuilder.add("className", controller.getClassName());
+      controllerBuilder.add("classPath", controller.getFileName().replaceAll("\\\\", "/"));
+      controllerBuilder.add("fields", buildFieldArray(controller.getFields()));
 
       JsonArrayBuilder endpointArrayBuilder = Json.createArrayBuilder();
 
-      for (RestEndpoint restEndpoint : restController.getRestEndpoints()) {
-        restEndpoint.setId(
-            restEndpoint.getHttpMethod()
+      // Get "endpoint" methods in controller
+      for (Method endpoint : controller.getMethods().stream().filter(m -> m instanceof Endpoint).collect(Collectors.toList())) {
+        String id = ((Endpoint) endpoint).getMapping()
                 + ":"
                 + msName
                 + "."
-                + restEndpoint.getMethod().getMethodName()
+                + endpoint.getMethodName()
                 + "#"
-                + Math.abs(restEndpoint.getMethod().getParameter().hashCode()));
+                + Math.abs(endpoint.getParameterList().hashCode());
 
         JsonObjectBuilder endpointBuilder = Json.createObjectBuilder();
 
-        endpointBuilder.add("id", restEndpoint.getId());
-        endpointBuilder.add("api", restEndpoint.getUrl());
-        endpointBuilder.add("type", restEndpoint.getDecorator());
-        endpointBuilder.add("httpMethod", restEndpoint.getHttpMethod());
-        endpointBuilder.add("parent-method", restEndpoint.getParentMethod());
-        endpointBuilder.add("methodName", restEndpoint.getMethod().getMethodName());
-        endpointBuilder.add("arguments", restEndpoint.getMethod().getParameter());
-        endpointBuilder.add("return", restEndpoint.getMethod().getReturnType());
-        endpointBuilder.add(
-            "method-variables", addVariableArray(restEndpoint.getMethodVariables()));
+        endpointBuilder.add("id", id);
+        endpointBuilder.add("api", ((Endpoint) endpoint).getUrl());
+        endpointBuilder.add("type", ((Endpoint) endpoint).getDecorator());
+        endpointBuilder.add("httpMethod", ((Endpoint) endpoint).getHttpMethod());
+        endpointBuilder.add("parent-method", endpoint.getMethodName());
+        endpointBuilder.add("methodName", endpoint.getMethodName());
+        endpointBuilder.add("arguments", endpoint.getParameterList());
+        endpointBuilder.add("return", endpoint.getReturnType());
+//        endpointBuilder.add(
+//            "method-variables", addVariableArray(restEndpoint.getMethodVariables()));
 
         endpointArrayBuilder.add(endpointBuilder.build());
       }
@@ -125,52 +125,26 @@ public class MsFileUtils {
   }
 
   /**
-   * Write the given service list to the given json list.
-   *
-   * @param restServices list of rest services
-   * @return rest service json list
-   */
-  public static JsonArray buildRestServices(List<RestService> restServices) {
-    JsonArrayBuilder serviceArrayBuilder = Json.createArrayBuilder();
-
-    for (RestService restService : restServices) {
-      JsonObjectBuilder serviceBuilder = Json.createObjectBuilder();
-      serviceBuilder.add("className", restService.getClassName());
-      serviceBuilder.add("classPath", restService.getSourceFile().replaceAll("\\\\", "/"));
-
-      // write service methods
-      serviceBuilder.add("methods", addMethodArray(restService.getMethods()));
-
-      // write service variables
-      serviceBuilder.add("variables", addVariableArray(restService.getVariables()));
-
-      serviceArrayBuilder.add(serviceBuilder.build());
-    }
-
-    return serviceArrayBuilder.build();
-  }
-
-  /**
-   * Write the given dto list to the given json list
+   * Write the given class list to the given json list
    *
    * @param classList list of generic java classes
    * @return class json list
    */
-  public static JsonArray buildJavaClass(List<? extends JavaClass> classList) {
-    JsonArrayBuilder dtoArrayBuilder = Json.createArrayBuilder();
+  public static JsonArray buildJavaClass(List<JClass> classList) {
+    JsonArrayBuilder jclassArrayBuilder = Json.createArrayBuilder();
 
-    for (JavaClass javaClass : classList) {
+    for (JClass javaClass : classList) {
       JsonObjectBuilder dtoBuilder = Json.createObjectBuilder();
       dtoBuilder.add("className", javaClass.getClassName());
-      dtoBuilder.add("classPath", javaClass.getSourceFile().replaceAll("\\\\", "/"));
+      dtoBuilder.add("classPath", javaClass.getFileName().replaceAll("\\\\", "/"));
 
-      dtoBuilder.add("variables", addVariableArray(javaClass.getVariables()));
-      dtoBuilder.add("methods", addMethodArray(javaClass.getMethods()));
+      dtoBuilder.add("variables", buildFieldArray(javaClass.getFields()));
+      dtoBuilder.add("methods", buildMethodArray(javaClass.getMethods()));
 
-      dtoArrayBuilder.add(dtoBuilder.build());
+      jclassArrayBuilder.add(dtoBuilder.build());
     }
 
-    return dtoArrayBuilder.build();
+    return jclassArrayBuilder.build();
   }
 
   /**
@@ -180,32 +154,42 @@ public class MsFileUtils {
    * @return array of call objects
    */
   public static JsonArray buildRestCalls(List<RestCall> restCalls) {
-    JsonArrayBuilder endpointsArrayBuilder = Json.createArrayBuilder();
+    JsonArrayBuilder restCallArrayBuilder = Json.createArrayBuilder();
 
+    // Get "restCall" methodCalls in service
     for (RestCall restCall : restCalls) {
       JsonObjectBuilder restCallBuilder = Json.createObjectBuilder();
+
+      // TODO source this issue
+      if(restCall.getDestFile() == null) {
+        restCall.setDestFile("");
+      }
 
       restCallBuilder.add("api", restCall.getUrl());
       restCallBuilder.add("source-file", restCall.getSourceFile().replaceAll("\\\\", "/"));
       restCallBuilder.add("call-dest", restCall.getDestFile().replaceAll("\\\\", "/"));
-      restCallBuilder.add("call-method", restCall.getCallMethod() + "()");
-      restCallBuilder.add("call-class", restCall.getCallClass());
+      restCallBuilder.add("call-method", restCall.getMethodName() + "()");
+//      restCallBuilder.add("call-class", restCall.getCallClass());
       restCallBuilder.add("httpMethod", restCall.getHttpMethod());
 
-      endpointsArrayBuilder.add(restCallBuilder.build());
+      restCallArrayBuilder.add(restCallBuilder.build());
     }
 
-    return endpointsArrayBuilder.build();
+    return restCallArrayBuilder.build();
   }
 
-  public static JsonArray addMethodArray(List<JavaMethod> methodList) {
+  public static JsonArray buildMethodArray(List<Method> methodList) {
+    // TODO find cause of this
+    if(methodList == null) {
+      return JsonObject.EMPTY_JSON_ARRAY;
+    }
     JsonArrayBuilder methodArrayBuilder = Json.createArrayBuilder();
 
-    for (JavaMethod method : methodList) {
+    for (Method method : methodList) {
       JsonObjectBuilder methodObjectBuilder = Json.createObjectBuilder();
 
       methodObjectBuilder.add("methodName", method.getMethodName());
-      methodObjectBuilder.add("parameter", method.getParameter());
+      methodObjectBuilder.add("parameter", method.getParameterList());
       methodObjectBuilder.add("returnType", method.getReturnType());
 
       methodArrayBuilder.add(methodObjectBuilder.build());
@@ -214,14 +198,18 @@ public class MsFileUtils {
     return methodArrayBuilder.build();
   }
 
-  public static JsonArray addVariableArray(List<JavaVariable> variableList) {
-    JsonArrayBuilder variableArrayBuilder = Json.createArrayBuilder();
+  public static JsonArray buildFieldArray(List<Field> fieldList) {
+    // TODO find cause of this
+    if(fieldList == null) {
+      return JsonObject.EMPTY_JSON_ARRAY;
+    }
 
-    for (JavaVariable javaVariable : variableList) {
+    JsonArrayBuilder variableArrayBuilder = Json.createArrayBuilder();
+    for (Field field : fieldList) {
       JsonObjectBuilder variableObjectBuilder = Json.createObjectBuilder();
 
-      variableObjectBuilder.add("variableName", javaVariable.getVariableName());
-      variableObjectBuilder.add("variableType", javaVariable.getVariableType());
+      variableObjectBuilder.add("fieldName", field.getFieldName());
+      variableObjectBuilder.add("fieldType", field.getFieldType());
 
       variableArrayBuilder.add(variableObjectBuilder);
     }
@@ -325,5 +313,10 @@ public class MsFileUtils {
     }
 
     return flowBuilder.build();
+  }
+
+  private static List<RestCall> getRestCalls(List<JClass> classList) {
+    List<MethodCall> methodCalls = classList.stream().flatMap(jClass -> jClass.getMethodCalls().stream()).collect(Collectors.toList());
+    return methodCalls.stream().filter(methodCall -> methodCall instanceof RestCall).map(methodCall -> (RestCall) methodCall).collect(Collectors.toList());
   }
 }
