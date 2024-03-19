@@ -20,16 +20,20 @@ public class MergeService {
     File localFile = new File(path);
 
     RestModelService.scanFile(
-            localFile,
-            restControllers,
-            restServices,
-            restDTOs,
-            restRepositories,
-            restEntities,
-            restCalls);
+        localFile,
+        restControllers,
+        restServices,
+        restDTOs,
+        restRepositories,
+        restEntities,
+        restCalls);
 
-    if (restControllers.isEmpty() && restServices.isEmpty() && restDTOs.isEmpty()
-            && restRepositories.isEmpty() && restEntities.isEmpty() && restCalls.isEmpty()) {
+    if (restControllers.isEmpty()
+        && restServices.isEmpty()
+        && restDTOs.isEmpty()
+        && restRepositories.isEmpty()
+        && restEntities.isEmpty()
+        && restCalls.isEmpty()) {
       return null;
     }
 

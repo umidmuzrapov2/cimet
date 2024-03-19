@@ -45,16 +45,14 @@ public class MsFileUtils {
       String msName = microservice.getKey();
 
       if (microservice.getKey().contains("\\")) {
-        msName =
-            microservice.getKey().substring(microservice.getKey().lastIndexOf("\\") + 1);
+        msName = microservice.getKey().substring(microservice.getKey().lastIndexOf("\\") + 1);
       } else if (microservice.getKey().contains("/")) {
-        msName =
-                microservice.getKey().substring(microservice.getKey().lastIndexOf("/") + 1);
+        msName = microservice.getKey().substring(microservice.getKey().lastIndexOf("/") + 1);
       }
 
       msObjectBuilder.add("id", microservice.getValue().getId().replaceAll("\\\\", "/"));
       msObjectBuilder.add("msName", msName);
-      //msObjectBuilder.add("msPath", microservice.getKey().replaceAll("\\\\", "/"));
+      // msObjectBuilder.add("msPath", microservice.getKey().replaceAll("\\\\", "/"));
       msObjectBuilder.add("commitId", microservice.getValue().getCommit());
 
       msObjectBuilder.add(
