@@ -2,24 +2,18 @@ package edu.university.ecs.lab.common;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.expr.*;
-import com.github.javaparser.ast.type.ClassOrInterfaceType;
-import com.github.javaparser.ast.type.Type;
 import edu.university.ecs.lab.common.models.enums.ClassRole;
 import edu.university.ecs.lab.rest.calls.utils.StringParserUtils;
 import edu.university.ecs.lab.common.models.*;
 
-import javax.json.JsonObject;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 public class ParserService {
 
@@ -32,11 +26,6 @@ public class ParserService {
     List<Method> methods = new ArrayList<>();
 
     CompilationUnit cu = StaticJavaParser.parse(sourceFile);
-
-    String packageName = StringParserUtils.findPackage(cu);
-    if (packageName == null) {
-      throw new RuntimeException();
-    }
 
     // loop through class declarations
     for (ClassOrInterfaceDeclaration cid : cu.findAll(ClassOrInterfaceDeclaration.class)) {
@@ -119,9 +108,10 @@ public class ParserService {
    * Parse a rest call from a MethodCallExpr
    *
    * @param n The method call to parse
+   * @param b
    * @return the rest call
    */
-  public static List<MethodCall> parseMethodCalls(File sourceFile) throws IOException {
+  public static List<MethodCall> parseMethodCalls(File sourceFile, boolean isService) throws IOException {
     List<MethodCall> methodCalls = new ArrayList<>();
 
     CompilationUnit cu = StaticJavaParser.parse(sourceFile);
@@ -144,7 +134,7 @@ public class ParserService {
           RestCall restCall = RestCall.findByName(methodName);
 
           // Are we a rest call
-          if (!Objects.isNull(restCall)) {
+          if (!Objects.isNull(restCall) && isService) {
 //            Expression scope = mce.getScope().orElse(null);
 
             // match field access
@@ -157,7 +147,13 @@ public class ParserService {
             }
 
             // find url
+            if(parseURL(mce, cid).equals("/users")) {
+              System.out.println(methodName + " targets /users");
+            }
             restCall.setUrl(parseURL(mce, cid));
+
+            restCall.setParentMethod(parentMethodName);
+            restCall.setCalledFieldName(parseCalledFieldName(mce));
 
             // add to list of restCall
             methodCalls.add(restCall);
@@ -185,7 +181,7 @@ public class ParserService {
     for (ClassOrInterfaceDeclaration cid : cu.findAll(ClassOrInterfaceDeclaration.class)) {
       for (FieldDeclaration fd : cid.findAll(FieldDeclaration.class)) {
         for (VariableDeclarator variable : fd.getVariables()) {
-          javaFields.add(new Field(variable.getNameAsString(), variable.getTypeAsString()));
+          javaFields.add(new Field(variable));
         }
       }
     }
@@ -194,7 +190,6 @@ public class ParserService {
   }
 
   public static JClass parseClass(File sourceFile, ClassRole role) throws IOException {
-    JClass jClass = new JClass();
     CompilationUnit cu = StaticJavaParser.parse(sourceFile);
 
     String packageName = StringParserUtils.findPackage(cu);
@@ -202,15 +197,16 @@ public class ParserService {
       return null;
     }
 
-    // Set class filePath, packageName
-    jClass.setFileName(sourceFile.getAbsolutePath());
-    jClass.setClassName(sourceFile.getName());
-    jClass.setPackageName(packageName);
-    jClass.setRole(role);
 
-
+    JClass jClass = null;
     // Loop through class declarations
     for (ClassOrInterfaceDeclaration cid : cu.findAll(ClassOrInterfaceDeclaration.class)) {
+      jClass = new JClass();
+      jClass.setFileName(sourceFile.getAbsolutePath());
+      jClass.setClassName(sourceFile.getName().replace(".java", ""));
+      jClass.setPackageName(packageName);
+      jClass.setRole(role);
+
       if(role == ClassRole.CONTROLLER) {
         AnnotationExpr aExpr = cid.getAnnotationByName("RequestMapping").orElse(null);
         if (aExpr == null) {
@@ -222,7 +218,7 @@ public class ParserService {
       } else {
         jClass.setMethods(parseMethods(sourceFile, ""));
       }
-      jClass.setMethodCalls(parseMethodCalls(sourceFile));
+      jClass.setMethodCalls(parseMethodCalls(sourceFile, (jClass.getRole() == ClassRole.SERVICE)));
       jClass.setFields(parseFields(sourceFile));
 
 
@@ -259,7 +255,7 @@ public class ParserService {
   }
 
   private static String parseCalledFieldName(MethodCallExpr mce) {
-    String returnString = null;
+    String returnString = "";
     if(mce.getScope().isPresent()) {
       returnString = mce.getScope().get().toString();
     } else {

@@ -5,6 +5,8 @@ import edu.university.ecs.lab.common.models.enums.ClassRole;
 import edu.university.ecs.lab.rest.calls.models.*;
 import edu.university.ecs.lab.semantics.models.CodeClone;
 import edu.university.ecs.lab.semantics.models.Flow;
+import org.eclipse.jgit.util.StringUtils;
+
 import javax.json.*;
 import java.io.File;
 import java.util.List;
@@ -46,7 +48,7 @@ public class MsFileUtils {
 
       msObjectBuilder.add("id", microservice.getValue().getId().replaceAll("\\\\", "/"));
       msObjectBuilder.add("msName", msName);
-      msObjectBuilder.add("msPath", microservice.getKey().replaceAll("\\\\", "/"));
+//      msObjectBuilder.add("msPath", microservice.getKey().replaceAll("\\\\", "/"));
       msObjectBuilder.add("commitId", microservice.getValue().getCommit());
 
       msObjectBuilder.add(
@@ -87,13 +89,13 @@ public class MsFileUtils {
       JsonObjectBuilder controllerBuilder = Json.createObjectBuilder();
       controllerBuilder.add("className", controller.getClassName());
       controllerBuilder.add("classPath", controller.getFileName().replaceAll("\\\\", "/"));
-      controllerBuilder.add("fields", buildFieldArray(controller.getFields()));
+      controllerBuilder.add("variables", buildFieldArray(controller.getFields()));
 
       JsonArrayBuilder endpointArrayBuilder = Json.createArrayBuilder();
 
       // Get "endpoint" methods in controller
       for (Method endpoint : controller.getMethods().stream().filter(m -> m instanceof Endpoint).collect(Collectors.toList())) {
-        String id = ((Endpoint) endpoint).getMapping()
+        String id = ((Endpoint) endpoint).getHttpMethod()
                 + ":"
                 + msName
                 + "."
@@ -107,7 +109,6 @@ public class MsFileUtils {
         endpointBuilder.add("api", ((Endpoint) endpoint).getUrl());
         endpointBuilder.add("type", ((Endpoint) endpoint).getDecorator());
         endpointBuilder.add("httpMethod", ((Endpoint) endpoint).getHttpMethod());
-        endpointBuilder.add("parent-method", endpoint.getMethodName());
         endpointBuilder.add("methodName", endpoint.getMethodName());
         endpointBuilder.add("arguments", endpoint.getParameterList());
         endpointBuilder.add("return", endpoint.getReturnType());
@@ -137,9 +138,8 @@ public class MsFileUtils {
       JsonObjectBuilder dtoBuilder = Json.createObjectBuilder();
       dtoBuilder.add("className", javaClass.getClassName());
       dtoBuilder.add("classPath", javaClass.getFileName().replaceAll("\\\\", "/"));
-
-      dtoBuilder.add("variables", buildFieldArray(javaClass.getFields()));
       dtoBuilder.add("methods", buildMethodArray(javaClass.getMethods()));
+      dtoBuilder.add("variables", buildFieldArray(javaClass.getFields()));
 
       jclassArrayBuilder.add(dtoBuilder.build());
     }
@@ -208,8 +208,8 @@ public class MsFileUtils {
     for (Field field : fieldList) {
       JsonObjectBuilder variableObjectBuilder = Json.createObjectBuilder();
 
-      variableObjectBuilder.add("fieldName", field.getFieldName());
-      variableObjectBuilder.add("fieldType", field.getFieldType());
+      variableObjectBuilder.add("variableName", field.getFieldName());
+      variableObjectBuilder.add("variableType", field.getFieldType());
 
       variableArrayBuilder.add(variableObjectBuilder);
     }
@@ -317,6 +317,6 @@ public class MsFileUtils {
 
   private static List<RestCall> getRestCalls(List<JClass> classList) {
     List<MethodCall> methodCalls = classList.stream().flatMap(jClass -> jClass.getMethodCalls().stream()).collect(Collectors.toList());
-    return methodCalls.stream().filter(methodCall -> methodCall instanceof RestCall).map(methodCall -> (RestCall) methodCall).collect(Collectors.toList());
+    return methodCalls.stream().filter(methodCall -> methodCall instanceof RestCall).map(methodCall -> (RestCall) methodCall).filter(restCall -> !restCall.getDestFile().isEmpty()).collect(Collectors.toList());
   }
 }

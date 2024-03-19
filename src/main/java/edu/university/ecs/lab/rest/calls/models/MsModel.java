@@ -15,6 +15,9 @@ public class MsModel {
   @SerializedName("commitId")
   private String commit;
 
+  @SerializedName("msPath")
+  private String msPath;
+
   /** List of classes */
   private List<JClass> classList;
 

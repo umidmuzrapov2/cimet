@@ -13,20 +13,20 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 public class RestCall extends MethodCall {
   /** The api url that is targeted in rest call */
-  private String url;
+  private String url = "";
 
   /**
    * The httpMethod of the api endpoint e.g. GET, POST, PUT see semantics.models.enums.httpMethod
    */
-  private String httpMethod;
+  private String httpMethod = "";
 
   /** Expected return type of the api call */
-  private String returnType;
+//  private String returnType = "";
 
-  private int responseTypeIndex;
+  private int responseTypeIndex = -1;
 
-  private String sourceFile;
-  private String destFile;
+  private String sourceFile = "";
+  private String destFile = "";
 
 
   private static final RestCall[] restTemplates = {

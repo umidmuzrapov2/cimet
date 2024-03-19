@@ -46,8 +46,7 @@ public class RestExtraction {
     InputConfig inputConfig = ConfigUtil.validateConfig(jsonFilePath);
 
     // Clone remote repositories and scan through each cloned repo to extract endpoints
-    Map<String, MsModel> msDataMap = cloneAndScanServices(inputConfig);
-    assert msDataMap != null;
+    Map<String, MsModel> msDataMap = cloneAndScanServices(inputConfig);assert msDataMap != null;
 
     // Scan through each endpoint to update rest call destinations
     updateCallSourceAndDestinations(msDataMap);
@@ -140,9 +139,13 @@ public class RestExtraction {
         model =
             RestModelService.recursivelyScanFiles(clonePath, msPath.substring(clonePath.length()));
         assert model != null;
+        if(model.getClassList().stream().flatMap(jClass -> jClass.getMethodCalls().stream()).filter(m -> m instanceof RestCall && ((RestCall)m).getUrl().equals("/users")).count() > 5) {
+          System.out.println("ALERT2");
+        }
 
         model.setCommit(inputRepository.getBaseCommit());
         model.setId(msPath.substring(msPath.lastIndexOf('/') + 1));
+        model.setMsPath(msPath);
 
         msModelMap.put(path, model);
       }

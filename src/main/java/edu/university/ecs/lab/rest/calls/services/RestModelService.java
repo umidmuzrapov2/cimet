@@ -2,6 +2,7 @@ package edu.university.ecs.lab.rest.calls.services;
 
 import edu.university.ecs.lab.common.ParserService;
 import edu.university.ecs.lab.common.models.JClass;
+import edu.university.ecs.lab.common.models.RestCall;
 import edu.university.ecs.lab.common.models.enums.ClassRole;
 import edu.university.ecs.lab.rest.calls.models.*;
 
@@ -61,6 +62,9 @@ public class RestModelService {
         } else if (file.getName().endsWith(".java")) {
           JClass jClass = scanFile(file);
           if(Objects.nonNull(jClass)) {
+            if(jClass.getMethodCalls().stream().filter(m -> m instanceof RestCall && ((RestCall)m).getUrl().equals("/users")).count() > 5) {
+              System.out.println("ALERT1");
+            }
             jClasses.add(jClass);
           }
         }
