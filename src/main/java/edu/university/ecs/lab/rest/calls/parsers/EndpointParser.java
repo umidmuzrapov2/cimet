@@ -95,16 +95,14 @@ public class EndpointParser {
               packageName + "." + className + "." + method.getMethodName());
           restEndpoint.setMethod(method);
           restEndpoint.setMethodVariables(RestParser.extractVariables(md));
-
           restController.addEndpoint(restEndpoint);
         }
 
         restController.setClassName(className);
         restController.setSourceFile(sourceFile.getCanonicalPath());
         restController.setVariables(RestParser.extractVariables(cid));
-
-        restControllers.add(restController);
       }
+      restControllers.add(restController);
     }
 
     return restControllers;
