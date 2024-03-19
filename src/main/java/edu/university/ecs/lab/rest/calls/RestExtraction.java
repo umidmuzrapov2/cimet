@@ -46,7 +46,9 @@ public class RestExtraction {
     InputConfig inputConfig = ConfigUtil.validateConfig(jsonFilePath);
 
     // Clone remote repositories and scan through each cloned repo to extract endpoints
-    Map<String, MsModel> msDataMap = cloneAndScanServices(inputConfig);assert msDataMap != null;
+    Map<String, MsModel> msDataMap = cloneAndScanServices(inputConfig);
+
+    assert msDataMap != null;
 
     // Scan through each endpoint to update rest call destinations
     updateCallSourceAndDestinations(msDataMap);

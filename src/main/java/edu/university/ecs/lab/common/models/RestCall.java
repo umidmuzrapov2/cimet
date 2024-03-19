@@ -53,4 +53,25 @@ public class RestCall extends MethodCall {
     }
     return null;
   }
+
+  public static RestCall getRestCallFromName(String methodName) {
+    switch(methodName){
+      case "getForObject":
+        return new RestCall("getForObject", HttpMethod.GET, 1);
+      case "getForEntity":
+        return new RestCall("getForEntity", HttpMethod.GET, 1);
+      case "postForObject":
+        return new RestCall("postForObject", HttpMethod.POST, 2);
+      case "postForEntity":
+        return new RestCall("postForEntity", HttpMethod.POST, 2);
+      case "put":
+        return new RestCall("put", HttpMethod.PUT, 1);
+      case "exchange":
+        return new RestCall("exchange", HttpMethod.GET, 3);
+      case "delete":
+        new RestCall("delete", HttpMethod.DELETE, 0);
+    }
+
+    return null;
+  }
 }

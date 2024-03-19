@@ -20,7 +20,6 @@ public class ParserService {
   /**
    * Parses method information and creates a Method object representing the method
    *
-   * @param n the MethodDeclaration that will be parsed
    */
   public static List<Method> parseMethods(File sourceFile, String restMapping) throws IOException {
     List<Method> methods = new ArrayList<>();
@@ -53,6 +52,7 @@ public class ParserService {
         method.setParameterList(parameter.toString());
         method.setReturnType(md.getTypeAsString());
 
+        // TODO This isnt technically accurate but works for now
         // If class passes a restMapping
         if(!restMapping.isEmpty()) {
           Endpoint endpoint = new Endpoint(method);
@@ -107,8 +107,6 @@ public class ParserService {
   /**
    * Parse a rest call from a MethodCallExpr
    *
-   * @param n The method call to parse
-   * @param b
    * @return the rest call
    */
   public static List<MethodCall> parseMethodCalls(File sourceFile, boolean isService) throws IOException {
@@ -116,13 +114,10 @@ public class ParserService {
 
     CompilationUnit cu = StaticJavaParser.parse(sourceFile);
 
-    String packageName = StringParserUtils.findPackage(cu);
-
     // loop through class declarations
     for (ClassOrInterfaceDeclaration cid : cu.findAll(ClassOrInterfaceDeclaration.class)) {
-      String className = cid.getNameAsString();
-
       // loop through methods
+
       for (MethodDeclaration md : cid.findAll(MethodDeclaration.class)) {
         String parentMethodName = md.getNameAsString();
 
@@ -131,10 +126,13 @@ public class ParserService {
           MethodCall methodCall = new MethodCall();
           String methodName = mce.getNameAsString();
 
-          RestCall restCall = RestCall.findByName(methodName);
+          RestCall restCall = RestCall.getRestCallFromName(methodName);
 
+          Expression scope = mce.getScope().orElse(null);
+          String calledServiceName = getCalledServiceName(scope);
           // Are we a rest call
-          if (!Objects.isNull(restCall) && isService) {
+          if (!Objects.isNull(restCall) && isService
+                  && Objects.nonNull(calledServiceName) && calledServiceName.equals("restTemplate")) {
 //            Expression scope = mce.getScope().orElse(null);
 
             // match field access
@@ -146,22 +144,23 @@ public class ParserService {
               restCall.setHttpMethod(getHttpMethodForExchange(mce.getArguments().toString()));
             }
 
-            // find url
-            if(parseURL(mce, cid).equals("/users")) {
-              System.out.println(methodName + " targets /users");
+            // TODO find a more graceful way of handling/validating this can be passed
+            if(parseURL(mce, cid).equals("")) {
+              continue;
             }
             restCall.setUrl(parseURL(mce, cid));
 
             restCall.setParentMethod(parentMethodName);
-            restCall.setCalledFieldName(parseCalledFieldName(mce));
+            restCall.setCalledFieldName(getCalledServiceName(scope));
 
             // add to list of restCall
             methodCalls.add(restCall);
+            System.out.println(restCall);
 //            }
-          } else {
+          } else if (Objects.nonNull(calledServiceName)) {
             methodCall.setParentMethod(parentMethodName);
             methodCall.setMethodName(methodName);
-            methodCall.setCalledFieldName(parseCalledFieldName(mce));
+            methodCall.setCalledFieldName(getCalledServiceName(scope));
             methodCalls.add(methodCall);
           }
         }
@@ -254,15 +253,14 @@ public class ParserService {
     return "";
   }
 
-  private static String parseCalledFieldName(MethodCallExpr mce) {
-    String returnString = "";
-    if(mce.getScope().isPresent()) {
-      returnString = mce.getScope().get().toString();
-    } else {
-      return returnString;
+  private static String getCalledServiceName(Expression scope) {
+    String calledServiceID = null;
+    if(Objects.nonNull(scope) && scope instanceof NameExpr) {
+      NameExpr fae = scope.asNameExpr();
+      calledServiceID = fae.getNameAsString();
     }
 
-    return returnString;
+    return calledServiceID;
   }
 
   /**

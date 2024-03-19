@@ -9,6 +9,7 @@ import lombok.ToString;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /** A object representing a class definition in code */
 @Data
@@ -23,4 +24,12 @@ public class JClass {
   private List<Method> methods;
   private List<Field> fields;
   private List<MethodCall> methodCalls;
+
+  public List<Endpoint> getEndpoints() {
+    return getMethods().stream().filter(mc -> mc instanceof Endpoint).map(mc -> ((Endpoint) mc)).collect(Collectors.toList());
+  }
+
+  public List<RestCall> getRestCalls() {
+    return getMethodCalls().stream().filter(mc -> mc instanceof RestCall).map(mc -> ((RestCall) mc)).collect(Collectors.toList());
+  }
 }
