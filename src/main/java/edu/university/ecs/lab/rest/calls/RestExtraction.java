@@ -7,7 +7,7 @@ import edu.university.ecs.lab.common.models.Endpoint;
 import edu.university.ecs.lab.common.models.JClass;
 import edu.university.ecs.lab.common.models.RestCall;
 import edu.university.ecs.lab.common.models.enums.ClassRole;
-import edu.university.ecs.lab.rest.calls.models.MsModel;
+import edu.university.ecs.lab.common.models.MsModel;
 import edu.university.ecs.lab.common.utils.MsFileUtils;
 import edu.university.ecs.lab.common.writers.MsJsonWriter;
 import edu.university.ecs.lab.rest.calls.services.GitCloneService;
@@ -141,9 +141,6 @@ public class RestExtraction {
         model =
             RestModelService.recursivelyScanFiles(clonePath, msPath.substring(clonePath.length()));
         assert model != null;
-        if(model.getClassList().stream().flatMap(jClass -> jClass.getMethodCalls().stream()).filter(m -> m instanceof RestCall && ((RestCall)m).getUrl().equals("/users")).count() > 5) {
-          System.out.println("ALERT2");
-        }
 
         model.setCommit(inputRepository.getBaseCommit());
         model.setId(msPath.substring(msPath.lastIndexOf('/') + 1));
@@ -162,13 +159,12 @@ public class RestExtraction {
     for(MsModel model : msModelMap.values()) {
       for(JClass jClass : model.getClassList().stream().filter(jClass -> jClass.getRole() == ClassRole.CONTROLLER || jClass.getRole() == ClassRole.SERVICE).collect(Collectors.toList())) {
         if(jClass.getRole() == ClassRole.CONTROLLER) {
-          endPointMap.put(jClass, jClass.getMethods().stream().filter(m -> m instanceof Endpoint).map(m -> (Endpoint) m).collect(Collectors.toList()));
+          endPointMap.put(jClass, jClass.getEndpoints());
 
         } else if (jClass.getRole() == ClassRole.SERVICE) {
-          restCalls.addAll(jClass.getMethodCalls().stream().filter(mc -> mc instanceof RestCall).map(mc -> {
-            RestCall rc = (RestCall) mc;
-            rc.setSourceFile(jClass.getFileName());
-            return rc;
+          restCalls.addAll(jClass.getRestCalls().stream().map(mc -> {
+            mc.setSourceFile(jClass.getFileName());
+            return mc;
           }).collect(Collectors.toList()));
 
         }

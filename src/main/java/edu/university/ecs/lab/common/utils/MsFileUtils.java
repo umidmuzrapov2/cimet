@@ -2,10 +2,8 @@ package edu.university.ecs.lab.common.utils;
 
 import edu.university.ecs.lab.common.models.*;
 import edu.university.ecs.lab.common.models.enums.ClassRole;
-import edu.university.ecs.lab.rest.calls.models.*;
 import edu.university.ecs.lab.semantics.models.CodeClone;
 import edu.university.ecs.lab.semantics.models.Flow;
-import org.eclipse.jgit.util.StringUtils;
 
 import javax.json.*;
 import java.io.File;

@@ -1,7 +1,7 @@
 package edu.university.ecs.lab.intermediate.merger.models;
 
 import com.google.gson.annotations.SerializedName;
-import edu.university.ecs.lab.rest.calls.models.MsModel;
+import edu.university.ecs.lab.common.models.MsModel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;

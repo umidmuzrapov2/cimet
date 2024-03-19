@@ -144,7 +144,7 @@ public class ParserService {
               restCall.setHttpMethod(getHttpMethodForExchange(mce.getArguments().toString()));
             }
 
-            // TODO find a more graceful way of handling/validating this can be passed
+            // TODO find a more graceful way of handling/validating this can be passed up
             if(parseURL(mce, cid).equals("")) {
               continue;
             }
