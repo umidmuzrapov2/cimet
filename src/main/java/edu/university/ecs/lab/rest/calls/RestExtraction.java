@@ -157,7 +157,7 @@ public class RestExtraction {
     Map<JClass, List<Endpoint>> endPointMap = new HashMap<>();
     ArrayList<RestCall> restCalls = new ArrayList<>();
     for(MsModel model : msModelMap.values()) {
-      for(JClass jClass : model.getClassList().stream().filter(jClass -> jClass.getRole() == ClassRole.CONTROLLER || jClass.getRole() == ClassRole.SERVICE).collect(Collectors.toList())) {
+      for(JClass jClass : model.getClassesByRoles(ClassRole.CONTROLLER, ClassRole.SERVICE)) {
         if(jClass.getRole() == ClassRole.CONTROLLER) {
           endPointMap.put(jClass, jClass.getEndpoints());
 

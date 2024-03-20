@@ -54,7 +54,7 @@ public class MsFileUtils {
           buildRestControllers(msName, microservice.getValue().getClassList().stream()
                   .filter(jClass -> jClass.getRole() == ClassRole.CONTROLLER).collect(Collectors.toList())));
 
-      msObjectBuilder.add("restCalls", buildRestCalls(getRestCalls(microservice.getValue().getClassList().stream().filter(jClass -> jClass.getRole() == ClassRole.SERVICE).collect(Collectors.toList()))));
+      msObjectBuilder.add("restCalls", buildRestCalls(microservice.getValue().getAllRestCalls()));
 
       msObjectBuilder.add("services", buildJavaClass(microservice.getValue().getClassList().stream()
               .filter(jClass -> jClass.getRole() == ClassRole.SERVICE).collect(Collectors.toList())));
@@ -300,7 +300,7 @@ public class MsFileUtils {
 
       for (edu.university.ecs.lab.semantics.models.RestCall restCall : flow.getRestCalls()) {
         JsonObjectBuilder restCallBuilder = Json.createObjectBuilder();
-        restCallBuilder.add("api-enpoint", restCall.getApiEndpoint());
+        restCallBuilder.add("api-endpoint", restCall.getApiEndpoint());
         restCallBuilder.add("http-method", restCall.getHttpMethod());
         restCallBuilder.add("return-type", restCall.getReturnType());
 
@@ -311,10 +311,5 @@ public class MsFileUtils {
     }
 
     return flowBuilder.build();
-  }
-
-  private static List<RestCall> getRestCalls(List<JClass> classList) {
-    List<MethodCall> methodCalls = classList.stream().flatMap(jClass -> jClass.getMethodCalls().stream()).collect(Collectors.toList());
-    return methodCalls.stream().filter(methodCall -> methodCall instanceof RestCall).map(methodCall -> (RestCall) methodCall).filter(restCall -> !restCall.getDestFile().isEmpty()).collect(Collectors.toList());
   }
 }

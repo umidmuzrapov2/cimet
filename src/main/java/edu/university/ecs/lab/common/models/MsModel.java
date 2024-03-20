@@ -1,7 +1,7 @@
 package edu.university.ecs.lab.common.models;
 
 import com.google.gson.annotations.SerializedName;
-import edu.university.ecs.lab.common.models.JClass;
+import edu.university.ecs.lab.common.models.enums.ClassRole;
 import lombok.Data;
 
 import java.util.List;
@@ -31,6 +31,17 @@ public class MsModel {
 
   public List<RestCall> getAllRestCalls() {
     return getClassList().stream().flatMap(jClass -> jClass.getMethodCalls().stream()).filter(mc -> mc instanceof RestCall).map(mc -> ((RestCall) mc)).collect(Collectors.toList());
+  }
+
+  public List<JClass> getClassesByRoles(ClassRole... classRoles) {
+    return getClassList().stream().filter(jClass -> {
+      for(ClassRole classRole : classRoles) {
+        if(jClass.getRole().equals(classRole)) {
+          return true;
+        }
+      }
+      return false;
+    }).collect(Collectors.toList());
   }
 
 
