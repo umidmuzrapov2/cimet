@@ -6,7 +6,7 @@ import edu.university.ecs.lab.common.models.enums.ClassRole;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class FlowUtil {
+public class FlowUtils {
     public static List<Flow> buildFlows(Map<String, MsModel> msModelMap) {
         // 1. get controller name & controller endpoint name
         List<Flow> flows = generateNewFlows(getAllModelControllers(msModelMap));

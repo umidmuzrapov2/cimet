@@ -6,7 +6,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-/** An object representing a rest call (api call) in code */
+/**
+ * Represents an extension of a method call. A
+ * rest call exists at the service level and
+ * represents a call to an endpoint mapping.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

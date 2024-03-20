@@ -2,7 +2,12 @@ package edu.university.ecs.lab.common.models;
 
 import lombok.*;
 
-@EqualsAndHashCode(callSuper = true)
+/**
+ * Represents an extension of a method declaration.
+ * An endpoint exists at the controller level and
+ * signifies an open mapping that can be the target
+ * of a rest call.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

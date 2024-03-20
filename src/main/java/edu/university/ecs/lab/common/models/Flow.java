@@ -6,6 +6,10 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 
+/**
+ * Represents a flow from controller level
+ * down to DAO.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

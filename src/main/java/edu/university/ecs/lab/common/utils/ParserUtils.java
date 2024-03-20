@@ -1,4 +1,4 @@
-package edu.university.ecs.lab.common;
+package edu.university.ecs.lab.common.utils;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
@@ -15,12 +15,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class ParserService {
+/**
+ * Static utility class for parsing a file and returning
+ * associated models from code structure.
+ */
+public class ParserUtils {
 
-  /**
-   * Parses method information and creates a Method object representing the method
-   *
-   */
   public static List<Method> parseMethods(File sourceFile, String restMapping) throws IOException {
     List<Method> methods = new ArrayList<>();
 
@@ -104,11 +104,6 @@ public class ParserService {
     return methods;
   }
 
-  /**
-   * Parse a rest call from a MethodCallExpr
-   *
-   * @return the rest call
-   */
   public static List<MethodCall> parseMethodCalls(File sourceFile, boolean isService) throws IOException {
     List<MethodCall> methodCalls = new ArrayList<>();
 
@@ -170,7 +165,6 @@ public class ParserService {
     return methodCalls;
   }
 
-
   public static List<Field> parseFields(File sourceFile) throws IOException {
     List<Field> javaFields = new ArrayList<>();
 
@@ -228,12 +222,6 @@ public class ParserService {
     return jClass;
   }
 
-  /**
-   * Get the api path from the given annotation.
-   *
-   * @param ae the annotation expression
-   * @return the path else an empty string if not found or ae was null
-   */
   private static String pathFromAnnotation(AnnotationExpr ae) {
     if (ae == null) {
       return "";

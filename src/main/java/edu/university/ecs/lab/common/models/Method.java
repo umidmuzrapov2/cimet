@@ -1,12 +1,20 @@
 package edu.university.ecs.lab.common.models;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/** An object representing a method declaration in code */
+/**
+ * Represents a method declaration in Java.
+ */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
 public class Method {
   private String methodName;
   private String protection;

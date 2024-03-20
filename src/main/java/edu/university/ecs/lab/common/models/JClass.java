@@ -11,7 +11,11 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/** A object representing a class definition in code */
+/**
+ * Represents a class in Java. It holds all information
+ * regarding that class including all method declarations,
+ * method calls, fields, etc.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

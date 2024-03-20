@@ -7,7 +7,11 @@ import lombok.Data;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/** Model to represent the microservice object as seen in IR output */
+/**
+ * Represents the overarching structure of a
+ * microservice system. It is composed of classes
+ * which hold all information in that class.
+ */
 @Data
 public class MsModel {
   @SerializedName("id")

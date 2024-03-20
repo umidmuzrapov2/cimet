@@ -1,6 +1,6 @@
 package edu.university.ecs.lab.rest.calls.services;
 
-import edu.university.ecs.lab.common.ParserService;
+import edu.university.ecs.lab.common.utils.ParserUtils;
 import edu.university.ecs.lab.common.models.JClass;
 import edu.university.ecs.lab.common.models.MsModel;
 import edu.university.ecs.lab.common.models.enums.ClassRole;
@@ -92,7 +92,7 @@ public class RestModelService {
         role = ClassRole.ENTITY;
       }
       if(role != null) {
-        JClass jClass = ParserService.parseClass(file, role);
+        JClass jClass = ParserUtils.parseClass(file, role);
         if (Objects.nonNull(jClass)) {
           return jClass;
         }
