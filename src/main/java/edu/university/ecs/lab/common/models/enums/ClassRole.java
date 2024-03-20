@@ -6,5 +6,6 @@ public enum ClassRole {
   REPOSITORY,
   SERVICE_INTERFACE,
   ENTITY,
+  DTO,
 
 }

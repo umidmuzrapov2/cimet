@@ -2,7 +2,8 @@ package edu.university.ecs.lab.deltas.utils;
 
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.stmt.Statement;
-import edu.university.ecs.lab.common.models.rest.*;
+import edu.university.ecs.lab.common.models.JClass;
+import edu.university.ecs.lab.common.models.enums.ClassRole;
 import edu.university.ecs.lab.common.utils.MsFileUtils;
 import edu.university.ecs.lab.deltas.models.ChangeInformation;
 import edu.university.ecs.lab.rest.calls.services.RestModelService;
@@ -60,30 +61,22 @@ public class DeltaComparisonUtils {
   public JsonObject extractDeltaChanges(String pathToLocal) {
     JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
 
-    List<RestController> restControllers = new ArrayList<>();
-    List<RestService> restServices = new ArrayList<>();
-    List<RestDTO> restDTOs = new ArrayList<>();
-    List<RestRepository> restRepositories = new ArrayList<>();
-    List<RestEntity> restEntities = new ArrayList<>();
-    List<RestCall> restCalls = new ArrayList<>();
-
     File localFile = new File(pathToLocal);
 
-    RestModelService.scanFile(
-        localFile,
-        restControllers,
-        restServices,
-        restDTOs,
-        restRepositories,
-        restEntities,
-        restCalls);
+    JClass jClass = RestModelService.scanFile(localFile);
 
-    jsonObjectBuilder.add("restControllers", MsFileUtils.buildRestControllers("", restControllers));
-    jsonObjectBuilder.add("restCalls", MsFileUtils.buildRestCalls(restCalls));
-    jsonObjectBuilder.add("services", MsFileUtils.buildRestServices(restServices));
-    jsonObjectBuilder.add("dtos", MsFileUtils.buildJavaClass(restDTOs));
-    jsonObjectBuilder.add("repositories", MsFileUtils.buildJavaClass(restRepositories));
-    jsonObjectBuilder.add("entities", MsFileUtils.buildJavaClass(restEntities));
+    if(jClass.getRole() == ClassRole.CONTROLLER) {
+      jsonObjectBuilder.add("restControllers", MsFileUtils.buildRestControllers("", List.of(jClass)));
+    } else if(jClass.getRole() == ClassRole.SERVICE) {
+      jsonObjectBuilder.add("services", MsFileUtils.buildJavaClass(List.of(jClass)));
+      jsonObjectBuilder.add("restCalls", MsFileUtils.buildRestCalls(jClass.getRestCalls()));
+    } else if(jClass.getRole() == ClassRole.REPOSITORY) {
+      jsonObjectBuilder.add("repositories", MsFileUtils.buildJavaClass(List.of(jClass)));
+    } else if(jClass.getRole() == ClassRole.ENTITY) {
+      jsonObjectBuilder.add("entities", MsFileUtils.buildJavaClass(List.of(jClass)));
+    } else if(jClass.getRole() == ClassRole.DTO) {
+      jsonObjectBuilder.add("dtos", MsFileUtils.buildJavaClass(List.of(jClass)));
+    }
 
     return jsonObjectBuilder.build();
   }

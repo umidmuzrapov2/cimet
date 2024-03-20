@@ -1,7 +1,7 @@
 package edu.university.ecs.lab.intermediate.merger.models;
 
 import com.google.gson.annotations.SerializedName;
-import edu.university.ecs.lab.common.models.rest.*;
+import edu.university.ecs.lab.common.models.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,20 +13,20 @@ import java.util.List;
 @AllArgsConstructor
 public class Change {
   @SerializedName("restControllers")
-  private List<RestController> restControllers;
+  private List<JClass> restControllers;
 
   @SerializedName("restCalls")
   private List<RestCall> restCalls;
 
   @SerializedName("services")
-  private List<RestService> restServices;
+  private List<JClass> restServices;
 
   @SerializedName("dtos")
-  private List<RestDTO> restDTOs;
+  private List<JClass> restDTOs;
 
   @SerializedName("repositories")
-  private List<RestRepository> restRepositories;
+  private List<JClass> restRepositories;
 
   @SerializedName("entities")
-  private List<RestEntity> restEntities;
+  private List<JClass> restEntities;
 }

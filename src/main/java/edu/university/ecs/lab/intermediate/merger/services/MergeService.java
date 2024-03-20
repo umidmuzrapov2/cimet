@@ -1,49 +1,25 @@
 package edu.university.ecs.lab.intermediate.merger.services;
 
-import edu.university.ecs.lab.common.models.rest.*;
-import edu.university.ecs.lab.rest.calls.models.MsModel;
+import edu.university.ecs.lab.common.models.*;
 import edu.university.ecs.lab.rest.calls.services.RestModelService;
-
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class MergeService {
   public MsModel extractNewModel(String path) {
-    List<RestController> restControllers = new ArrayList<>();
-    List<RestService> restServices = new ArrayList<>();
-    List<RestDTO> restDTOs = new ArrayList<>();
-    List<RestRepository> restRepositories = new ArrayList<>();
-    List<RestEntity> restEntities = new ArrayList<>();
-    List<RestCall> restCalls = new ArrayList<>();
 
     File localFile = new File(path);
 
-    RestModelService.scanFile(
-        localFile,
-        restControllers,
-        restServices,
-        restDTOs,
-        restRepositories,
-        restEntities,
-        restCalls);
+    JClass jClass = RestModelService.scanFile(localFile);
 
-    if (restControllers.isEmpty()
-        && restServices.isEmpty()
-        && restDTOs.isEmpty()
-        && restRepositories.isEmpty()
-        && restEntities.isEmpty()
-        && restCalls.isEmpty()) {
+    // TODO Idk why this check is here but I copied the logic anyways
+    if(Objects.isNull(jClass)) {
       return null;
     }
 
     MsModel model = new MsModel();
-    model.setRestControllers(restControllers);
-    model.setRestServices(restServices);
-    model.setRestDTOs(restDTOs);
-    model.setRestRepositories(restRepositories);
-    model.setRestEntities(restEntities);
-    model.setRestCalls(restCalls);
+    model.setClassList(List.of(jClass));
 
     return model;
   }

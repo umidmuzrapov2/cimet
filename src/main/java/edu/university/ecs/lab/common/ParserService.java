@@ -208,8 +208,10 @@ public class ParserService {
 
       if(role == ClassRole.CONTROLLER) {
         AnnotationExpr aExpr = cid.getAnnotationByName("RequestMapping").orElse(null);
+
+        // TODO Verify this is appropriate way of handling this, why is this happening
         if (aExpr == null) {
-          throw new RuntimeException();
+          return null;
         }
 
         String classLevelPath = pathFromAnnotation(aExpr);

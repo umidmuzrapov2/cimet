@@ -30,9 +30,6 @@
         "ts-ui-dashboard",
         "ts-user-service"
       ]
-    },
-    {
-      "repoUrl": "https://github.com/cloudhubs/tms2020.git"
     }
   ]
 }

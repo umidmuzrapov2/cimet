@@ -84,7 +84,7 @@ public class RestModelService {
       } else if (file.getName().contains("ServiceImpl")) {
         role = ClassRole.SERVICE;
       } else if (file.getName().toLowerCase().contains("dto")) {
-        role = ClassRole.REPOSITORY;
+        role = ClassRole.DTO;
       } else if (file.getName().contains("Repository")) {
         role = ClassRole.REPOSITORY;
       } else if (file.getParent().toLowerCase().contains("entity")

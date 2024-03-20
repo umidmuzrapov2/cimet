@@ -51,20 +51,15 @@ public class MsFileUtils {
 
       msObjectBuilder.add(
           "controllers",
-          buildRestControllers(msName, microservice.getValue().getClassList().stream()
-                  .filter(jClass -> jClass.getRole() == ClassRole.CONTROLLER).collect(Collectors.toList())));
+          buildRestControllers(msName, microservice.getValue().getClassesByRoles(ClassRole.CONTROLLER)));
 
       msObjectBuilder.add("restCalls", buildRestCalls(microservice.getValue().getAllRestCalls()));
 
-      msObjectBuilder.add("services", buildJavaClass(microservice.getValue().getClassList().stream()
-              .filter(jClass -> jClass.getRole() == ClassRole.SERVICE).collect(Collectors.toList())));
-      msObjectBuilder.add("dtos", buildJavaClass(microservice.getValue().getClassList().stream()
-              .filter(jClass -> jClass.getRole() == ClassRole.REPOSITORY).collect(Collectors.toList())));
+      msObjectBuilder.add("services", buildJavaClass(microservice.getValue().getClassesByRoles(ClassRole.SERVICE)));
+      msObjectBuilder.add("dtos", buildJavaClass(microservice.getValue().getClassesByRoles(ClassRole.DTO)));
       msObjectBuilder.add(
-          "repositories", buildJavaClass(microservice.getValue().getClassList().stream()
-                      .filter(jClass -> jClass.getRole() == ClassRole.REPOSITORY).collect(Collectors.toList())));
-      msObjectBuilder.add("entities", buildJavaClass(microservice.getValue().getClassList().stream()
-              .filter(jClass -> jClass.getRole() == ClassRole.ENTITY).collect(Collectors.toList())));
+          "repositories", buildJavaClass(microservice.getValue().getClassesByRoles(ClassRole.REPOSITORY)));
+      msObjectBuilder.add("entities", buildJavaClass(microservice.getValue().getClassesByRoles(ClassRole.ENTITY)));
 
       jsonArrayBuilder.add(msObjectBuilder.build());
     }
