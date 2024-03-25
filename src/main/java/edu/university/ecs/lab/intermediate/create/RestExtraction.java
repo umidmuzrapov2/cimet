@@ -4,7 +4,6 @@ import edu.university.ecs.lab.common.config.ConfigUtil;
 import edu.university.ecs.lab.common.config.InputConfig;
 import edu.university.ecs.lab.common.config.InputRepository;
 import edu.university.ecs.lab.common.models.*;
-import edu.university.ecs.lab.common.models.enums.ClassRole;
 import edu.university.ecs.lab.common.utils.MsFileUtils;
 import edu.university.ecs.lab.common.writers.MsJsonWriter;
 import edu.university.ecs.lab.intermediate.create.services.GitCloneService;
@@ -14,7 +13,6 @@ import javax.json.JsonObject;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * IntermediateExtraction is the main entry point for the intermediate extraction process.
@@ -151,45 +149,65 @@ public class RestExtraction {
   }
 
   private static void extractCallDestinations(Map<String, MsModel> msModelMap) {
-    msModelMap.forEach((name, model) -> {
-      model.getServices().forEach(service -> {
-        service.getRestCalls().forEach(call -> {
-          String callUrl = call.getApi();
-          String httpMethod = call.getHttpMethod();
+    msModelMap.forEach(
+        (name, model) -> {
+          model
+              .getServices()
+              .forEach(
+                  service -> {
+                    service
+                        .getRestCalls()
+                        .forEach(
+                            call -> {
+                              String callUrl = call.getApi();
+                              String httpMethod = call.getHttpMethod();
 
-          JController matchingController = null;
+                              JController matchingController = null;
 
-          // iterate until either endpoint is found OR entire URL has been scanned
-          while (Objects.isNull(matchingController) && callUrl.contains("/")) {
-            final String tmpCallUrl = callUrl;
+                              // iterate until either endpoint is found OR entire URL has been
+                              // scanned
+                              while (Objects.isNull(matchingController) && callUrl.contains("/")) {
+                                final String tmpCallUrl = callUrl;
 
-            for (MsModel ms : msModelMap.values()) {
-              matchingController = ms.getControllers().stream().filter(controller ->
-                      controller.getEndpoints().stream().anyMatch(endpoint ->
-                              (endpoint.getUrl().contains(tmpCallUrl) || endpoint.getHttpMethod().contains(httpMethod))))
-                      .findFirst().orElse(null);
+                                for (MsModel ms : msModelMap.values()) {
+                                  matchingController =
+                                      ms.getControllers().stream()
+                                          .filter(
+                                              controller ->
+                                                  controller.getEndpoints().stream()
+                                                      .anyMatch(
+                                                          endpoint ->
+                                                              (endpoint
+                                                                      .getUrl()
+                                                                      .contains(tmpCallUrl)
+                                                                  || endpoint
+                                                                      .getHttpMethod()
+                                                                      .contains(httpMethod))))
+                                          .findFirst()
+                                          .orElse(null);
 
-              if (Objects.nonNull(matchingController)) {
-                break;
-              }
-            }
+                                  if (Objects.nonNull(matchingController)) {
+                                    break;
+                                  }
+                                }
 
-            // Endpoint still not found? Try chopping off beginning of url by each '/'
-            if (Objects.isNull(matchingController)) {
-              callUrl = callUrl.substring(1);
+                                // Endpoint still not found? Try chopping off beginning of url by
+                                // each '/'
+                                if (Objects.isNull(matchingController)) {
+                                  callUrl = callUrl.substring(1);
 
-              int slashNdx = callUrl.indexOf("/");
-              if (slashNdx > 0) {
-                callUrl = callUrl.substring(slashNdx);
-              }
-            }
-          }
+                                  int slashNdx = callUrl.indexOf("/");
+                                  if (slashNdx > 0) {
+                                    callUrl = callUrl.substring(slashNdx);
+                                  }
+                                }
+                              }
 
-          if (Objects.nonNull(matchingController)) {
-            call.setDestFile(matchingController.getClassPath());
-          }
+                              if (Objects.nonNull(matchingController)) {
+                                call.setDestFile(matchingController.getClassPath());
+                              }
+                            });
+                  });
         });
-      });
-    });
   }
 }

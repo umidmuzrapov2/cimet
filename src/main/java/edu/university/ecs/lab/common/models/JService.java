@@ -7,12 +7,12 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-@Getter @Setter
+@Getter
+@Setter
 @AllArgsConstructor
 public class JService extends JClass {
-  public JService (@NonNull JClass jClass) {
+  public JService(@NonNull JClass jClass) {
     classPath = jClass.getClassPath();
     packageName = jClass.getPackageName();
     className = jClass.getClassName();

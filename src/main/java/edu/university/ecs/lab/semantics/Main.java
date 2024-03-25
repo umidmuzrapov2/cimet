@@ -5,7 +5,6 @@ import edu.university.ecs.lab.common.config.InputConfig;
 import edu.university.ecs.lab.semantics.models.Method;
 import edu.university.ecs.lab.semantics.models.RestCall;
 import edu.university.ecs.lab.semantics.services.*;
-import org.checkerframework.checker.units.qual.C;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.lib.Repository;
@@ -13,7 +12,6 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
 import java.io.File;
 import java.util.List;
-import java.util.Map;
 
 public class Main {
 
@@ -23,10 +21,10 @@ public class Main {
     SetupService.cloneRepositories(config);
 
     String s =
-            System.getProperty("user.dir")
-                    + File.separator
-                    + config.getClonePath()
-                    + "\\train-ticket-microservices";
+        System.getProperty("user.dir")
+            + File.separator
+            + config.getClonePath()
+            + "\\train-ticket-microservices";
     File file = new File(s);
 
     for (String childName : file.list()) {
@@ -45,57 +43,51 @@ public class Main {
     List<Pair<RestCall, Method>> list = DependencyService.getRawDependencies();
     System.out.println(DependencyService.getDependenciesList(list));
 
-//  }
-//}
+    //  }
+    // }
 
-
-
-//    String s = System.getProperty("user.dir")
-//            + File.separator
-//            + config.getClonePath()
-//            + "\\train-ticket-microservices";
-
+    //    String s = System.getProperty("user.dir")
+    //            + File.separator
+    //            + config.getClonePath()
+    //            + "\\train-ticket-microservices";
 
     // Get the local repository
     File localRepoDir = new File(s);
-    Repository localRepo = new FileRepositoryBuilder().setGitDir(new File(localRepoDir, ".git")).build();
+    Repository localRepo =
+        new FileRepositoryBuilder().setGitDir(new File(localRepoDir, ".git")).build();
 
-
-
-
-    List<String> changedFiles = SetupService.changes(localRepo, "82d85b7295169b55b56da9787afe72b9198b3106");
-
+    List<String> changedFiles =
+        SetupService.changes(localRepo, "82d85b7295169b55b56da9787afe72b9198b3106");
 
     // Set it to second commit (the next commit) so we can actually visit new content
     try (Git git = new Git(localRepo)) {
       git.reset()
-              .setMode(ResetCommand.ResetType.HARD)
-              .setRef("82d85b7295169b55b56da9787afe72b9198b3106")
-              .call();
+          .setMode(ResetCommand.ResetType.HARD)
+          .setRef("82d85b7295169b55b56da9787afe72b9198b3106")
+          .call();
 
     } catch (Exception e) {
       e.printStackTrace();
-
     }
 
     // Load cache
-//    CachingService cachingService = new CachingService();
-//    cachingService.loadCache();
-
+    //    CachingService cachingService = new CachingService();
+    //    cachingService.loadCache();
 
     // Update cache
 
-
     // Loop through the cache, remove instances of
-    for(String fname : changedFiles) {
-        if(fname.endsWith(".java")) {
-          VisitorService visitorService = new VisitorService(fname.substring(0, fname.indexOf('/')), new File(s + fname.substring(0, fname.indexOf('/'))));
-          cachingService.clearCacheOfFile(s + "\\" + fname.replace('/', '\\'));
-          visitorService.processUpdate(new File(s + "\\" + fname.replace('/', '\\')));
-        }
-
+    for (String fname : changedFiles) {
+      if (fname.endsWith(".java")) {
+        VisitorService visitorService =
+            new VisitorService(
+                fname.substring(0, fname.indexOf('/')),
+                new File(s + fname.substring(0, fname.indexOf('/'))));
+        cachingService.clearCacheOfFile(s + "\\" + fname.replace('/', '\\'));
+        visitorService.processUpdate(new File(s + "\\" + fname.replace('/', '\\')));
+      }
     }
-//    flowService.buildFlows();
+    //    flowService.buildFlows();
     List<Pair<RestCall, Method>> list2 = DependencyService.getRawDependencies();
     System.out.println(DependencyService.getDependenciesList(list2));
 
@@ -106,7 +98,7 @@ public class Main {
     System.out.println(DependencyService.getDependenciesMap(list2));
 
     System.out.println("NEW");
-    DependencyService.compareTwoMaps(DependencyService.getDependenciesMap(list), DependencyService.getDependenciesMap(list2));
-
+    DependencyService.compareTwoMaps(
+        DependencyService.getDependenciesMap(list), DependencyService.getDependenciesMap(list2));
   }
 }

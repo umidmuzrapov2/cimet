@@ -5,7 +5,6 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.expr.*;
-import edu.university.ecs.lab.common.models.enums.ClassRole;
 import edu.university.ecs.lab.intermediate.create.utils.StringParserUtils;
 import edu.university.ecs.lab.common.models.*;
 
@@ -15,10 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Static utility class for parsing a file and returning
- * associated models from code structure.
- */
+/** Static utility class for parsing a file and returning associated models from code structure. */
 public class ParserUtils {
 
   public static JController parseController(File sourceFile) throws IOException {
@@ -65,7 +61,7 @@ public class ParserUtils {
     jClass.setClassName(sourceFile.getName().replace(".java", ""));
     jClass.setPackageName(packageName);
 
-    //jClass.setRole(role);
+    // jClass.setRole(role);
 
     jClass.setMethods(parseMethods(cu));
     jClass.setFields(parseFields(sourceFile));
@@ -171,7 +167,8 @@ public class ParserUtils {
     return method;
   }
 
-  public static void parseMethodCalls(File sourceFile, List<MethodCall> methodCalls, List<RestCall> restCalls) throws IOException {
+  public static void parseMethodCalls(
+      File sourceFile, List<MethodCall> methodCalls, List<RestCall> restCalls) throws IOException {
     CompilationUnit cu = StaticJavaParser.parse(sourceFile);
 
     // loop through class declarations
@@ -191,8 +188,9 @@ public class ParserUtils {
           String calledServiceName = getCalledServiceName(scope);
 
           // Are we a rest call
-          if (!Objects.isNull(restCall) && Objects.nonNull(calledServiceName)
-                  && calledServiceName.equals("restTemplate")) {
+          if (!Objects.isNull(restCall)
+              && Objects.nonNull(calledServiceName)
+              && calledServiceName.equals("restTemplate")) {
             // get http methods for exchange method
             if (restCall.getMethodName().equals("exchange")) {
               restCall.setHttpMethod(getHttpMethodForExchange(mce.getArguments().toString()));
@@ -246,7 +244,7 @@ public class ParserUtils {
 
     if (ae.isSingleMemberAnnotationExpr()) {
       return StringParserUtils.removeOuterQuotations(
-              ae.asSingleMemberAnnotationExpr().getMemberValue().toString());
+          ae.asSingleMemberAnnotationExpr().getMemberValue().toString());
     }
 
     if (ae.isNormalAnnotationExpr() && ae.asNormalAnnotationExpr().getPairs().size() > 0) {
@@ -262,7 +260,7 @@ public class ParserUtils {
 
   private static String getCalledServiceName(Expression scope) {
     String calledServiceID = null;
-    if(Objects.nonNull(scope) && scope instanceof NameExpr) {
+    if (Objects.nonNull(scope) && scope instanceof NameExpr) {
       NameExpr fae = scope.asNameExpr();
       calledServiceID = fae.getNameAsString();
     }
@@ -374,5 +372,4 @@ public class ParserUtils {
       return "GET"; // default
     }
   }
-
 }

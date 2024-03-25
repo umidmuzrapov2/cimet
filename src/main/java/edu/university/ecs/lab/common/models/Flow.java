@@ -5,11 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-
-/**
- * Represents a flow from controller level
- * down to DAO.
- */
+/** Represents a flow from controller level down to DAO. */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -26,5 +22,4 @@ public class Flow {
   private Field serviceRepositoryField;
   private JClass repository;
   private Method repositoryMethod;
-
 }

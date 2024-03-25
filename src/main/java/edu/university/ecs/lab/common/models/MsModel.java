@@ -1,16 +1,13 @@
 package edu.university.ecs.lab.common.models;
 
 import com.google.gson.annotations.SerializedName;
-import edu.university.ecs.lab.common.models.enums.ClassRole;
 import lombok.Data;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
- * Represents the overarching structure of a
- * microservice system. It is composed of classes
- * which hold all information in that class.
+ * Represents the overarching structure of a microservice system. It is composed of classes which
+ * hold all information in that class.
  */
 @Data
 public class MsModel {
@@ -25,6 +22,7 @@ public class MsModel {
 
   /** List of classes */
   private List<JController> controllers;
+
   private List<JService> services;
   private List<JClass> dtos;
   private List<JClass> repositories;
