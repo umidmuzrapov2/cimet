@@ -1,8 +1,8 @@
-package edu.university.ecs.lab.intermediate.merger.utils;
+package edu.university.ecs.lab.intermediate.merge.utils;
 
 import com.google.gson.Gson;
-import edu.university.ecs.lab.intermediate.merger.models.Delta;
-import edu.university.ecs.lab.intermediate.merger.models.MsSystem;
+import edu.university.ecs.lab.intermediate.merge.models.Delta;
+import edu.university.ecs.lab.intermediate.merge.models.MsSystem;
 
 import java.io.FileReader;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package edu.university.ecs.lab.rest.calls.services;
+package edu.university.ecs.lab.intermediate.create.services;
 
 import edu.university.ecs.lab.common.config.InputRepository;
 import lombok.AllArgsConstructor;

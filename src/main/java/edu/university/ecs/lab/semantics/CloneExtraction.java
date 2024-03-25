@@ -1,5 +1,5 @@
-//package edu.university.ecs.lab.codeclones;
-//
+package edu.university.ecs.lab.semantics;
+
 //import edu.university.ecs.lab.common.config.ConfigUtil;
 //import edu.university.ecs.lab.common.config.InputConfig;
 //import edu.university.ecs.lab.common.config.InputRepository;
@@ -7,8 +7,8 @@
 //import edu.university.ecs.lab.common.utils.MsFileUtils;
 //import edu.university.ecs.lab.common.writers.MsJsonWriter;
 //import edu.university.ecs.lab.rest.calls.models.MsModel;
-//import edu.university.ecs.lab.rest.calls.services.GitCloneService;
-//import edu.university.ecs.lab.rest.calls.services.RestModelService;
+//import edu.university.ecs.lab.intermediate.create.services.GitCloneService;
+//import edu.university.ecs.lab.intermediate.create.services.RestModelService;
 //import edu.university.ecs.lab.semantics.models.CodeClone;
 //import edu.university.ecs.lab.semantics.services.*;
 //
@@ -18,7 +18,9 @@
 //import java.util.*;
 //import java.util.stream.Collectors;
 //
-//public class CloneExtraction {
+
+@Deprecated
+public class CloneExtraction {
 //
 //  /** Exit code: error writing IR to json */
 //  private static final int BAD_IR_WRITE = 3;
@@ -252,4 +254,4 @@
 //
 //    return clonesMap;
 //  }
-//}
+}

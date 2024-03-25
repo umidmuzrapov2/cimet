@@ -1,12 +1,12 @@
-package edu.university.ecs.lab.intermediate.merger;
+package edu.university.ecs.lab.intermediate.merge;
 
 import edu.university.ecs.lab.common.models.MsModel;
 import edu.university.ecs.lab.common.utils.MsFileUtils;
 import edu.university.ecs.lab.common.writers.MsJsonWriter;
-import edu.university.ecs.lab.intermediate.merger.models.Delta;
-import edu.university.ecs.lab.intermediate.merger.models.MsSystem;
-import edu.university.ecs.lab.intermediate.merger.services.MergeService;
-import edu.university.ecs.lab.intermediate.merger.utils.IRParserUtils;
+import edu.university.ecs.lab.intermediate.merge.models.Delta;
+import edu.university.ecs.lab.intermediate.merge.models.MsSystem;
+import edu.university.ecs.lab.intermediate.merge.services.MergeService;
+import edu.university.ecs.lab.intermediate.merge.utils.IRParserUtils;
 
 import javax.json.JsonObject;
 import java.io.File;

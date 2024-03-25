@@ -3,10 +3,11 @@ package edu.university.ecs.lab.deltas.utils;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.stmt.Statement;
 import edu.university.ecs.lab.common.models.JClass;
-import edu.university.ecs.lab.common.models.enums.ClassRole;
+import edu.university.ecs.lab.common.models.JController;
+import edu.university.ecs.lab.common.models.JService;
 import edu.university.ecs.lab.common.utils.MsFileUtils;
 import edu.university.ecs.lab.deltas.models.ChangeInformation;
-import edu.university.ecs.lab.rest.calls.services.RestModelService;
+import edu.university.ecs.lab.intermediate.create.services.RestModelService;
 import org.eclipse.jgit.diff.DiffEntry;
 
 import javax.json.*;
@@ -63,20 +64,19 @@ public class DeltaComparisonUtils {
 
     File localFile = new File(pathToLocal);
 
-    JClass jClass = RestModelService.scanFile(localFile);
+    List<JController> controllers = new ArrayList<>();
+    List<JService> services = new ArrayList<>();
+    List<JClass> dtos = new ArrayList<>();
+    List<JClass> repositories = new ArrayList<>();
+    List<JClass> entities = new ArrayList<>();
 
-    if(jClass.getRole() == ClassRole.CONTROLLER) {
-      jsonObjectBuilder.add("restControllers", MsFileUtils.buildRestControllers("", List.of(jClass)));
-    } else if(jClass.getRole() == ClassRole.SERVICE) {
-      jsonObjectBuilder.add("services", MsFileUtils.buildJavaClass(List.of(jClass)));
-      jsonObjectBuilder.add("restCalls", MsFileUtils.buildRestCalls(jClass.getRestCalls()));
-    } else if(jClass.getRole() == ClassRole.REPOSITORY) {
-      jsonObjectBuilder.add("repositories", MsFileUtils.buildJavaClass(List.of(jClass)));
-    } else if(jClass.getRole() == ClassRole.ENTITY) {
-      jsonObjectBuilder.add("entities", MsFileUtils.buildJavaClass(List.of(jClass)));
-    } else if(jClass.getRole() == ClassRole.DTO) {
-      jsonObjectBuilder.add("dtos", MsFileUtils.buildJavaClass(List.of(jClass)));
-    }
+    RestModelService.scanFile(localFile, controllers, services, dtos, repositories, entities);
+
+    jsonObjectBuilder.add("controllers", MsFileUtils.buildRestControllers("", controllers));
+    jsonObjectBuilder.add("services", MsFileUtils.buildRestServices(services));
+    jsonObjectBuilder.add("dtos", MsFileUtils.buildJavaClass(dtos));
+    jsonObjectBuilder.add("repositories", MsFileUtils.buildJavaClass(repositories));
+    jsonObjectBuilder.add("entities", MsFileUtils.buildJavaClass(entities));
 
     return jsonObjectBuilder.build();
   }

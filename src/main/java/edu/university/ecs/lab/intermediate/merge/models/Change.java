@@ -1,4 +1,4 @@
-package edu.university.ecs.lab.intermediate.merger.models;
+package edu.university.ecs.lab.intermediate.merge.models;
 
 import com.google.gson.annotations.SerializedName;
 import edu.university.ecs.lab.common.models.*;
@@ -12,21 +12,18 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 public class Change {
-  @SerializedName("restControllers")
-  private List<JClass> restControllers;
-
-  @SerializedName("restCalls")
-  private List<RestCall> restCalls;
+  @SerializedName("controllers")
+  private List<JClass> controllers;
 
   @SerializedName("services")
-  private List<JClass> restServices;
+  private List<JClass> services;
 
   @SerializedName("dtos")
   private List<JClass> restDTOs;
 
   @SerializedName("repositories")
-  private List<JClass> restRepositories;
+  private List<JClass> repositories;
 
   @SerializedName("entities")
-  private List<JClass> restEntities;
+  private List<JClass> entities;
 }

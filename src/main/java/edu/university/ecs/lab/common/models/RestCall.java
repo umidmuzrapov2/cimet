@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 public class RestCall extends MethodCall {
   /** The api url that is targeted in rest call */
-  private String url = "";
+  private String api = "";
 
   /**
    * The httpMethod of the api endpoint e.g. GET, POST, PUT see semantics.models.enums.httpMethod
@@ -49,6 +49,12 @@ public class RestCall extends MethodCall {
     setResponseTypeIndex(responseTypeIndex);
   }
 
+  public RestCall (MethodCall methodCall) {
+    methodName = methodCall.getMethodName();
+    calledFieldName = methodCall.getCalledFieldName();
+    parentMethod = methodCall.getParentMethod();
+  }
+
   public static RestCall findByName(String methodName) {
     for (RestCall template : restTemplates) {
       if (template.getMethodName().equals(methodName)) {
@@ -58,7 +64,7 @@ public class RestCall extends MethodCall {
     return null;
   }
 
-  public static RestCall getRestCallFromName(String methodName) {
+  public static RestCall findCallByName(String methodName) {
     switch(methodName){
       case "getForObject":
         return new RestCall("getForObject", HttpMethod.GET, 1);

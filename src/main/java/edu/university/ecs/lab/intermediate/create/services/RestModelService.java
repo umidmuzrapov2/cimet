@@ -1,5 +1,7 @@
-package edu.university.ecs.lab.rest.calls.services;
+package edu.university.ecs.lab.intermediate.create.services;
 
+import edu.university.ecs.lab.common.models.JController;
+import edu.university.ecs.lab.common.models.JService;
 import edu.university.ecs.lab.common.utils.ParserUtils;
 import edu.university.ecs.lab.common.models.JClass;
 import edu.university.ecs.lab.common.models.MsModel;
@@ -26,7 +28,11 @@ public class RestModelService {
     System.out.println("Scanning repository '" + repoPath + "'...");
     MsModel model = new MsModel();
 
-    List<JClass> jClasses = new ArrayList<>();
+    List<JController> controllers = new ArrayList<>();
+    List<JService> services = new ArrayList<>();
+    List<JClass> dtos = new ArrayList<>();
+    List<JClass> repositories = new ArrayList<>();
+    List<JClass> entities = new ArrayList<>();
 
     File localDir = new File(repoPath);
     if (!localDir.exists() || !localDir.isDirectory()) {
@@ -34,8 +40,13 @@ public class RestModelService {
       return null;
     }
 
-    scanDirectory(localDir, jClasses);
-    model.setClassList(jClasses);
+    scanDirectory(localDir, controllers, services, dtos, repositories, entities);
+
+    model.setControllers(controllers);
+    model.setServices(services);
+    model.setDtos(dtos);
+    model.setRepositories(repositories);
+    model.setEntities(entities);
 
     System.out.println("Done!");
     return model;
@@ -45,24 +56,17 @@ public class RestModelService {
    * Recursively scan the given directory for files and extract the endpoints and dependencies.
    *
    * @param directory the directory to scan
-   * @param restControllers the list of endpoints
-   * @param calls the list of calls to other services
    */
-  public static void scanDirectory(
-      File directory,
-      List<JClass> jClasses) {
+  public static void scanDirectory(File directory, List<JController> controllers, List<JService> services,
+                                   List<JClass> dtos, List<JClass> repositories, List<JClass> entities) {
     File[] files = directory.listFiles();
 
     if (files != null) {
       for (File file : files) {
         if (file.isDirectory()) {
-          scanDirectory(
-              file, jClasses);
+          scanDirectory(file, controllers, services, dtos, repositories, entities);
         } else if (file.getName().endsWith(".java")) {
-          JClass jClass = scanFile(file);
-          if(Objects.nonNull(jClass)) {
-            jClasses.add(jClass);
-          }
+          scanFile(file, controllers, services, dtos, repositories, entities);
         }
       }
     }
@@ -72,37 +76,41 @@ public class RestModelService {
    * Scan the given file for endpoints and calls to other services.
    *
    * @param file the file to scan
-   * @param restControllers the list of endpoints
-   * @param calls the list of calls to other services
    */
-  public static JClass scanFile(
-      File file) {
-    ClassRole role = null;
+  public static void scanFile(File file, List<JController> controllers, List<JService> services,
+                                List<JClass> dtos, List<JClass> repositories, List<JClass> entities) {
     try {
       if (file.getName().contains("Controller")) {
-        role = ClassRole.CONTROLLER;
-      } else if (file.getName().contains("ServiceImpl")) {
-        role = ClassRole.SERVICE;
+        JController controller = ParserUtils.parseController(file);
+        if (Objects.nonNull(controller)) {
+          controllers.add(controller);
+        }
+      } else if (file.getName().contains("Service")) {
+        JService jService = ParserUtils.parseService(file);
+        if (Objects.nonNull(jService)) {
+          services.add(jService);
+        }
       } else if (file.getName().toLowerCase().contains("dto")) {
-        role = ClassRole.DTO;
-      } else if (file.getName().contains("Repository")) {
-        role = ClassRole.REPOSITORY;
-      } else if (file.getParent().toLowerCase().contains("entity")
-          || file.getParent().toLowerCase().contains("model")) {
-        role = ClassRole.ENTITY;
-      }
-      if(role != null) {
-        JClass jClass = ParserUtils.parseClass(file, role);
+        JClass jClass = ParserUtils.parseClass(file);
         if (Objects.nonNull(jClass)) {
-          return jClass;
+          dtos.add(jClass);
+        }
+      } else if (file.getName().contains("Repository")) {
+        JClass jClass = ParserUtils.parseClass(file);
+        if (Objects.nonNull(jClass)) {
+          repositories.add(jClass);
+        }
+      } else if (file.getParent().toLowerCase().contains("entity")
+              || file.getParent().toLowerCase().contains("model")) {
+        JClass jClass = ParserUtils.parseClass(file);
+        if (Objects.nonNull(jClass)) {
+          entities.add(jClass);
         }
       }
 
-
       // todo: configs? utils? (everything else? -_-)
     } catch (IOException e) {
-      System.err.println("Could not extract endpoints from file: " + file.getName());
+      System.err.println("Could not parse file: " + e.getMessage());
     }
-    return null;
   }
 }

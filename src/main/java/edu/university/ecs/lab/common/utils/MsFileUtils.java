@@ -51,15 +51,15 @@ public class MsFileUtils {
 
       msObjectBuilder.add(
           "controllers",
-          buildRestControllers(msName, microservice.getValue().getClassesByRoles(ClassRole.CONTROLLER)));
+          buildRestControllers(msName, microservice.getValue().getControllers()));
 
-      msObjectBuilder.add("restCalls", buildRestCalls(microservice.getValue().getAllRestCalls()));
+      //msObjectBuilder.add("restCalls", buildRestCalls(microservice.getValue().getAllRestCalls()));
 
-      msObjectBuilder.add("services", buildJavaClass(microservice.getValue().getClassesByRoles(ClassRole.SERVICE)));
-      msObjectBuilder.add("dtos", buildJavaClass(microservice.getValue().getClassesByRoles(ClassRole.DTO)));
+      msObjectBuilder.add("services", buildRestServices(microservice.getValue().getServices()));
+      msObjectBuilder.add("dtos", buildJavaClass(microservice.getValue().getDtos()));
       msObjectBuilder.add(
-          "repositories", buildJavaClass(microservice.getValue().getClassesByRoles(ClassRole.REPOSITORY)));
-      msObjectBuilder.add("entities", buildJavaClass(microservice.getValue().getClassesByRoles(ClassRole.ENTITY)));
+          "repositories", buildJavaClass(microservice.getValue().getRepositories()));
+      msObjectBuilder.add("entities", buildJavaClass(microservice.getValue().getEntities()));
 
       jsonArrayBuilder.add(msObjectBuilder.build());
     }
@@ -75,20 +75,20 @@ public class MsFileUtils {
    * @return rest endpoint json list
    */
   public static JsonArray buildRestControllers(
-      String msName, List<JClass> controllers) {
+      String msName, List<JController> controllers) {
     JsonArrayBuilder controllerArrayBuilder = Json.createArrayBuilder();
 
-    for (JClass controller : controllers) {
+    for (JController controller : controllers) {
       JsonObjectBuilder controllerBuilder = Json.createObjectBuilder();
       controllerBuilder.add("className", controller.getClassName());
-      controllerBuilder.add("classPath", controller.getFileName().replaceAll("\\\\", "/"));
+      controllerBuilder.add("classPath", controller.getClassPath().replaceAll("\\\\", "/"));
       controllerBuilder.add("variables", buildFieldArray(controller.getFields()));
 
       JsonArrayBuilder endpointArrayBuilder = Json.createArrayBuilder();
 
       // Get "endpoint" methods in controller
-      for (Method endpoint : controller.getMethods().stream().filter(m -> m instanceof Endpoint).collect(Collectors.toList())) {
-        String id = ((Endpoint) endpoint).getHttpMethod()
+      for (Endpoint endpoint : controller.getEndpoints()) {
+        String id = endpoint.getHttpMethod()
                 + ":"
                 + msName
                 + "."
@@ -99,12 +99,12 @@ public class MsFileUtils {
         JsonObjectBuilder endpointBuilder = Json.createObjectBuilder();
 
         endpointBuilder.add("id", id);
-        endpointBuilder.add("api", ((Endpoint) endpoint).getUrl());
-        endpointBuilder.add("type", ((Endpoint) endpoint).getDecorator());
-        endpointBuilder.add("httpMethod", ((Endpoint) endpoint).getHttpMethod());
+        endpointBuilder.add("api", endpoint.getUrl());
+        endpointBuilder.add("type", endpoint.getDecorator());
+        endpointBuilder.add("httpMethod", endpoint.getHttpMethod());
         endpointBuilder.add("methodName", endpoint.getMethodName());
-        endpointBuilder.add("arguments", endpoint.getParameterList());
-        endpointBuilder.add("return", endpoint.getReturnType());
+        endpointBuilder.add("parameter", endpoint.getParameterList());
+        endpointBuilder.add("returnType", endpoint.getReturnType());
 //        endpointBuilder.add(
 //            "method-variables", addVariableArray(restEndpoint.getMethodVariables()));
 
@@ -119,6 +119,34 @@ public class MsFileUtils {
   }
 
   /**
+   * Write the given service list to the given json list
+   *
+   * @param services list of service classes
+   * @return rest service json list
+   */
+  public static JsonArray buildRestServices(List<JService> services) {
+    JsonArrayBuilder serviceArrayBuilder = Json.createArrayBuilder();
+
+    for (JService service : services) {
+      JsonObjectBuilder serviceBuilder = Json.createObjectBuilder();
+      if (service.getClassName() == null) {
+        System.out.println("here");
+      }
+
+      serviceBuilder.add("className", service.getClassName());
+      serviceBuilder.add("classPath", service.getClassPath().replaceAll("\\\\", "/"));
+      serviceBuilder.add("restCalls", buildRestCalls(service.getRestCalls()));
+
+      serviceBuilder.add("variables", buildFieldArray(service.getFields()));
+      serviceBuilder.add("methods", buildMethodArray(service.getMethods()));
+
+      serviceArrayBuilder.add(serviceBuilder.build());
+    }
+
+    return serviceArrayBuilder.build();
+  }
+
+  /**
    * Write the given class list to the given json list
    *
    * @param classList list of generic java classes
@@ -130,7 +158,7 @@ public class MsFileUtils {
     for (JClass javaClass : classList) {
       JsonObjectBuilder dtoBuilder = Json.createObjectBuilder();
       dtoBuilder.add("className", javaClass.getClassName());
-      dtoBuilder.add("classPath", javaClass.getFileName().replaceAll("\\\\", "/"));
+      dtoBuilder.add("classPath", javaClass.getClassPath().replaceAll("\\\\", "/"));
       dtoBuilder.add("methods", buildMethodArray(javaClass.getMethods()));
       dtoBuilder.add("variables", buildFieldArray(javaClass.getFields()));
 
@@ -158,7 +186,7 @@ public class MsFileUtils {
         restCall.setDestFile("");
       }
 
-      restCallBuilder.add("api", restCall.getUrl());
+      restCallBuilder.add("api", restCall.getApi());
       restCallBuilder.add("source-file", restCall.getSourceFile().replaceAll("\\\\", "/"));
       restCallBuilder.add("call-dest", restCall.getDestFile().replaceAll("\\\\", "/"));
       restCallBuilder.add("call-method", restCall.getMethodName() + "()");

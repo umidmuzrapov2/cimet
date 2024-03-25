@@ -13,8 +13,8 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MethodCall {
-  private String methodName;
+  protected String methodName;
   // TODO Rename this? Represents if the called method object e.g. test.test()
-  private String calledFieldName;
-  private String parentMethod;
+  protected String calledFieldName;
+  protected String parentMethod;
 }

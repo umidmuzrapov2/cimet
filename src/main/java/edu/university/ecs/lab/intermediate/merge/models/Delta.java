@@ -1,4 +1,4 @@
-package edu.university.ecs.lab.intermediate.merger.models;
+package edu.university.ecs.lab.intermediate.merge.models;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;

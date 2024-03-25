@@ -1,6 +1,7 @@
 package edu.university.ecs.lab.common.models;
 
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.google.gson.annotations.SerializedName;
 import edu.university.ecs.lab.common.models.enums.ClassRole;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,19 +22,14 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @ToString
 public class JClass {
-  private String fileName;
-  private String packageName;
-  private String className;
-  private ClassRole role;
-  private List<Method> methods;
-  private List<Field> fields;
-  private List<MethodCall> methodCalls;
+  protected String className;
+  protected String classPath;
+  protected String packageName;
 
-  public List<Endpoint> getEndpoints() {
-    return getMethods().stream().filter(mc -> mc instanceof Endpoint).map(mc -> ((Endpoint) mc)).collect(Collectors.toList());
-  }
+  protected List<Method> methods;
 
-  public List<RestCall> getRestCalls() {
-    return getMethodCalls().stream().filter(mc -> mc instanceof RestCall).map(mc -> ((RestCall) mc)).collect(Collectors.toList());
-  }
+  @SerializedName("variables")
+  protected List<Field> fields;
+
+  protected List<MethodCall> methodCalls;
 }

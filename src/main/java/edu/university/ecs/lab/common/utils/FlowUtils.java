@@ -57,19 +57,21 @@ public class FlowUtils {
     }
 
 
-    private static Map<MsModel, List<JClass>> getAllModelControllers(Map<String, MsModel> msModelMap) {
-        Map<MsModel, List<JClass>> controllerMap = new HashMap<>();
+    private static Map<MsModel, List<JController>> getAllModelControllers(Map<String, MsModel> msModelMap) {
+        Map<MsModel, List<JController>> controllerMap = new HashMap<>();
+
         for (MsModel model : msModelMap.values()) {
-            controllerMap.put(model, model.getClassList().stream().filter(jClass -> jClass.getRole() == ClassRole.CONTROLLER).collect(Collectors.toList()));
+            controllerMap.put(model, model.getControllers());
         }
         return controllerMap;
     }
 
-    private static List<Flow> generateNewFlows(Map<MsModel, List<JClass>> controllerMap) {
+    private static List<Flow> generateNewFlows(Map<MsModel, List<JController>> controllerMap) {
         List<Flow> flows = new ArrayList<>();
         Flow f;
-        for(Map.Entry<MsModel, List<JClass>> controllerList : controllerMap.entrySet()) {
-            for(JClass controller : controllerList.getValue()) {
+
+        for (Map.Entry<MsModel, List<JController>> controllerList : controllerMap.entrySet()) {
+            for (JController controller : controllerList.getValue()) {
                 for (Endpoint endpoint : controller.getEndpoints()) {
                     f = new Flow();
                     f.setController(controller);
@@ -95,7 +97,7 @@ public class FlowUtils {
     }
 
     private static JClass findService(Flow flow) {
-        return flow.getModel().getClassList().stream()
+        return flow.getModel().getServices().stream()
                 .filter(jClass -> jClass.getClassName().equals(flow.getControllerServiceField().getFieldType()))
                 .findFirst().orElse(null);
     }
@@ -119,7 +121,7 @@ public class FlowUtils {
     }
 
     private static JClass findRepository(Flow flow) {
-        return flow.getModel().getClassList().stream()
+        return flow.getModel().getRepositories().stream()
                 .filter(jClass -> jClass.getClassName().equals(flow.getServiceRepositoryField().getFieldType()))
                 .findFirst().orElse(null);
     }

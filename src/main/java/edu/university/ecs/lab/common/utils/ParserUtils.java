@@ -6,7 +6,7 @@ import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.expr.*;
 import edu.university.ecs.lab.common.models.enums.ClassRole;
-import edu.university.ecs.lab.rest.calls.utils.StringParserUtils;
+import edu.university.ecs.lab.intermediate.create.utils.StringParserUtils;
 import edu.university.ecs.lab.common.models.*;
 
 import java.io.File;
@@ -21,92 +21,157 @@ import java.util.Objects;
  */
 public class ParserUtils {
 
-  public static List<Method> parseMethods(File sourceFile, String restMapping) throws IOException {
-    List<Method> methods = new ArrayList<>();
+  public static JController parseController(File sourceFile) throws IOException {
+    JClass jClass = parseClass(sourceFile);
+    if (Objects.isNull(jClass)) {
+      return null;
+    }
 
+    JController controller = new JController(jClass);
+    controller.setEndpoints(parseEndpoints(sourceFile));
+    return controller;
+  }
+
+  public static JService parseService(File sourceFile) throws IOException {
+    JClass jClass = parseClass(sourceFile);
+    if (Objects.isNull(jClass)) {
+      return null;
+    }
+
+    JService service = new JService(jClass);
+
+    List<MethodCall> methodCalls = new ArrayList<>();
+    List<RestCall> restCalls = new ArrayList<>();
+
+    parseMethodCalls(sourceFile, methodCalls, restCalls);
+
+    service.setMethodCalls(methodCalls);
+    service.setRestCalls(restCalls);
+
+    return service;
+  }
+
+  public static JClass parseClass(File sourceFile) throws IOException {
     CompilationUnit cu = StaticJavaParser.parse(sourceFile);
 
-    // loop through class declarations
-    for (ClassOrInterfaceDeclaration cid : cu.findAll(ClassOrInterfaceDeclaration.class)) {
-      // loop through methods
-      for (MethodDeclaration md : cid.findAll(MethodDeclaration.class)) {
-        Method method = new Method();
-        method.setMethodName(md.getNameAsString());
+    String packageName = StringParserUtils.findPackage(cu);
+    if (packageName == null) {
+      return null;
+    }
 
-        // Get params and returnType
-        NodeList<Parameter> parameterList = md.getParameters();
-        StringBuilder parameter = new StringBuilder();
-        if (parameterList.size() != 0) {
-          parameter = new StringBuilder("[");
+    JClass jClass = new JClass();
 
-          for (int i = 0; i < parameterList.size(); i++) {
-            parameter.append(parameterList.get(i).toString());
-            if (i != parameterList.size() - 1) {
-              parameter.append(", ");
-            } else {
-              parameter.append("]");
-            }
-          }
-        }
+    jClass.setClassPath(sourceFile.getCanonicalPath());
+    jClass.setClassName(sourceFile.getName().replace(".java", ""));
+    jClass.setPackageName(packageName);
 
-        method.setParameterList(parameter.toString());
-        method.setReturnType(md.getTypeAsString());
+    //jClass.setRole(role);
 
-        // TODO This isnt technically accurate but works for now
-        // If class passes a restMapping
-        if(!restMapping.isEmpty()) {
-          Endpoint endpoint = new Endpoint(method);
-          // loop through annotations
-          for (AnnotationExpr ae : md.getAnnotations()) {
-            endpoint.setUrl(StringParserUtils.mergePaths(restMapping, pathFromAnnotation(ae)));
-            endpoint.setDecorator(ae.getNameAsString());
+    jClass.setMethods(parseMethods(cu));
+    jClass.setFields(parseFields(sourceFile));
 
-            switch (ae.getNameAsString()) {
-              case "GetMapping":
-                endpoint.setHttpMethod("GET");
-                break;
-              case "PostMapping":
-                endpoint.setHttpMethod("POST");
-                break;
-              case "DeleteMapping":
-                endpoint.setHttpMethod("DELETE");
-                break;
-              case "PutMapping":
-                endpoint.setHttpMethod("PUT");
-                break;
-              case "RequestMapping":
-                if (ae.toString().contains("RequestMethod.POST")) {
-                  endpoint.setHttpMethod("POST");
-                } else if (ae.toString().contains("RequestMethod.DELETE")) {
-                  endpoint.setHttpMethod("DELETE");
-                } else if (ae.toString().contains("RequestMethod.PUT")) {
-                  endpoint.setHttpMethod("PUT");
-                } else {
-                  endpoint.setHttpMethod("GET");
-                }
-                break;
-            }
-          }
+    return jClass;
+  }
 
-          // TODO find cause of this
-          if(endpoint.getHttpMethod() == null) {
-            methods.add(method);
-          } else {
-            methods.add(endpoint);
-          }
-        } else {
-          methods.add(method);
-        }
+  public static List<Method> parseMethods(CompilationUnit cu) {
+    List<Method> methods = new ArrayList<>();
 
-      }
+    // loop through methods
+    for (MethodDeclaration md : cu.findAll(MethodDeclaration.class)) {
+      methods.add(parseMethod(md));
     }
 
     return methods;
   }
 
-  public static List<MethodCall> parseMethodCalls(File sourceFile, boolean isService) throws IOException {
-    List<MethodCall> methodCalls = new ArrayList<>();
+  public static List<Endpoint> parseEndpoints(File sourceFile) throws IOException {
+    List<Endpoint> endpoints = new ArrayList<>();
 
+    CompilationUnit cu = StaticJavaParser.parse(sourceFile);
+
+    for (ClassOrInterfaceDeclaration cid : cu.findAll(ClassOrInterfaceDeclaration.class)) {
+      AnnotationExpr aExpr = cid.getAnnotationByName("RequestMapping").orElse(null);
+
+      if (aExpr == null) {
+        return endpoints;
+      }
+
+      String classLevelPath = pathFromAnnotation(aExpr);
+
+      // loop through methods
+      for (MethodDeclaration md : cid.findAll(MethodDeclaration.class)) {
+        Endpoint endpoint = new Endpoint(parseMethod(md));
+
+        // loop through annotations
+        for (AnnotationExpr ae : md.getAnnotations()) {
+          endpoint.setUrl(StringParserUtils.mergePaths(classLevelPath, pathFromAnnotation(ae)));
+          endpoint.setDecorator(ae.getNameAsString());
+
+          switch (ae.getNameAsString()) {
+            case "GetMapping":
+              endpoint.setHttpMethod("GET");
+              break;
+            case "PostMapping":
+              endpoint.setHttpMethod("POST");
+              break;
+            case "DeleteMapping":
+              endpoint.setHttpMethod("DELETE");
+              break;
+            case "PutMapping":
+              endpoint.setHttpMethod("PUT");
+              break;
+            case "RequestMapping":
+              if (ae.toString().contains("RequestMethod.POST")) {
+                endpoint.setHttpMethod("POST");
+              } else if (ae.toString().contains("RequestMethod.DELETE")) {
+                endpoint.setHttpMethod("DELETE");
+              } else if (ae.toString().contains("RequestMethod.PUT")) {
+                endpoint.setHttpMethod("PUT");
+              } else {
+                endpoint.setHttpMethod("GET");
+              }
+              break;
+          }
+
+          if (endpoint.getHttpMethod() == null) {
+            continue;
+          }
+
+          endpoints.add(endpoint);
+        }
+      }
+    }
+
+    return endpoints;
+  }
+
+  public static Method parseMethod(MethodDeclaration md) {
+    Method method = new Method();
+    method.setMethodName(md.getNameAsString());
+
+    // Get params and returnType
+    NodeList<Parameter> parameterList = md.getParameters();
+    StringBuilder parameter = new StringBuilder();
+
+    if (parameterList.size() != 0) {
+      parameter = new StringBuilder("[");
+      for (int i = 0; i < parameterList.size(); i++) {
+        parameter.append(parameterList.get(i).toString());
+        if (i != parameterList.size() - 1) {
+          parameter.append(", ");
+        } else {
+          parameter.append("]");
+        }
+      }
+    }
+
+    method.setParameterList(parameter.toString());
+    method.setReturnType(md.getTypeAsString());
+
+    return method;
+  }
+
+  public static void parseMethodCalls(File sourceFile, List<MethodCall> methodCalls, List<RestCall> restCalls) throws IOException {
     CompilationUnit cu = StaticJavaParser.parse(sourceFile);
 
     // loop through class declarations
@@ -120,52 +185,44 @@ public class ParserUtils {
         for (MethodCallExpr mce : md.findAll(MethodCallExpr.class)) {
           MethodCall methodCall = new MethodCall();
           String methodName = mce.getNameAsString();
-
-          RestCall restCall = RestCall.getRestCallFromName(methodName);
-
           Expression scope = mce.getScope().orElse(null);
+
+          RestCall restCall = RestCall.findCallByName(methodName);
           String calledServiceName = getCalledServiceName(scope);
+
           // Are we a rest call
-          if (!Objects.isNull(restCall) && isService
-                  && Objects.nonNull(calledServiceName) && calledServiceName.equals("restTemplate")) {
-//            Expression scope = mce.getScope().orElse(null);
-
-            // match field access
-//            if (isRestTemplateScope(scope, cid)) {
-              // construct rest call
-
+          if (!Objects.isNull(restCall) && Objects.nonNull(calledServiceName)
+                  && calledServiceName.equals("restTemplate")) {
             // get http methods for exchange method
             if (restCall.getMethodName().equals("exchange")) {
               restCall.setHttpMethod(getHttpMethodForExchange(mce.getArguments().toString()));
             }
 
             // TODO find a more graceful way of handling/validating this can be passed up
-            if(parseURL(mce, cid).equals("")) {
+            if (parseURL(mce, cid).equals("")) {
               continue;
             }
-            restCall.setUrl(parseURL(mce, cid));
 
+            restCall.setApi(parseURL(mce, cid));
             restCall.setParentMethod(parentMethodName);
             restCall.setCalledFieldName(getCalledServiceName(scope));
+            restCall.setSourceFile(sourceFile.getCanonicalPath());
 
-            // add to list of restCall
-            methodCalls.add(restCall);
-            System.out.println(restCall);
-//            }
+            restCalls.add(restCall);
+            // System.out.println(restCall);
           } else if (Objects.nonNull(calledServiceName)) {
             methodCall.setParentMethod(parentMethodName);
             methodCall.setMethodName(methodName);
             methodCall.setCalledFieldName(getCalledServiceName(scope));
+
             methodCalls.add(methodCall);
           }
         }
       }
     }
-
-    return methodCalls;
   }
 
-  public static List<Field> parseFields(File sourceFile) throws IOException {
+  private static List<Field> parseFields(File sourceFile) throws IOException {
     List<Field> javaFields = new ArrayList<>();
 
     CompilationUnit cu = StaticJavaParser.parse(sourceFile);
@@ -180,46 +237,6 @@ public class ParserUtils {
     }
 
     return javaFields;
-  }
-
-  public static JClass parseClass(File sourceFile, ClassRole role) throws IOException {
-    CompilationUnit cu = StaticJavaParser.parse(sourceFile);
-
-    String packageName = StringParserUtils.findPackage(cu);
-    if (packageName == null) {
-      return null;
-    }
-
-
-    JClass jClass = null;
-    // Loop through class declarations
-    for (ClassOrInterfaceDeclaration cid : cu.findAll(ClassOrInterfaceDeclaration.class)) {
-      jClass = new JClass();
-      jClass.setFileName(sourceFile.getAbsolutePath());
-      jClass.setClassName(sourceFile.getName().replace(".java", ""));
-      jClass.setPackageName(packageName);
-      jClass.setRole(role);
-
-      if(role == ClassRole.CONTROLLER) {
-        AnnotationExpr aExpr = cid.getAnnotationByName("RequestMapping").orElse(null);
-
-        // TODO Verify this is appropriate way of handling this, why is this happening
-        if (aExpr == null) {
-          return null;
-        }
-
-        String classLevelPath = pathFromAnnotation(aExpr);
-        jClass.setMethods(parseMethods(sourceFile, classLevelPath));
-      } else {
-        jClass.setMethods(parseMethods(sourceFile, ""));
-      }
-      jClass.setMethodCalls(parseMethodCalls(sourceFile, (jClass.getRole() == ClassRole.SERVICE)));
-      jClass.setFields(parseFields(sourceFile));
-
-
-    }
-
-    return jClass;
   }
 
   private static String pathFromAnnotation(AnnotationExpr ae) {

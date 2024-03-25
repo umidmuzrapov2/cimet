@@ -1,5 +1,6 @@
 package edu.university.ecs.lab.common.models;
 
+import com.google.gson.annotations.SerializedName;
 import lombok.*;
 
 /**
@@ -13,7 +14,9 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 public class Endpoint extends Method {
+    @SerializedName("api")
     private String url;
+    @SerializedName("type")
     private String decorator;
     private String httpMethod;
     private String mapping;

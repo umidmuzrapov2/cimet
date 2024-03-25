@@ -1,17 +1,14 @@
-package edu.university.ecs.lab.rest.calls;
+package edu.university.ecs.lab.intermediate.create;
 
 import edu.university.ecs.lab.common.config.ConfigUtil;
 import edu.university.ecs.lab.common.config.InputConfig;
 import edu.university.ecs.lab.common.config.InputRepository;
-import edu.university.ecs.lab.common.models.Endpoint;
-import edu.university.ecs.lab.common.models.JClass;
-import edu.university.ecs.lab.common.models.RestCall;
+import edu.university.ecs.lab.common.models.*;
 import edu.university.ecs.lab.common.models.enums.ClassRole;
-import edu.university.ecs.lab.common.models.MsModel;
 import edu.university.ecs.lab.common.utils.MsFileUtils;
 import edu.university.ecs.lab.common.writers.MsJsonWriter;
-import edu.university.ecs.lab.rest.calls.services.GitCloneService;
-import edu.university.ecs.lab.rest.calls.services.RestModelService;
+import edu.university.ecs.lab.intermediate.create.services.GitCloneService;
+import edu.university.ecs.lab.intermediate.create.services.RestModelService;
 
 import javax.json.JsonObject;
 import java.io.File;
@@ -51,7 +48,7 @@ public class RestExtraction {
     assert msDataMap != null;
 
     // Scan through each endpoint to update rest call destinations
-    updateCallSourceAndDestinations(msDataMap);
+    extractCallDestinations(msDataMap);
 
     //  Write each service and endpoints to IR
     try {
@@ -153,31 +150,46 @@ public class RestExtraction {
     return msModelMap;
   }
 
-  private static void updateCallSourceAndDestinations(Map<String, MsModel> msModelMap) {
-    Map<JClass, List<Endpoint>> endPointMap = new HashMap<>();
-    ArrayList<RestCall> restCalls = new ArrayList<>();
-    for(MsModel model : msModelMap.values()) {
-      for(JClass jClass : model.getClassesByRoles(ClassRole.CONTROLLER, ClassRole.SERVICE)) {
-        if(jClass.getRole() == ClassRole.CONTROLLER) {
-          endPointMap.put(jClass, jClass.getEndpoints());
+  private static void extractCallDestinations(Map<String, MsModel> msModelMap) {
+    msModelMap.forEach((name, model) -> {
+      model.getServices().forEach(service -> {
+        service.getRestCalls().forEach(call -> {
+          String callUrl = call.getApi();
+          String httpMethod = call.getHttpMethod();
 
-        } else if (jClass.getRole() == ClassRole.SERVICE) {
-          restCalls.addAll(jClass.getRestCalls().stream().map(mc -> {
-            mc.setSourceFile(jClass.getFileName());
-            return mc;
-          }).collect(Collectors.toList()));
+          JController matchingController = null;
 
-        }
-      }
-    }
+          // iterate until either endpoint is found OR entire URL has been scanned
+          while (Objects.isNull(matchingController) && callUrl.contains("/")) {
+            final String tmpCallUrl = callUrl;
 
-    for(RestCall restCall : restCalls) {
-      for(Map.Entry<JClass, List<Endpoint>> entry : endPointMap.entrySet()) {
-        Endpoint endpoint = entry.getValue().stream().filter(e -> e.getUrl().equals(restCall.getUrl())).findFirst().orElse(null);
-        if(Objects.nonNull(endpoint)) {
-          restCall.setDestFile(entry.getKey().getFileName());
-        }
-      }
-    }
+            for (MsModel ms : msModelMap.values()) {
+              matchingController = ms.getControllers().stream().filter(controller ->
+                      controller.getEndpoints().stream().anyMatch(endpoint ->
+                              (endpoint.getUrl().contains(tmpCallUrl) || endpoint.getHttpMethod().contains(httpMethod))))
+                      .findFirst().orElse(null);
+
+              if (Objects.nonNull(matchingController)) {
+                break;
+              }
+            }
+
+            // Endpoint still not found? Try chopping off beginning of url by each '/'
+            if (Objects.isNull(matchingController)) {
+              callUrl = callUrl.substring(1);
+
+              int slashNdx = callUrl.indexOf("/");
+              if (slashNdx > 0) {
+                callUrl = callUrl.substring(slashNdx);
+              }
+            }
+          }
+
+          if (Objects.nonNull(matchingController)) {
+            call.setDestFile(matchingController.getClassPath());
+          }
+        });
+      });
+    });
   }
 }
