@@ -153,11 +153,15 @@ public class RestExtraction {
           // TODO Temp fix, an api dest cannot be in same micro-service
           if (sModel != cModel) {
             for (JService service : sModel.getServices()) {
-              service.getRestCalls().forEach(restCall -> {
-                if(controller.getEndpoints().stream().anyMatch(e -> e.getUrl().equals(restCall.getApi()))) {
-                  restCall.setDestFile(controller.getClassPath());
-                }
-              });
+              service
+                  .getRestCalls()
+                  .forEach(
+                      restCall -> {
+                        if (controller.getEndpoints().stream()
+                            .anyMatch(e -> e.getUrl().equals(restCall.getApi()))) {
+                          restCall.setDestFile(controller.getClassPath());
+                        }
+                      });
             }
           }
         }
