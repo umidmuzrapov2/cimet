@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-
 /** Represents a method declaration in Java. */
 @Data
 @AllArgsConstructor

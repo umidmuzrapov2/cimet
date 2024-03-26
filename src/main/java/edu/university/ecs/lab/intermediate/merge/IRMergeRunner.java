@@ -3,7 +3,6 @@ package edu.university.ecs.lab.intermediate.merge;
 import edu.university.ecs.lab.common.models.MsModel;
 import edu.university.ecs.lab.common.utils.MsFileUtils;
 import edu.university.ecs.lab.common.writers.MsJsonWriter;
-import edu.university.ecs.lab.intermediate.merge.models.Change;
 import edu.university.ecs.lab.intermediate.merge.models.Delta;
 import edu.university.ecs.lab.intermediate.merge.models.MsSystem;
 import edu.university.ecs.lab.intermediate.merge.services.MergeService;

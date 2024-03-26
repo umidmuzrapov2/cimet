@@ -1,7 +1,6 @@
 package edu.university.ecs.lab.metrics;
 
 import edu.university.ecs.lab.common.models.JClass;
-import edu.university.ecs.lab.common.models.JController;
 import edu.university.ecs.lab.common.models.MsModel;
 import edu.university.ecs.lab.intermediate.merge.models.Change;
 import edu.university.ecs.lab.intermediate.merge.models.Delta;
@@ -16,7 +15,7 @@ public class MetricsRunner {
   public static void main(String[] args) throws IOException {
     if (args.length < 2) {
       System.err.println(
-              "Invalid # of args, 2 expected: <path/to/old/intermediate-json>  <path/to/delta>");
+          "Invalid # of args, 2 expected: <path/to/old/intermediate-json>  <path/to/delta>");
       return;
     }
 
@@ -54,18 +53,21 @@ public class MetricsRunner {
       }
     }
 
-    System.out.println("% Changed: " + (
-            differences / systemMap.values().stream().mapToInt(MsModel::getModelSize).sum()
-    ));
+    System.out.println(
+        "% Changed: "
+            + (differences / systemMap.values().stream().mapToInt(MsModel::getModelSize).sum()));
   }
 
-  private static int findChange(List<? extends JClass> classList, List<? extends JClass> systemList) {
+  private static int findChange(
+      List<? extends JClass> classList, List<? extends JClass> systemList) {
     int numChanges = 0;
 
     for (JClass jClass : classList) {
-      JClass matchingClass = systemList.stream()
+      JClass matchingClass =
+          systemList.stream()
               .filter(c -> c.getClassName().equals(jClass.getClassName()))
-              .findFirst().orElse(null);
+              .findFirst()
+              .orElse(null);
 
       if (matchingClass == null) {
         continue;

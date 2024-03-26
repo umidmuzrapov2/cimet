@@ -34,6 +34,10 @@ public class MsModel {
   public MsModel() {}
 
   public int getModelSize() {
-    return controllers.size() + services.size() + dtos.size() + repositories.size() + entities.size();
+    return controllers.size()
+        + services.size()
+        + dtos.size()
+        + repositories.size()
+        + entities.size();
   }
 }

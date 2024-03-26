@@ -28,7 +28,7 @@ public class RestExtraction {
   private static final int BAD_IR_WRITE = 3;
 
   /** system property for user directory */
- // private static final String SYS_USER_DIR = "user.dir";
+  // private static final String SYS_USER_DIR = "user.dir";
 
   /**
    * Main method entry point to intermediate extraction

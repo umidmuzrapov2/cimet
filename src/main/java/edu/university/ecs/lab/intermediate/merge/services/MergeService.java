@@ -6,7 +6,6 @@ import edu.university.ecs.lab.intermediate.merge.models.Delta;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public class MergeService {
   public String incrementVersion(String version) {
@@ -98,7 +97,8 @@ public class MergeService {
     classList.removeIf(c -> c.getClassName().equals(className));
   }
 
-  private void findAndRemoveSubClasses(List<? extends JClass> changeList, List<? extends JClass> classList) {
+  private void findAndRemoveSubClasses(
+      List<? extends JClass> changeList, List<? extends JClass> classList) {
     for (JClass jClass : changeList) {
       findAndRemoveSubclass(jClass.getClassName(), classList);
     }
