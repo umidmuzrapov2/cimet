@@ -21,7 +21,7 @@ public class DeltaExtraction {
       Repository localRepo = deltaService.establishLocalEndpoint(path);
 
       // extract remote differences with local
-      List<DiffEntry> differences = deltaService.fetchRemoteDifferences(localRepo, "main");
+      List<DiffEntry> differences = deltaService.fetchRemoteDifferences(localRepo, "master");
 
       // process/write differences to delta output
       deltaService.processDifferences(path, localRepo, differences);
