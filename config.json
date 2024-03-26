@@ -1,5 +1,5 @@
 {
-  "clonePath": "./repos",
+  "clonePath": "/repos",
   "outputPath": "/out",
   "repositories": [
     {
