@@ -7,9 +7,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 /**
- * Represents an extension of a method call. A
- * rest call exists at the service level and
- * represents a call to an endpoint mapping.
+ * Represents an extension of a method call. A rest call exists at the service level and represents
+ * a call to an endpoint mapping.
  */
 @Data
 @AllArgsConstructor
@@ -25,22 +24,21 @@ public class RestCall extends MethodCall {
   private String httpMethod = "";
 
   /** Expected return type of the api call */
-//  private String returnType = "";
+  //  private String returnType = "";
 
   private int responseTypeIndex = -1;
 
   private String sourceFile = "";
   private String destFile = "";
 
-
   private static final RestCall[] restTemplates = {
-          new RestCall("getForObject", HttpMethod.GET, 1),
-          new RestCall("getForEntity", HttpMethod.GET, 1),
-          new RestCall("postForObject", HttpMethod.POST, 2),
-          new RestCall("postForEntity", HttpMethod.POST, 2),
-          new RestCall("put", HttpMethod.PUT, 1),
-          new RestCall("exchange", HttpMethod.GET, 3),
-          new RestCall("delete", HttpMethod.DELETE, 0), // TODO: delete doesn't work
+    new RestCall("getForObject", HttpMethod.GET, 1),
+    new RestCall("getForEntity", HttpMethod.GET, 1),
+    new RestCall("postForObject", HttpMethod.POST, 2),
+    new RestCall("postForEntity", HttpMethod.POST, 2),
+    new RestCall("put", HttpMethod.PUT, 1),
+    new RestCall("exchange", HttpMethod.GET, 3),
+    new RestCall("delete", HttpMethod.DELETE, 0), // TODO: delete doesn't work
   };
 
   public RestCall(String methodName, HttpMethod httpMethod, int responseTypeIndex) {
@@ -49,7 +47,7 @@ public class RestCall extends MethodCall {
     setResponseTypeIndex(responseTypeIndex);
   }
 
-  public RestCall (MethodCall methodCall) {
+  public RestCall(MethodCall methodCall) {
     methodName = methodCall.getMethodName();
     calledFieldName = methodCall.getCalledFieldName();
     parentMethod = methodCall.getParentMethod();
@@ -65,7 +63,7 @@ public class RestCall extends MethodCall {
   }
 
   public static RestCall findCallByName(String methodName) {
-    switch(methodName){
+    switch (methodName) {
       case "getForObject":
         return new RestCall("getForObject", HttpMethod.GET, 1);
       case "getForEntity":

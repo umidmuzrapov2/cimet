@@ -7,12 +7,12 @@ import lombok.NonNull;
 import lombok.Setter;
 
 import java.util.List;
-import java.util.Objects;
 
-@Getter @Setter
+@Getter
+@Setter
 @AllArgsConstructor
 public class JController extends JClass {
-  public JController (@NonNull JClass jClass) {
+  public JController(@NonNull JClass jClass) {
     classPath = jClass.getClassPath();
     packageName = jClass.getPackageName();
     className = jClass.getClassName();

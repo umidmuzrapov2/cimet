@@ -6,12 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import java.util.ArrayList;
-import java.util.List;
 
-/**
- * Represents a method declaration in Java.
- */
+/** Represents a method declaration in Java. */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -22,7 +18,8 @@ public class Method {
 
   @SerializedName("parameter")
   private String parameterList;
+
   private String returnType;
-//  private List<Annotation> annotations;
+  //  private List<Annotation> annotations;
 
 }

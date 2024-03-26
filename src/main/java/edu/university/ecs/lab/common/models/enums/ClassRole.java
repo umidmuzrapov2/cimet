@@ -7,5 +7,4 @@ public enum ClassRole {
   SERVICE_INTERFACE,
   ENTITY,
   DTO,
-
 }

@@ -5,7 +5,6 @@ import edu.university.ecs.lab.common.models.JService;
 import edu.university.ecs.lab.common.utils.ParserUtils;
 import edu.university.ecs.lab.common.models.JClass;
 import edu.university.ecs.lab.common.models.MsModel;
-import edu.university.ecs.lab.common.models.enums.ClassRole;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,8 +56,13 @@ public class RestModelService {
    *
    * @param directory the directory to scan
    */
-  public static void scanDirectory(File directory, List<JController> controllers, List<JService> services,
-                                   List<JClass> dtos, List<JClass> repositories, List<JClass> entities) {
+  public static void scanDirectory(
+      File directory,
+      List<JController> controllers,
+      List<JService> services,
+      List<JClass> dtos,
+      List<JClass> repositories,
+      List<JClass> entities) {
     File[] files = directory.listFiles();
 
     if (files != null) {
@@ -77,8 +81,13 @@ public class RestModelService {
    *
    * @param file the file to scan
    */
-  public static void scanFile(File file, List<JController> controllers, List<JService> services,
-                                List<JClass> dtos, List<JClass> repositories, List<JClass> entities) {
+  public static void scanFile(
+      File file,
+      List<JController> controllers,
+      List<JService> services,
+      List<JClass> dtos,
+      List<JClass> repositories,
+      List<JClass> entities) {
     try {
       if (file.getName().contains("Controller")) {
         JController controller = ParserUtils.parseController(file);
@@ -101,7 +110,7 @@ public class RestModelService {
           repositories.add(jClass);
         }
       } else if (file.getParent().toLowerCase().contains("entity")
-              || file.getParent().toLowerCase().contains("model")) {
+          || file.getParent().toLowerCase().contains("model")) {
         JClass jClass = ParserUtils.parseClass(file);
         if (Objects.nonNull(jClass)) {
           entities.add(jClass);

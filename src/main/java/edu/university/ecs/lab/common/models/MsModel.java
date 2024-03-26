@@ -7,9 +7,8 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * Represents the overarching structure of a
- * microservice system. It is composed of classes
- * which hold all information in that class.
+ * Represents the overarching structure of a microservice system. It is composed of classes which
+ * hold all information in that class.
  */
 @Data
 @AllArgsConstructor
@@ -25,6 +24,7 @@ public class MsModel {
 
   /** List of classes */
   private List<JController> controllers;
+
   private List<JService> services;
   private List<JClass> dtos;
   private List<JClass> repositories;

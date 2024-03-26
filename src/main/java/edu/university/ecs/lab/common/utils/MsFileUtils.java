@@ -1,7 +1,6 @@
 package edu.university.ecs.lab.common.utils;
 
 import edu.university.ecs.lab.common.models.*;
-import edu.university.ecs.lab.common.models.enums.ClassRole;
 import edu.university.ecs.lab.semantics.models.CodeClone;
 import edu.university.ecs.lab.semantics.models.Flow;
 
@@ -10,7 +9,6 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /** Utility class for handling microservice files. */
 public class MsFileUtils {
@@ -46,14 +44,14 @@ public class MsFileUtils {
 
       msObjectBuilder.add("id", microservice.getValue().getId().replaceAll("\\\\", "/"));
       msObjectBuilder.add("msName", msName);
-//      msObjectBuilder.add("msPath", microservice.getKey().replaceAll("\\\\", "/"));
+      //      msObjectBuilder.add("msPath", microservice.getKey().replaceAll("\\\\", "/"));
       msObjectBuilder.add("commitId", microservice.getValue().getCommit());
 
       msObjectBuilder.add(
-          "controllers",
-          buildRestControllers(msName, microservice.getValue().getControllers()));
+          "controllers", buildRestControllers(msName, microservice.getValue().getControllers()));
 
-      //msObjectBuilder.add("restCalls", buildRestCalls(microservice.getValue().getAllRestCalls()));
+      // msObjectBuilder.add("restCalls",
+      // buildRestCalls(microservice.getValue().getAllRestCalls()));
 
       msObjectBuilder.add("services", buildRestServices(microservice.getValue().getServices()));
       msObjectBuilder.add("dtos", buildJavaClass(microservice.getValue().getDtos()));
@@ -74,8 +72,7 @@ public class MsFileUtils {
    * @param msName microservice system name
    * @return rest endpoint json list
    */
-  public static JsonArray buildRestControllers(
-      String msName, List<JController> controllers) {
+  public static JsonArray buildRestControllers(String msName, List<JController> controllers) {
     JsonArrayBuilder controllerArrayBuilder = Json.createArrayBuilder();
 
     for (JController controller : controllers) {
@@ -88,7 +85,8 @@ public class MsFileUtils {
 
       // Get "endpoint" methods in controller
       for (Endpoint endpoint : controller.getEndpoints()) {
-        String id = endpoint.getHttpMethod()
+        String id =
+            endpoint.getHttpMethod()
                 + ":"
                 + msName
                 + "."
@@ -105,8 +103,8 @@ public class MsFileUtils {
         endpointBuilder.add("methodName", endpoint.getMethodName());
         endpointBuilder.add("parameter", endpoint.getParameterList());
         endpointBuilder.add("returnType", endpoint.getReturnType());
-//        endpointBuilder.add(
-//            "method-variables", addVariableArray(restEndpoint.getMethodVariables()));
+        //        endpointBuilder.add(
+        //            "method-variables", addVariableArray(restEndpoint.getMethodVariables()));
 
         endpointArrayBuilder.add(endpointBuilder.build());
       }
@@ -182,7 +180,7 @@ public class MsFileUtils {
       JsonObjectBuilder restCallBuilder = Json.createObjectBuilder();
 
       // TODO source this issue
-      if(restCall.getDestFile() == null) {
+      if (restCall.getDestFile() == null) {
         restCall.setDestFile("");
       }
 
@@ -190,7 +188,7 @@ public class MsFileUtils {
       restCallBuilder.add("source-file", restCall.getSourceFile().replaceAll("\\\\", "/"));
       restCallBuilder.add("call-dest", restCall.getDestFile().replaceAll("\\\\", "/"));
       restCallBuilder.add("call-method", restCall.getMethodName() + "()");
-//      restCallBuilder.add("call-class", restCall.getCallClass());
+      //      restCallBuilder.add("call-class", restCall.getCallClass());
       restCallBuilder.add("httpMethod", restCall.getHttpMethod());
 
       restCallArrayBuilder.add(restCallBuilder.build());
@@ -201,7 +199,7 @@ public class MsFileUtils {
 
   public static JsonArray buildMethodArray(List<Method> methodList) {
     // TODO find cause of this
-    if(methodList == null) {
+    if (methodList == null) {
       return JsonObject.EMPTY_JSON_ARRAY;
     }
     JsonArrayBuilder methodArrayBuilder = Json.createArrayBuilder();
@@ -221,7 +219,7 @@ public class MsFileUtils {
 
   public static JsonArray buildFieldArray(List<Field> fieldList) {
     // TODO find cause of this
-    if(fieldList == null) {
+    if (fieldList == null) {
       return JsonObject.EMPTY_JSON_ARRAY;
     }
 

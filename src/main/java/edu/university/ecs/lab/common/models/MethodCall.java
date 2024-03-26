@@ -5,9 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-/**
- * Represents a method call in Java.
- */
+/** Represents a method call in Java. */
 @Data
 @ToString
 @AllArgsConstructor
