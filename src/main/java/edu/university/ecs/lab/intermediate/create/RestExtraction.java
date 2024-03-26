@@ -28,7 +28,7 @@ public class RestExtraction {
   private static final int BAD_IR_WRITE = 3;
 
   /** system property for user directory */
-  private static final String SYS_USER_DIR = "user.dir";
+ // private static final String SYS_USER_DIR = "user.dir";
 
   /**
    * Main method entry point to intermediate extraction
@@ -66,8 +66,7 @@ public class RestExtraction {
   private static void writeToIntermediateRepresentation(
       InputConfig inputConfig, Map<String, MsModel> msEndpointsMap) throws IOException {
 
-    String outputPath =
-        System.getProperty(SYS_USER_DIR) + File.separator + inputConfig.getOutputPath();
+    String outputPath = inputConfig.getOutputPath();
 
     File outputDir = new File(outputPath);
 
@@ -107,8 +106,7 @@ public class RestExtraction {
     Map<String, MsModel> msModelMap = new HashMap<>();
 
     // Clone remote repositories
-    String clonePath =
-        System.getProperty(SYS_USER_DIR) + File.separator + inputConfig.getClonePath();
+    String clonePath = inputConfig.getClonePath();
 
     File cloneDir = new File(clonePath);
     if (!cloneDir.exists()) {
@@ -138,7 +136,7 @@ public class RestExtraction {
         assert model != null;
 
         model.setCommit(inputRepository.getBaseCommit());
-        model.setId(msPath.substring(msPath.lastIndexOf('/') + 1));
+        model.setId(msPath.substring(msPath.lastIndexOf(File.separator) + 1));
         model.setMsPath(msPath);
 
         msModelMap.put(path, model);

@@ -106,6 +106,7 @@ public class DeltaExtractionService {
       JsonObjectBuilder jout = Json.createObjectBuilder();
       jout.add("localPath", newPath);
       jout.add("changeType", entry.getChangeType().name());
+      jout.add("commitId", entry.getNewId().name());
       jout.add("changes", deltaChanges);
 
       outputBuilder.add(jout.build());
