@@ -204,7 +204,7 @@ public class ParserUtils {
             restCall.setApi(parseURL(mce, cid));
             restCall.setParentMethod(parentMethodName);
             restCall.setCalledFieldName(getCalledServiceName(scope));
-            restCall.setSourceFile(sourceFile.getCanonicalPath());
+            restCall.setSourceFile(sourceFile.getPath());
 
             restCalls.add(restCall);
             // System.out.println(restCall);

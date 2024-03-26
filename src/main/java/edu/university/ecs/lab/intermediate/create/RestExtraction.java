@@ -46,7 +46,7 @@ public class RestExtraction {
     assert msDataMap != null;
 
     // Scan through each endpoint to update rest call destinations
-    extractCallDestinations(msDataMap);
+    updateCallDestinations(msDataMap);
 
     //  Write each service and endpoints to IR
     try {
@@ -146,66 +146,22 @@ public class RestExtraction {
     return msModelMap;
   }
 
-  private static void extractCallDestinations(Map<String, MsModel> msModelMap) {
-    msModelMap.forEach(
-        (name, model) -> {
-          model
-              .getServices()
-              .forEach(
-                  service -> {
-                    service
-                        .getRestCalls()
-                        .forEach(
-                            call -> {
-                              String callUrl = call.getApi();
-                              String httpMethod = call.getHttpMethod();
-
-                              JController matchingController = null;
-
-                              // iterate until either endpoint is found OR entire URL has been
-                              // scanned
-                              while (Objects.isNull(matchingController) && callUrl.contains("/")) {
-                                final String tmpCallUrl = callUrl;
-
-                                for (MsModel ms : msModelMap.values()) {
-                                  matchingController =
-                                      ms.getControllers().stream()
-                                          .filter(
-                                              controller ->
-                                                  controller.getEndpoints().stream()
-                                                      .anyMatch(
-                                                          endpoint ->
-                                                              (endpoint
-                                                                      .getUrl()
-                                                                      .contains(tmpCallUrl)
-                                                                  || endpoint
-                                                                      .getHttpMethod()
-                                                                      .contains(httpMethod))))
-                                          .findFirst()
-                                          .orElse(null);
-
-                                  if (Objects.nonNull(matchingController)) {
-                                    break;
-                                  }
-                                }
-
-                                // Endpoint still not found? Try chopping off beginning of url by
-                                // each '/'
-                                if (Objects.isNull(matchingController)) {
-                                  callUrl = callUrl.substring(1);
-
-                                  int slashNdx = callUrl.indexOf("/");
-                                  if (slashNdx > 0) {
-                                    callUrl = callUrl.substring(slashNdx);
-                                  }
-                                }
-                              }
-
-                              if (Objects.nonNull(matchingController)) {
-                                call.setDestFile(matchingController.getClassPath());
-                              }
-                            });
-                  });
-        });
+  private static void updateCallDestinations(Map<String, MsModel> msModelMap) {
+    for (MsModel cModel : msModelMap.values()) {
+      for (JController controller : cModel.getControllers()) {
+        for (MsModel sModel : msModelMap.values()) {
+          // TODO Temp fix, an api dest cannot be in same micro-service
+          if (sModel != cModel) {
+            for (JService service : sModel.getServices()) {
+              service.getRestCalls().forEach(restCall -> {
+                if(controller.getEndpoints().stream().anyMatch(e -> e.getUrl().equals(restCall.getApi()))) {
+                  restCall.setDestFile(controller.getClassPath());
+                }
+              });
+            }
+          }
+        }
+      }
+    }
   }
 }
