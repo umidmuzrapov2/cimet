@@ -61,7 +61,7 @@ public class ParserUtils {
 
     JClass jClass = new JClass();
 
-    jClass.setClassPath(sourceFile.getCanonicalPath());
+    jClass.setClassPath(sourceFile.getPath());
     jClass.setClassName(sourceFile.getName().replace(".java", ""));
     jClass.setPackageName(packageName);
 

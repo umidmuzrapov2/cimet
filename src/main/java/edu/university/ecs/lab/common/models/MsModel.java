@@ -1,11 +1,10 @@
 package edu.university.ecs.lab.common.models;
 
 import com.google.gson.annotations.SerializedName;
-import edu.university.ecs.lab.common.models.enums.ClassRole;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Represents the overarching structure of a
@@ -13,6 +12,7 @@ import java.util.stream.Collectors;
  * which hold all information in that class.
  */
 @Data
+@AllArgsConstructor
 public class MsModel {
   @SerializedName("id")
   private String id;
@@ -32,4 +32,8 @@ public class MsModel {
 
   /** Default constructor, init lists as empty */
   public MsModel() {}
+
+  public int getModelSize() {
+    return controllers.size() + services.size() + dtos.size() + repositories.size() + entities.size();
+  }
 }

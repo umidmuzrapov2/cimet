@@ -11,6 +11,7 @@ import lombok.Setter;
 public class Delta {
   private String localPath;
   private String changeType;
+  private String commitId;
 
   @SerializedName("changes")
   private Change change;

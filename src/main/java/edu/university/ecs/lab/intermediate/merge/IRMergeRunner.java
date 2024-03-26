@@ -3,6 +3,7 @@ package edu.university.ecs.lab.intermediate.merge;
 import edu.university.ecs.lab.common.models.MsModel;
 import edu.university.ecs.lab.common.utils.MsFileUtils;
 import edu.university.ecs.lab.common.writers.MsJsonWriter;
+import edu.university.ecs.lab.intermediate.merge.models.Change;
 import edu.university.ecs.lab.intermediate.merge.models.Delta;
 import edu.university.ecs.lab.intermediate.merge.models.MsSystem;
 import edu.university.ecs.lab.intermediate.merge.services.MergeService;
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class IRMergeRunner {
 
@@ -33,38 +35,33 @@ public class IRMergeRunner {
     // iterate through delta changes
     for (Delta delta : deltas) {
       String localPath = delta.getLocalPath();
+      String msId;
+
+      int serviceNdx = localPath.indexOf("-service");
+
+      // todo: generalize better in the future
+      if (serviceNdx >= 0) {
+        msId = localPath.substring(0, serviceNdx + 8);
+        msId = msId.substring(msId.lastIndexOf("/") + 1);
+      } else {
+        msId = localPath;
+      }
 
       // check change type
       switch (delta.getChangeType()) {
         case "ADD":
-          MsModel addModel = mergeService.extractNewModel(localPath);
-
-          if (addModel == null) {
-            continue;
-          }
-
-          addModel.setId(localPath.substring(localPath.lastIndexOf('/') + 1));
-          addModel.setCommit(""); // TODO
-
-          msModelMap.put(localPath, addModel);
+          msModelMap.put(msId, mergeService.addFiles(msId, msModelMap, delta));
           break;
         case "DELETE":
-          // TODO: logic to scan for affected files
-          msModelMap.remove(localPath);
+          mergeService.removeFiles(msId, msModelMap, delta);
           break;
         case "MODIFY":
-          MsModel changeModel = mergeService.extractNewModel(localPath);
-
-          if (changeModel == null) {
-            // TODO: remove logic?
-            msModelMap.remove(localPath);
+          MsModel modifyModel = mergeService.modifyFiles(msId, msModelMap, delta);
+          if (Objects.isNull(modifyModel)) {
             continue;
           }
 
-          changeModel.setId(localPath.substring(localPath.lastIndexOf('/') + 1));
-          changeModel.setCommit(""); // TODO
-
-          msModelMap.put(localPath, changeModel);
+          msModelMap.put(msId, mergeService.modifyFiles(msId, msModelMap, delta));
           break;
         default:
           break;

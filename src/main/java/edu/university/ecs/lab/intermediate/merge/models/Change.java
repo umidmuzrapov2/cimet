@@ -13,13 +13,13 @@ import java.util.List;
 @AllArgsConstructor
 public class Change {
   @SerializedName("controllers")
-  private List<JClass> controllers;
+  private List<JController> controllers;
 
   @SerializedName("services")
-  private List<JClass> services;
+  private List<JService> services;
 
   @SerializedName("dtos")
-  private List<JClass> restDTOs;
+  private List<JClass> dtos;
 
   @SerializedName("repositories")
   private List<JClass> repositories;
