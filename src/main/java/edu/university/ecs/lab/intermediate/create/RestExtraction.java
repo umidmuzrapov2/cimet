@@ -81,7 +81,7 @@ public class RestExtraction {
 
 
     JsonObject jout =
-        MsFileUtils.constructJsonMsSystem("Default system", "0.0.1", msEndpointsMap);
+        MsFileUtils.constructJsonMsSystem("train-ticket-microservices", "0.0.1", msEndpointsMap);
 
     String outputName =
         outputPath
